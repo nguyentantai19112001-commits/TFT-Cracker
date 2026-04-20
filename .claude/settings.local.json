@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git rm *)",
+      "Bash(mkdir -p \"TFT-Companion/_unused_reference\")",
+      "Bash(mv \"_reference/TFT-OCR-BOT\" \"TFT-Companion/_unused_reference/TFT-OCR-BOT\")",
+      "Bash(rm -rf \"TFT-Companion/_unused_reference/TFT-OCR-BOT/.git\")",
+      "Bash(rmdir _reference)"
+    ]
+  }
+}

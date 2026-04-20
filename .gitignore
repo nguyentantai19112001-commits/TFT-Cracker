@@ -1,0 +1,10 @@
+*.pyc
+__pycache__/
+.venv/
+venv/
+*.log
+last_capture.png
+data/set_data.json
+db/*.sqlite
+db/*.db
+.env
