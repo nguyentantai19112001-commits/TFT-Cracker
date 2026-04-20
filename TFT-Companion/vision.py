@@ -8,12 +8,15 @@ from io import BytesIO
 from anthropic import Anthropic
 from PIL import Image
 
-MODEL = "claude-opus-4-7"
+MODEL = "claude-sonnet-4-6"
 PROMPT_VERSION = "v1"
 
-# Rough pricing ($/M tokens) — update if Anthropic changes rates.
-COST_INPUT_PER_MTOK = 15.0
-COST_OUTPUT_PER_MTOK = 75.0
+# Rough pricing ($/M tokens) for Sonnet 4.6 — update if Anthropic changes rates.
+# Opus 4.7 ($15 in / $75 out) costs ~5x more; we've measured $0.086/call on
+# a 1280px TFT screenshot. Sonnet gives comparable structured extraction for
+# ~$0.015/call, which is the economics we need for iteration.
+COST_INPUT_PER_MTOK = 3.0
+COST_OUTPUT_PER_MTOK = 15.0
 
 VISION_SYSTEM_PROMPT = """You are a Teamfight Tactics (TFT) screen reader.
 
