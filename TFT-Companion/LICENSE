@@ -1,0 +1,13 @@
+This project incorporates GPLv3-licensed code from jfd02/TFT-OCR-BOT and is
+therefore distributed under the GNU General Public License v3.0.
+
+Full GPLv3 text: https://www.gnu.org/licenses/gpl-3.0.txt
+
+A copy of the full license SHOULD be included in this directory before any
+public distribution. For current personal use, the canonical URL above is
+authoritative. To add the full text locally, download it from the URL above
+and save it to this file.
+
+See THIRD_PARTY_NOTICES.md for the list of incorporated third-party code.
+
+Copyright (C) 2026 nguye
