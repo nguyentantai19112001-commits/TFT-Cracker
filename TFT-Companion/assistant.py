@@ -1,7 +1,7 @@
 """TFT Companion — hotkey-driven live advisor.
 
 Runs the full pipeline on each hotkey press:
-    F9   → capture + extract + rules + scoring + Claude advisor
+    F9   → capture + extract + rules + scoring + Claude advisor (streamed)
     F10  → start a new game session (binds subsequent captures to it)
     F11  → end the current game session (prompt for final placement)
     ESC  → quit
@@ -12,7 +12,6 @@ Every call is logged to db/tftcoach.db. Inspect with:
 
 from __future__ import annotations
 
-import json
 import os
 import sys
 import time
@@ -39,30 +38,6 @@ def _banner(text: str, ch: str = "=") -> None:
     print(f"\n{ch * 3} {text} {ch * max(0, 70 - len(text))}")
 
 
-def _pretty_recommendation(rec: dict) -> None:
-    if not rec:
-        print("  (no recommendation)")
-        return
-    conf = rec.get("confidence", "?")
-    tempo = rec.get("tempo_read", "?")
-    print(f"  [{conf} confidence | tempo: {tempo}]")
-    print(f"  → {rec.get('one_liner', '')}")
-    print(f"\n  Why: {rec.get('reasoning', '')}")
-    cons = rec.get("considerations") or []
-    if cons:
-        print("\n  Also consider:")
-        for c in cons:
-            print(f"    - {c}")
-    warns = rec.get("warnings") or []
-    if warns:
-        print("\n  ⚠ Warnings:")
-        for w in warns:
-            print(f"    - {w}")
-    dq = rec.get("data_quality_note")
-    if dq:
-        print(f"\n  (data note: {dq})")
-
-
 def on_advise(client: Anthropic) -> None:
     t0 = time.time()
     print(f"\n[{time.strftime('%H:%M:%S')}] Capturing...")
@@ -70,11 +45,13 @@ def on_advise(client: Anthropic) -> None:
     game_id = session.current_game_id()
 
     _banner("1/4 extraction")
+    t_ext = time.time()
     state = build_state(png, client, game_id=game_id, trigger="hotkey")
     d = state.to_dict()
     print(f"  stage={d['stage']} gold={d['gold']} hp={d['hp']} lvl={d['level']} "
           f"xp={d['xp']} streak={d['streak']}  board={len(d['board'])} "
-          f"shop={len(d['shop'])} traits={len(d['active_traits'])}")
+          f"shop={len(d['shop'])} traits={len(d['active_traits'])}  "
+          f"({time.time()-t_ext:.1f}s)")
     if not state.sources.vision_ok:
         print(f"  Vision failed: {state.sources.vision_error}")
         return
@@ -91,17 +68,61 @@ def on_advise(client: Anthropic) -> None:
     print(f"  score={bs['score']}/100  conf={bs['confidence']}  "
           f"unknown={bs['unknown_units']}/{bs['total_units']} units")
 
-    _banner("4/4 advisor")
-    res = advisor.advise(d, fires, bs, client, capture_id=state.capture_id)
-    meta = res["__meta__"]
-    if not meta["parse_ok"]:
-        print(f"  FAILED: {meta['error']}")
+    _banner("4/4 advisor (streaming)")
+    t_adv = time.time()
+    header_shown = False
+    recommendation = None
+    meta = None
+    saw_reasoning = False
+
+    for evt, payload in advisor.advise_stream(
+        d, fires, bs, client, capture_id=state.capture_id
+    ):
+        if evt == "one_liner":
+            dt = time.time() - t_adv
+            print(f"  → {payload}   [first token in {dt:.1f}s]")
+            header_shown = True
+        elif evt == "reasoning":
+            print(f"\n  Why: {payload}")
+            saw_reasoning = True
+        elif evt == "final":
+            recommendation = payload.get("recommendation")
+            meta = payload.get("__meta__")
+            break
+
+    if not meta or not meta.get("parse_ok"):
+        err = meta.get("error") if meta else "unknown"
+        print(f"  FAILED: {err}")
         return
-    _pretty_recommendation(res["recommendation"])
+
+    rec = recommendation or {}
+    if not header_shown:
+        print(f"  → {rec.get('one_liner', '')}")
+    if not saw_reasoning and rec.get("reasoning"):
+        print(f"\n  Why: {rec['reasoning']}")
+
+    conf = rec.get("confidence", "?")
+    tempo = rec.get("tempo_read", "?")
+    action = rec.get("primary_action", "?")
+    print(f"\n  [{conf} confidence | tempo: {tempo} | action: {action}]")
+
+    cons = rec.get("considerations") or []
+    if cons:
+        print("\n  Also consider:")
+        for c in cons:
+            print(f"    - {c}")
+    warns = rec.get("warnings") or []
+    if warns:
+        print("\n  ! Warnings:")
+        for w in warns:
+            print(f"    - {w}")
+    dq = rec.get("data_quality_note")
+    if dq:
+        print(f"\n  (data note: {dq})")
 
     total_cost = (d["sources"]["vision_cost_usd"] or 0) + (meta["cost_usd"] or 0)
-    print(f"\n  [pipeline: {time.time()-t0:.1f}s  |  ${total_cost:.4f}  |  "
-          f"game_id={game_id}  capture_id={state.capture_id}]")
+    print(f"\n  [pipeline: {time.time()-t0:.1f}s  |  advisor wall: {time.time()-t_adv:.1f}s"
+          f"  |  ${total_cost:.4f}  |  game_id={game_id}  capture_id={state.capture_id}]")
     print(f"\nPress {HOTKEY_ADVISE.upper()} again, {HOTKEY_QUIT.upper()} to quit.")
 
 
@@ -134,7 +155,7 @@ def main() -> None:
     client = Anthropic(api_key=api_key)
 
     print("=" * 72)
-    print("  TFT COMPANION  —  Phase B1 advisor")
+    print("  TFT COMPANION  —  Phase B3 (streaming advisor)")
     print("=" * 72)
     print(f"  {HOTKEY_ADVISE.upper()}   advise on current state")
     print(f"  {HOTKEY_START.upper()}  start a game session")

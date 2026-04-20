@@ -8,3 +8,4 @@ data/set_data.json
 db/*.sqlite
 db/*.db
 .env
+_references/
