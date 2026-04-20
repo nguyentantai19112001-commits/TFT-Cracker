@@ -9,7 +9,7 @@ from anthropic import Anthropic
 from PIL import Image
 
 MODEL = "claude-sonnet-4-6"
-PROMPT_VERSION = "v1"
+PROMPT_VERSION = "v2"
 
 # Rough pricing ($/M tokens) for Sonnet 4.6 — update if Anthropic changes rates.
 # Opus 4.7 ($15 in / $75 out) costs ~5x more; we've measured $0.086/call on
@@ -53,7 +53,12 @@ Rules:
 - `star` is determined by the colored border on the champion portrait (bronze=1, silver=2, gold=3).
 - Item names must be the full in-game English name as it would appear in the item tooltip, not abbreviations.
 - Champion and trait names must be transcribed exactly as shown in the current set's UI, even if unfamiliar.
-- Output MUST be parseable by json.loads. No trailing commas, no comments, no markdown fences."""
+- Output MUST be parseable by json.loads. No trailing commas, no comments, no markdown fences.
+
+Entities to EXCLUDE from `board` and `bench`:
+- Little Legend avatars: the player-controlled pet that walks around the board during carousel/orb rounds or between rounds. Signals: a small non-humanoid creature model (not a champion portrait), a BLUE HP bar above it (champion units have GREEN HP bars), no item slots, no star-tier border. It may have a custom display name (e.g., "trick") — treat any entity with a blue HP bar or a non-champion model as a Little Legend and omit it.
+- Opponent champions: only list the player's own units. If multiple teams are visible on the board (combat or shared-map rounds), exclude anything that isn't clearly on the player's side.
+- Orbs, loot, and map decorations."""
 
 
 def capture_screen() -> bytes:

@@ -22,7 +22,7 @@ def _check(label: str, fn) -> bool:
 
 
 def main() -> int:
-    print("TFT Companion — import smoke test")
+    print("Augie — import smoke test")
     print("-" * 50)
     results = []
 

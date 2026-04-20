@@ -1,4 +1,4 @@
--- TFT Companion logging database schema.
+-- Augie logging database schema.
 -- Feeds the feedback loop and future ML training dataset.
 
 CREATE TABLE IF NOT EXISTS games (

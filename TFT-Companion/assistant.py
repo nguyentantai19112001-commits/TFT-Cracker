@@ -1,4 +1,4 @@
-"""TFT Companion — hotkey-driven live advisor.
+"""Augie — hotkey-driven live TFT advisor.
 
 Runs the full pipeline on each hotkey press:
     F9   → capture + extract + rules + scoring + Claude advisor (streamed)
@@ -155,7 +155,7 @@ def main() -> None:
     client = Anthropic(api_key=api_key)
 
     print("=" * 72)
-    print("  TFT COMPANION  —  Phase B3 (streaming advisor)")
+    print("  AUGIE  —  Phase B3 (streaming advisor)")
     print("=" * 72)
     print(f"  {HOTKEY_ADVISE.upper()}   advise on current state")
     print(f"  {HOTKEY_START.upper()}  start a game session")
