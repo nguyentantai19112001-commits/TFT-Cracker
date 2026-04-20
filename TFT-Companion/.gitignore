@@ -5,3 +5,20 @@ sessions/
 *.log
 .venv/
 venv/
+
+# Local game-state data
+captures/
+db/tftcoach.db
+db/tftcoach.db-journal
+
+# Large downloaded assets (re-fetchable via assets/fetch_images.py)
+assets/champions/
+assets/items/
+assets/augments/
+assets/traits/
+assets/manifest.json
+
+# Test artifacts
+calibration_crops/
+last_capture.png
+test_screenshot*.png

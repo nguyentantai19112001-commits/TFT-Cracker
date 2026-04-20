@@ -9,6 +9,11 @@ from anthropic import Anthropic
 from PIL import Image
 
 MODEL = "claude-opus-4-7"
+PROMPT_VERSION = "v1"
+
+# Rough pricing ($/M tokens) — update if Anthropic changes rates.
+COST_INPUT_PER_MTOK = 15.0
+COST_OUTPUT_PER_MTOK = 75.0
 
 VISION_SYSTEM_PROMPT = """You are a Teamfight Tactics (TFT) screen reader.
 
@@ -91,3 +96,44 @@ def parse_game_state(png_bytes: bytes, client: Anthropic) -> dict:
         raw = fence.group(1)
 
     return json.loads(raw)
+
+
+def parse_and_meter(png_bytes: bytes, client: Anthropic) -> dict:
+    """Same as parse_game_state but returns metadata for logging.
+
+    Returns dict with keys: parsed, raw_text, input_tokens, output_tokens,
+    cost_usd, model, prompt_version, parse_ok, error.
+    """
+    b64 = base64.standard_b64encode(png_bytes).decode("utf-8")
+    out = {
+        "parsed": None, "raw_text": None,
+        "input_tokens": None, "output_tokens": None, "cost_usd": None,
+        "model": MODEL, "prompt_version": PROMPT_VERSION,
+        "parse_ok": False, "error": None,
+    }
+    try:
+        resp = client.messages.create(
+            model=MODEL, max_tokens=2048, system=VISION_SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": [
+                {"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": b64}},
+                {"type": "text", "text": "Extract the game state from this TFT screenshot."},
+            ]}],
+        )
+        out["input_tokens"] = getattr(resp.usage, "input_tokens", None)
+        out["output_tokens"] = getattr(resp.usage, "output_tokens", None)
+        if out["input_tokens"] is not None and out["output_tokens"] is not None:
+            out["cost_usd"] = round(
+                out["input_tokens"] / 1_000_000 * COST_INPUT_PER_MTOK
+                + out["output_tokens"] / 1_000_000 * COST_OUTPUT_PER_MTOK,
+                4,
+            )
+        raw = resp.content[0].text.strip()
+        out["raw_text"] = raw
+        fence = re.match(r"^```(?:json)?\s*(.*?)\s*```$", raw, re.DOTALL)
+        if fence:
+            raw = fence.group(1)
+        out["parsed"] = json.loads(raw)
+        out["parse_ok"] = True
+    except Exception as e:
+        out["error"] = f"{type(e).__name__}: {e}"
+    return out
