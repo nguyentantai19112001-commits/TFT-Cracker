@@ -123,6 +123,10 @@ class Bindings:
             sublabel=f"{len(missing)} unit(s) still needed" if missing else "All core units on board",
         )
 
+    def on_reasoning(self, text: str) -> None:
+        """Streaming reasoning chunks during LLM generation — show as advisory hint."""
+        self._panel.apply_warning(text, visible=bool(text))
+
     def on_verdict_ready(self, one_liner: str) -> None:
         """Streaming one-liner arrives before final — show as warning hint."""
         self._panel.apply_warning(one_liner, visible=True)

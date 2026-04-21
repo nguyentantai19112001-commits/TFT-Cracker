@@ -40,8 +40,8 @@ if str(_ENGINE_DIR) not in sys.path:
 import keyboard
 from anthropic import Anthropic
 from dotenv import load_dotenv
-from PyQt6.QtCore import QObject, QThread, Qt, pyqtSignal, QVBoxLayout
-from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QObject, QThread, Qt, pyqtSignal
+from PyQt6.QtWidgets import QApplication, QVBoxLayout
 
 # v2 engine modules — imported from engine/ via sys.path priority above
 import advisor          # engine/advisor.py  (v2 Haiku narrator)
@@ -83,7 +83,7 @@ class PipelineWorker(QThread):
         stateExtracted(dict) → overlay.set_extracted(state_dict)
         compPlanReady(list)  → overlay.set_comp_plan(comps_dicts)
         verdictReady(str)    → overlay.set_verdict(one_liner)
-        reasoningReady(str)  → overlay.set_reasoning(text)
+        reasoningReady(str)  → bindings.on_reasoning(text)
         finalReady(dict, dict, float, float, object)
                              → overlay.set_final(rec, meta, wall_s, vcost, game_id)
         errorOccurred(str)   → overlay.set_error(msg)
@@ -177,10 +177,14 @@ class PipelineWorker(QThread):
                     self.reasoningReady.emit(payload)
                 elif evt == "final":
                     verdict       = payload.get("verdict")
-                    recommendation = payload.get("recommendation") or (
-                        verdict.model_dump() if verdict else {}
-                    )
                     meta          = payload.get("__meta__") or {}
+                    # Always prefer the parsed AdvisorVerdict; raw recommendation
+                    # from the LLM path has chosen_candidate_index (not the
+                    # resolved ActionCandidate object that the overlay needs).
+                    recommendation = (
+                        verdict.model_dump() if verdict
+                        else payload.get("recommendation") or {}
+                    )
                     break
 
             if not meta or not meta.get("parse_ok"):
@@ -236,6 +240,8 @@ class AppController(QObject):
             self.bindings.on_state_extracted, Qt.ConnectionType.QueuedConnection)
         w.compPlanReady.connect(
             self.bindings.on_comp_plan, Qt.ConnectionType.QueuedConnection)
+        w.reasoningReady.connect(
+            self.bindings.on_reasoning, Qt.ConnectionType.QueuedConnection)
         w.verdictReady.connect(
             self.bindings.on_verdict_ready, Qt.ConnectionType.QueuedConnection)
         w.finalReady.connect(
@@ -245,9 +251,6 @@ class AppController(QObject):
         w.finished.connect(w.deleteLater)
         self._worker = w
         w.start()
-
-    def _on_final(self, rec, meta, wall_s, vision_cost, game_id) -> None:
-        self.bindings.on_final(rec, meta, wall_s, vision_cost, game_id)
 
     def on_start(self) -> None:
         gid = session.start_game(queue_type="ranked")
