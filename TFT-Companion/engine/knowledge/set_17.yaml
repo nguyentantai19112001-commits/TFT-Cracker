@@ -1,0 +1,203 @@
+# set_17.yaml — Teamfight Tactics Set 17 "Space Gods"
+#
+# Sources (see research brief for full cites):
+# - Shop odds rows 1-10: tftactics.gg/db/rolling (explicitly Set 17 live)
+# - Row 11: MetaTFT / tftodds (canonical since Set 14, unchanged)
+# - Pool sizes: tftactics.gg rolling page header, verified vs Community Dragon
+# - Spike rounds: BunnyMuffins leveling guide Set 17, cross-checked with Mobalytics
+#
+# WHEN A NEW PATCH DROPS: re-pull numbers from tftactics.gg and tftodds.com. If Riot
+# publishes a shop-odds change, update here and nowhere else. Code reads from this file.
+
+set_id: "17"
+name: "Space Gods"
+patch: "17.1"
+released: "2026-04-15"
+
+# Shop odds: row = player level, values = [p_1cost, p_2cost, p_3cost, p_4cost, p_5cost]
+# in percent. Sum of each row must be 100.
+shop_odds:
+  1:  [100, 0, 0, 0, 0]
+  2:  [100, 0, 0, 0, 0]
+  3:  [75, 25, 0, 0, 0]
+  4:  [55, 30, 15, 0, 0]
+  5:  [45, 33, 20, 2, 0]
+  6:  [30, 40, 25, 5, 0]
+  7:  [19, 30, 40, 10, 1]
+  8:  [18, 25, 32, 22, 3]
+  9:  [10, 20, 25, 35, 10]
+  10: [5, 10, 20, 40, 25]
+  11: [1, 2, 12, 50, 35]
+
+# Champion pool sizes per cost tier, Set 17.
+# The pool is SHARED across all 8 lobby players — so "k remaining" for any specific
+# champion starts at `copies_per_champ` and decreases as the lobby buys/holds copies.
+pool_sizes:
+  1: {copies_per_champ: 22, distinct: 14}  # total tier pool 308
+  2: {copies_per_champ: 20, distinct: 13}  # total 260
+  3: {copies_per_champ: 17, distinct: 13}  # total 221
+  4: {copies_per_champ: 10, distinct: 13}  # total 130
+  5: {copies_per_champ: 9,  distinct: 9}   # total 81; 10 in catalog minus Zed gate
+
+# 5-cost unlockables — gated out of the pool until unlocked.
+# When gated, `distinct` for that tier is effectively reduced and `R_T` drops accordingly.
+# TODO: verify this list against Community Dragon on every patch.
+gated_units:
+  - {champion: "Zed", cost: 5, unlock_condition: "Invader Zed hero augment — Zed spawned on stage 4-2, then enters shop"}
+
+# Standard spike rounds for each archetype type.
+# Used by the SPIKE_ROUND_NEXT rule to surface timing advice.
+spike_rounds:
+  - {stage: "3-1", archetype: "1-cost reroll (pre-roll econ)"}
+  - {stage: "3-2", archetype: "2-cost reroll roll-down"}
+  - {stage: "3-5", archetype: "1-cost reroll full roll-down"}
+  - {stage: "4-1", archetype: "fast-8 prep + stabilize"}
+  - {stage: "4-2", archetype: "fast-8 roll-down"}
+  - {stage: "4-5", archetype: "3-cost reroll 3-star hunt"}
+  - {stage: "5-1", archetype: "fast-9 prep"}
+
+# Set 17 mechanic hooks — things the rules layer needs to know about.
+mechanic_hooks:
+  realm_of_the_gods:
+    trigger_stage: "4-7"
+    description: "One-time god-boon pick. Offers scale with HP / streak state."
+    gods:
+      - id: ahri
+        name: "Ahri"
+        profile: "flexible — mid-power pick; good neutral option when no clear bias"
+      - id: aurelion_sol
+        name: "Aurelion Sol"
+        profile: "AP scaling — best when running a heavy AP board with multiple casters"
+      - id: ekko
+        name: "Ekko"
+        profile: "tempo — aggressive pick; rewards fast-9 boards and strong stages"
+      - id: evelynn
+        name: "Evelynn"
+        profile: "flexible — cheap offer variant is defensive, aggressive variant is tempo"
+      - id: kayle
+        name: "Kayle"
+        profile: "item-scaling — best when you have a completed item to Radiant"
+      - id: soraka
+        name: "Soraka"
+        profile: "win-streak — offensive boon, amplifies strong boards"
+      - id: thresh
+        name: "Thresh"
+        profile: "stabilization — defensive frontline boon, good when low HP"
+      - id: varus
+        name: "Varus"
+        profile: "AD scaling — rewards AD carry boards with strong marksman core"
+      - id: yasuo
+        name: "Yasuo"
+        profile: "melee carry — best when running frontline-heavy or Challenger boards"
+
+# Champion list — sourced from game_assets.CHAMPIONS (authoritative for Set 17 patch 17.1).
+# Phase 0 loader cross-checks every archetype YAML champion name against this list.
+champions:
+  # 1-cost (14 distinct)
+  - {name: "Briar",         cost: 1}
+  - {name: "Poppy",         cost: 1}
+  - {name: "Veigar",        cost: 1}
+  - {name: "Aatrox",        cost: 1}
+  - {name: "Caitlyn",       cost: 1}
+  - {name: "Teemo",         cost: 1}
+  - {name: "Nasus",         cost: 1}
+  - {name: "Twisted Fate",  cost: 1}
+  - {name: "Talon",         cost: 1}
+  - {name: "Ezreal",        cost: 1}
+  - {name: "Leona",         cost: 1}
+  - {name: "Cho'Gath",      cost: 1}
+  - {name: "Lissandra",     cost: 1}
+  - {name: "Rek'Sai",       cost: 1}
+  # 2-cost (13 distinct)
+  - {name: "Bel'Veth",      cost: 2}
+  - {name: "Akali",         cost: 2}
+  - {name: "Jinx",          cost: 2}
+  - {name: "Gnar",          cost: 2}
+  - {name: "Pyke",          cost: 2}
+  - {name: "Gragas",        cost: 2}
+  - {name: "Gwen",          cost: 2}
+  - {name: "Jax",           cost: 2}
+  - {name: "Milio",         cost: 2}
+  - {name: "Zoe",           cost: 2}
+  - {name: "Meepsie",       cost: 2}
+  - {name: "Mordekaiser",   cost: 2}
+  - {name: "Pantheon",      cost: 2}
+  # 3-cost (13 distinct)
+  - {name: "Miss Fortune",  cost: 3}
+  - {name: "Illaoi",        cost: 3}
+  - {name: "Aurora",        cost: 3}
+  - {name: "Fizz",          cost: 3}
+  - {name: "Maokai",        cost: 3}
+  - {name: "Kai'Sa",        cost: 3}
+  - {name: "Urgot",         cost: 3}
+  - {name: "Viktor",        cost: 3}
+  - {name: "Samira",        cost: 3}
+  - {name: "Ornn",          cost: 3}
+  - {name: "Lulu",          cost: 3}
+  - {name: "Diana",         cost: 3}
+  - {name: "Rhaast",        cost: 3}
+  # 4-cost (13 distinct)
+  - {name: "Rammus",           cost: 4}
+  - {name: "Corki",            cost: 4}
+  - {name: "Kindred",          cost: 4}
+  - {name: "Karma",            cost: 4}
+  - {name: "Aurelion Sol",     cost: 4}
+  - {name: "The Mighty Mech",  cost: 4}
+  - {name: "Master Yi",        cost: 4}
+  - {name: "Nami",             cost: 4}
+  - {name: "Nunu & Willump",   cost: 4}
+  - {name: "Riven",            cost: 4}
+  - {name: "LeBlanc",          cost: 4}
+  - {name: "Xayah",            cost: 4}
+  - {name: "Tahm Kench",       cost: 4}
+  # 5-cost (10 in catalog; Zed is augment-gated, effective pool = 9 at game start)
+  - {name: "Bard",         cost: 5}
+  - {name: "Fiora",        cost: 5}
+  - {name: "Jhin",         cost: 5}
+  - {name: "Blitzcrank",   cost: 5}
+  - {name: "Sona",         cost: 5}
+  - {name: "Vex",          cost: 5}
+  - {name: "Shen",         cost: 5}
+  - {name: "Zed",          cost: 5}  # gated — see gated_units
+  - {name: "Graves",       cost: 5}
+  - {name: "Morgana",      cost: 5}
+
+# Trait list — sourced from game_assets.CHAMPIONS (35 traits).
+# Breakpoints (e.g. Dark Star 3/6/9) are NOT YET VERIFIED — fill from Community Dragon
+# or tactics.tools before Phase 4 scores archetypes against trait breakpoints.
+traits:
+  - {name: "Anima",          kind: "class",  breakpoints: []}  # loss-streak tech trait
+  - {name: "Arbiter",        kind: "class",  breakpoints: []}
+  - {name: "Bastion",        kind: "class",  breakpoints: []}
+  - {name: "Brawler",        kind: "class",  breakpoints: []}
+  - {name: "Bulwark",        kind: "class",  breakpoints: []}
+  - {name: "Challenger",     kind: "class",  breakpoints: []}
+  - {name: "Commander",      kind: "class",  breakpoints: []}
+  - {name: "Conduit",        kind: "class",  breakpoints: []}
+  - {name: "Dark Lady",      kind: "class",  breakpoints: []}
+  - {name: "Dark Star",      kind: "origin", breakpoints: []}
+  - {name: "Divine Duelist", kind: "class",  breakpoints: []}
+  - {name: "Doomer",         kind: "class",  breakpoints: []}
+  - {name: "Eradicator",     kind: "class",  breakpoints: []}
+  - {name: "Factory New",    kind: "origin", breakpoints: []}
+  - {name: "Fateweaver",     kind: "class",  breakpoints: []}
+  - {name: "Galaxy Hunter",  kind: "origin", breakpoints: []}
+  - {name: "Gun Goddess",    kind: "origin", breakpoints: []}
+  - {name: "Marauder",       kind: "class",  breakpoints: []}
+  - {name: "Mecha",          kind: "origin", breakpoints: []}
+  - {name: "Meeple",         kind: "origin", breakpoints: []}
+  - {name: "N.O.V.A.",       kind: "origin", breakpoints: []}
+  - {name: "Oracle",         kind: "class",  breakpoints: []}
+  - {name: "Party Animal",   kind: "origin", breakpoints: []}
+  - {name: "Primordian",     kind: "origin", breakpoints: []}
+  - {name: "Psionic",        kind: "class",  breakpoints: []}
+  - {name: "Redeemer",       kind: "class",  breakpoints: []}
+  - {name: "Replicator",     kind: "class",  breakpoints: []}
+  - {name: "Rogue",          kind: "class",  breakpoints: []}
+  - {name: "Shepherd",       kind: "class",  breakpoints: []}
+  - {name: "Sniper",         kind: "class",  breakpoints: []}
+  - {name: "Space Groove",   kind: "origin", breakpoints: []}
+  - {name: "Stargazer",      kind: "origin", breakpoints: []}
+  - {name: "Timebreaker",    kind: "class",  breakpoints: []}
+  - {name: "Vanguard",       kind: "class",  breakpoints: []}
+  - {name: "Voyager",        kind: "class",  breakpoints: []}

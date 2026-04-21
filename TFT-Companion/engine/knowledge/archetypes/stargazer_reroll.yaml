@@ -1,0 +1,33 @@
+archetype_id: stargazer_reroll
+display_name: "Stargazer Reroll"
+target_level: 7
+playstyle: reroll
+
+core_units:
+  - "Twisted Fate"
+  - "Talon"
+  - "Jax"
+  - "Lulu"
+
+optional_units:
+  - "Nunu & Willump"
+  - "Xayah"
+
+required_traits:
+  - [Stargazer, 4]
+
+ideal_items:
+  "Twisted Fate":
+    - "Blue Buff"
+    - "Jeweled Gauntlet"
+    - "Archangel's Staff"
+  "Talon":
+    - "Deathblade"
+    - "Edge of Night"
+    - "Hand of Justice"
+  "Jax":
+    - "Spear of Shojin"
+    - "Hand of Justice"
+    - "Bloodthirster"
+
+tier: "B"

@@ -1,0 +1,35 @@
+archetype_id: dark_star
+display_name: "Dark Star"
+target_level: 9
+playstyle: standard
+
+core_units:
+  - "Jhin"
+  - "Karma"
+  - "Kai'Sa"
+  - "Mordekaiser"
+  - "Cho'Gath"
+  - "Lissandra"
+
+optional_units:
+  - "Vex"
+  - "Morgana"
+
+required_traits:
+  - [Dark Star, 6]
+
+ideal_items:
+  "Jhin":
+    - "Giant Slayer"
+    - "Infinity Edge"
+    - "Last Whisper"
+  "Karma":
+    - "Archangel's Staff"
+    - "Jeweled Gauntlet"
+    - "Hextech Gunblade"
+  "Kai'Sa":
+    - "Guinsoo's Rageblade"
+    - "Runaan's Hurricane"
+    - "Bloodthirster"
+
+tier: "A"

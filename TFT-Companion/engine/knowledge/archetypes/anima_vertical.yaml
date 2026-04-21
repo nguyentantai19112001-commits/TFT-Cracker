@@ -1,0 +1,34 @@
+archetype_id: anima_vertical
+display_name: "Anima Vertical"
+target_level: 8
+playstyle: standard
+
+core_units:
+  - "Fiora"
+  - "Illaoi"
+  - "Aurora"
+  - "Jinx"
+  - "Briar"
+
+optional_units:
+  - "Rammus"
+  - "Shen"
+
+required_traits:
+  - [Anima, 4]
+
+ideal_items:
+  "Fiora":
+    - "Deathblade"
+    - "Bloodthirster"
+    - "Hand of Justice"
+  "Jinx":
+    - "Guinsoo's Rageblade"
+    - "Runaan's Hurricane"
+    - "Giant Slayer"
+  "Illaoi":
+    - "Warmog's Armor"
+    - "Sunfire Cape"
+    - "Gargoyle Stoneplate"
+
+tier: "B"

@@ -1,0 +1,34 @@
+archetype_id: challenger_reroll
+display_name: "Challenger Reroll"
+target_level: 7
+playstyle: reroll
+
+core_units:
+  - "Jinx"
+  - "Akali"
+  - "Bel'Veth"
+  - "Diana"
+
+optional_units:
+  - "Kindred"
+  - "Gwen"
+  - "Talon"
+
+required_traits:
+  - [Challenger, 4]
+
+ideal_items:
+  "Jinx":
+    - "Guinsoo's Rageblade"
+    - "Runaan's Hurricane"
+    - "Giant Slayer"
+  "Akali":
+    - "Deathblade"
+    - "Bloodthirster"
+    - "Edge of Night"
+  "Bel'Veth":
+    - "Guinsoo's Rageblade"
+    - "Hand of Justice"
+    - "Bloodthirster"
+
+tier: "A"

@@ -1,0 +1,35 @@
+archetype_id: meeple_reroll
+display_name: "Meeple Reroll"
+target_level: 7
+playstyle: reroll
+
+core_units:
+  - "Poppy"
+  - "Veigar"
+  - "Gnar"
+  - "Fizz"
+  - "Meepsie"
+
+optional_units:
+  - "Rammus"
+  - "Corki"
+  - "Bard"
+
+required_traits:
+  - [Meeple, 5]
+
+ideal_items:
+  "Poppy":
+    - "Sunfire Cape"
+    - "Warmog's Armor"
+    - "Bramble Vest"
+  "Veigar":
+    - "Jeweled Gauntlet"
+    - "Archangel's Staff"
+    - "Rabadon's Deathcap"
+  "Fizz":
+    - "Blue Buff"
+    - "Spear of Shojin"
+    - "Hextech Gunblade"
+
+tier: "B"

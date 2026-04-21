@@ -1,0 +1,34 @@
+archetype_id: psionic_fast8
+display_name: "Psionic Fast-8"
+target_level: 8
+playstyle: fast8
+
+core_units:
+  - "Sona"
+  - "Viktor"
+  - "Master Yi"
+  - "Pyke"
+  - "Gragas"
+
+optional_units:
+  - "Ornn"
+  - "Leona"
+
+required_traits:
+  - [Psionic, 4]
+
+ideal_items:
+  "Sona":
+    - "Spear of Shojin"
+    - "Jeweled Gauntlet"
+    - "Archangel's Staff"
+  "Viktor":
+    - "Rabadon's Deathcap"
+    - "Jeweled Gauntlet"
+    - "Hextech Gunblade"
+  "Master Yi":
+    - "Guinsoo's Rageblade"
+    - "Hand of Justice"
+    - "Bloodthirster"
+
+tier: "A"

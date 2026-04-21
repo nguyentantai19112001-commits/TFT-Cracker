@@ -1,0 +1,34 @@
+archetype_id: nova
+display_name: "N.O.V.A."
+target_level: 8
+playstyle: standard
+
+core_units:
+  - "Kindred"
+  - "Maokai"
+  - "Akali"
+  - "Caitlyn"
+  - "Aatrox"
+
+optional_units:
+  - "Mordekaiser"
+  - "Lissandra"
+
+required_traits:
+  - [N.O.V.A., 4]
+
+ideal_items:
+  "Kindred":
+    - "Guinsoo's Rageblade"
+    - "Runaan's Hurricane"
+    - "Bloodthirster"
+  "Caitlyn":
+    - "Infinity Edge"
+    - "Giant Slayer"
+    - "Last Whisper"
+  "Akali":
+    - "Deathblade"
+    - "Bloodthirster"
+    - "Hand of Justice"
+
+tier: "B"

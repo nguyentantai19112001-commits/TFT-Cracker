@@ -1,12 +1,29 @@
-"""Claude Opus 4.7 vision wrapper — screenshot bytes in, structured TFT game state out."""
+"""vision.py — Screenshot capture + Claude Vision wrapper.
+
+Capture path:
+    Primary: DXcam (Desktop Duplication API, ~4ms per frame)
+    Fallback: mss  (~13ms per frame, used if DXcam is unavailable)
+
+Set USE_DXCAM = False to force the mss fallback (e.g. for CI or non-gaming
+Windows editions where Desktop Duplication isn't exposed).
+"""
 
 import base64
 import json
 import re
 from io import BytesIO
+from typing import Optional
 
+import numpy as np
 from anthropic import Anthropic
 from PIL import Image
+
+# ── Capture configuration ──────────────────────────────────────────────────────
+# DXcam uses the Desktop Duplication API: ~239 FPS vs mss's ~76 FPS at 1080p.
+# Set to False to force mss (one-line rollback if DXcam fails).
+USE_DXCAM = True
+
+_CAMERA: Optional[object] = None   # dxcam.DXCamera singleton
 
 MODEL = "claude-sonnet-4-6"
 PROMPT_VERSION = "v2"
@@ -61,17 +78,78 @@ Entities to EXCLUDE from `board` and `bench`:
 - Orbs, loot, and map decorations."""
 
 
-def capture_screen() -> bytes:
-    """Capture the primary monitor and return PNG bytes."""
-    import mss
+def _get_camera():
+    """Lazy singleton DXCamera. Creating it is ~100ms; grabs are ~4ms.
 
+    Returns None if dxcam isn't available or USE_DXCAM is False.
+    """
+    global _CAMERA
+    if not USE_DXCAM:
+        return None
+    if _CAMERA is not None:
+        return _CAMERA
+    try:
+        import dxcam
+        _CAMERA = dxcam.create(output_color="RGB")
+    except Exception:
+        # DXcam unavailable (non-gaming Windows edition, missing drivers, etc.)
+        _CAMERA = None
+    return _CAMERA
+
+
+def _mss_fallback() -> np.ndarray:
+    """Capture via mss and return HxWx3 RGB ndarray. Used when DXcam is unavailable."""
+    import mss
     with mss.mss() as sct:
-        monitor = sct.monitors[1]  # primary monitor (index 0 is "all monitors combined")
-        shot = sct.grab(monitor)
-        img = Image.frombytes("RGB", shot.size, shot.bgra, "raw", "BGRX")
-        buf = BytesIO()
-        img.save(buf, format="PNG", optimize=True)
-        return buf.getvalue()
+        shot = sct.grab(sct.monitors[1])
+        # mss returns BGRA — convert to RGB by reordering channels
+        arr = np.array(shot)
+        return arr[:, :, [2, 1, 0]]   # BGRA → RGB
+
+
+def _capture_ndarray() -> np.ndarray:
+    """Capture primary monitor as HxWx3 RGB ndarray.
+
+    Primary path: DXcam (fast, low-latency Desktop Duplication API).
+    Fallback: mss (slower but universally available on Windows).
+    """
+    cam = _get_camera()
+    if cam is not None:
+        import time
+        frame = cam.grab()
+        if frame is None:
+            # DXcam returns None if the frame hasn't changed since last grab.
+            # Sleep briefly and retry so F9 always gets a fresh frame.
+            time.sleep(0.01)
+            frame = cam.grab()
+        if frame is not None:
+            return frame
+    # Fall through to mss on DXcam failure or unavailability
+    return _mss_fallback()
+
+
+def capture_screen() -> bytes:
+    """Capture the primary monitor and return PNG bytes.
+
+    Uses DXcam if available (see USE_DXCAM flag), falls back to mss.
+    Returns PNG-compressed bytes suitable for passing to Claude Vision.
+    """
+    frame = _capture_ndarray()     # HxWx3 RGB ndarray
+    img   = Image.fromarray(frame, mode="RGB")
+    buf   = BytesIO()
+    img.save(buf, format="PNG", optimize=True)
+    return buf.getvalue()
+
+
+def release_camera() -> None:
+    """Release the DXcam singleton. Call on app shutdown to avoid resource leaks."""
+    global _CAMERA
+    if _CAMERA is not None:
+        try:
+            _CAMERA.release()
+        except Exception:
+            pass
+        _CAMERA = None
 
 
 def parse_game_state(png_bytes: bytes, client: Anthropic) -> dict:

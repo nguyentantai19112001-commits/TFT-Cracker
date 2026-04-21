@@ -1,0 +1,240 @@
+rules:
+  # ── ECON_BELOW_INTEREST ────────────────────────────────────────────
+  - id: ECON_BELOW_INTEREST
+    desc: fires when gold < 10 and not loss-streaking
+    positive:
+      stage: "3-2"
+      gold: 8
+      hp: 70
+      level: 6
+      xp_current: 0
+      xp_needed: 36
+      streak: 0
+    negative:
+      stage: "3-2"
+      gold: 12
+      hp: 70
+      level: 6
+      xp_current: 0
+      xp_needed: 36
+      streak: 0
+
+  # ── ECON_INTEREST_NEAR_THRESHOLD ──────────────────────────────────
+  - id: ECON_INTEREST_NEAR_THRESHOLD
+    desc: fires when 1-2g away from interest breakpoint
+    positive:
+      stage: "3-2"
+      gold: 29
+      hp: 70
+      level: 6
+      xp_current: 0
+      xp_needed: 36
+      streak: 0
+    negative:
+      stage: "3-2"
+      gold: 25
+      hp: 70
+      level: 6
+      xp_current: 0
+      xp_needed: 36
+      streak: 0
+
+  # ── ECON_OVER_CAP_WASTE ───────────────────────────────────────────
+  - id: ECON_OVER_CAP_WASTE
+    desc: fires at 55+ gold past stage 4-1
+    positive:
+      stage: "4-2"
+      gold: 60
+      hp: 70
+      level: 7
+      xp_current: 0
+      xp_needed: 48
+      streak: 0
+    negative:
+      stage: "3-2"
+      gold: 60
+      hp: 70
+      level: 7
+      xp_current: 0
+      xp_needed: 48
+      streak: 0
+
+  # ── LEVEL_PACE_BEHIND ─────────────────────────────────────────────
+  - id: LEVEL_PACE_BEHIND
+    desc: fires when level is below expected for stage
+    positive:
+      stage: "4-2"
+      gold: 50
+      hp: 70
+      level: 6
+      xp_current: 0
+      xp_needed: 36
+      streak: 0
+    negative:
+      stage: "4-2"
+      gold: 50
+      hp: 70
+      level: 8
+      xp_current: 0
+      xp_needed: 0
+      streak: 0
+
+  # ── HP_URGENT ─────────────────────────────────────────────────────
+  - id: HP_URGENT
+    desc: fires at HP < 30
+    positive:
+      stage: "4-2"
+      gold: 30
+      hp: 20
+      level: 7
+      xp_current: 0
+      xp_needed: 48
+      streak: 0
+    negative:
+      stage: "4-2"
+      gold: 30
+      hp: 50
+      level: 7
+      xp_current: 0
+      xp_needed: 48
+      streak: 0
+
+  # ── HP_CAUTION ────────────────────────────────────────────────────
+  - id: HP_CAUTION
+    desc: fires at 30 <= HP < 50
+    positive:
+      stage: "4-2"
+      gold: 30
+      hp: 40
+      level: 7
+      xp_current: 0
+      xp_needed: 48
+      streak: 0
+    negative:
+      stage: "4-2"
+      gold: 30
+      hp: 60
+      level: 7
+      xp_current: 0
+      xp_needed: 48
+      streak: 0
+
+  # ── STREAK_LOSE_BONUS ─────────────────────────────────────────────
+  - id: STREAK_LOSE_BONUS
+    desc: fires on loss streak >= 2
+    positive:
+      stage: "3-2"
+      gold: 30
+      hp: 70
+      level: 6
+      xp_current: 0
+      xp_needed: 36
+      streak: -3
+    negative:
+      stage: "3-2"
+      gold: 30
+      hp: 70
+      level: 6
+      xp_current: 0
+      xp_needed: 36
+      streak: -1
+
+  # ── STREAK_WIN_BONUS ──────────────────────────────────────────────
+  - id: STREAK_WIN_BONUS
+    desc: fires on win streak >= 2
+    positive:
+      stage: "3-2"
+      gold: 30
+      hp: 70
+      level: 6
+      xp_current: 0
+      xp_needed: 36
+      streak: 3
+    negative:
+      stage: "3-2"
+      gold: 30
+      hp: 70
+      level: 6
+      xp_current: 0
+      xp_needed: 36
+      streak: 1
+
+  # ── ROLL_HP_PANIC ─────────────────────────────────────────────────
+  - id: ROLL_HP_PANIC
+    desc: fires at HP < 30 with >= 10g
+    positive:
+      stage: "4-2"
+      gold: 20
+      hp: 25
+      level: 7
+      xp_current: 0
+      xp_needed: 48
+      streak: 0
+    negative:
+      stage: "4-2"
+      gold: 20
+      hp: 40
+      level: 7
+      xp_current: 0
+      xp_needed: 48
+      streak: 0
+
+  # ── SPIKE_ROUND_NEXT ──────────────────────────────────────────────
+  - id: SPIKE_ROUND_NEXT
+    desc: fires when current round precedes a known spike
+    positive:
+      stage: "4-1"
+      gold: 40
+      hp: 70
+      level: 7
+      xp_current: 0
+      xp_needed: 48
+      streak: 0
+    negative:
+      stage: "4-3"
+      gold: 40
+      hp: 70
+      level: 7
+      xp_current: 0
+      xp_needed: 48
+      streak: 0
+
+  # ── STAGE_3_1_DECISION_POINT ──────────────────────────────────────
+  - id: STAGE_3_1_DECISION_POINT
+    desc: fires exactly at stage 3-1
+    positive:
+      stage: "3-1"
+      gold: 30
+      hp: 80
+      level: 5
+      xp_current: 0
+      xp_needed: 20
+      streak: 0
+    negative:
+      stage: "3-2"
+      gold: 30
+      hp: 80
+      level: 5
+      xp_current: 0
+      xp_needed: 20
+      streak: 0
+
+  # ── ROLL_POVERTY_TRAP ─────────────────────────────────────────────
+  - id: ROLL_POVERTY_TRAP
+    desc: fires when gold < 4
+    positive:
+      stage: "3-2"
+      gold: 2
+      hp: 70
+      level: 6
+      xp_current: 0
+      xp_needed: 36
+      streak: 0
+    negative:
+      stage: "3-2"
+      gold: 5
+      hp: 70
+      level: 6
+      xp_current: 0
+      xp_needed: 36
+      streak: 0

@@ -1,0 +1,34 @@
+archetype_id: space_groove
+display_name: "Space Groove"
+target_level: 9
+playstyle: standard
+
+core_units:
+  - "Nami"
+  - "Samira"
+  - "Ornn"
+  - "Gwen"
+  - "Teemo"
+  - "Nasus"
+
+optional_units:
+  - "Blitzcrank"
+
+required_traits:
+  - [Space Groove, 6]
+
+ideal_items:
+  "Samira":
+    - "Infinity Edge"
+    - "Giant Slayer"
+    - "Bloodthirster"
+  "Nami":
+    - "Spear of Shojin"
+    - "Archangel's Staff"
+    - "Blue Buff"
+  "Ornn":
+    - "Sunfire Cape"
+    - "Warmog's Armor"
+    - "Dragon's Claw"
+
+tier: "B"

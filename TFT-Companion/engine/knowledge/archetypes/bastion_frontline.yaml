@@ -1,0 +1,36 @@
+archetype_id: bastion_frontline
+display_name: "Bastion Frontline Flex"
+target_level: 8
+playstyle: standard
+
+core_units:
+  - "Shen"
+  - "Ornn"
+  - "Jax"
+  - "Rammus"
+  - "Aatrox"
+  - "Poppy"
+
+optional_units:
+  - "Viktor"
+  - "Karma"
+  - "LeBlanc"
+
+required_traits:
+  - [Bastion, 4]
+
+ideal_items:
+  "Shen":
+    - "Warmog's Armor"
+    - "Gargoyle Stoneplate"
+    - "Sunfire Cape"
+  "Ornn":
+    - "Warmog's Armor"
+    - "Bramble Vest"
+    - "Dragon's Claw"
+  "Viktor":
+    - "Rabadon's Deathcap"
+    - "Jeweled Gauntlet"
+    - "Hextech Gunblade"
+
+tier: "C"

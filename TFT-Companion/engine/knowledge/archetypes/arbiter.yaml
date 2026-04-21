@@ -1,0 +1,34 @@
+archetype_id: arbiter
+display_name: "Arbiter"
+target_level: 8
+playstyle: standard
+
+core_units:
+  - "LeBlanc"
+  - "Diana"
+  - "Zoe"
+  - "Leona"
+
+optional_units:
+  - "Shen"
+  - "Mordekaiser"
+  - "Viktor"
+
+required_traits:
+  - [Arbiter, 4]
+
+ideal_items:
+  "LeBlanc":
+    - "Jeweled Gauntlet"
+    - "Archangel's Staff"
+    - "Spear of Shojin"
+  "Diana":
+    - "Blue Buff"
+    - "Rabadon's Deathcap"
+    - "Hextech Gunblade"
+  "Leona":
+    - "Warmog's Armor"
+    - "Sunfire Cape"
+    - "Dragon's Claw"
+
+tier: "B"

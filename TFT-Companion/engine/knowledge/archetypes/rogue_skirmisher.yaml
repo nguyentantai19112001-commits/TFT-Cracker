@@ -1,0 +1,35 @@
+archetype_id: rogue_skirmisher
+display_name: "Rogue Skirmisher"
+target_level: 8
+playstyle: standard
+
+core_units:
+  - "Riven"
+  - "Kai'Sa"
+  - "Fizz"
+  - "Gwen"
+  - "Briar"
+  - "Talon"
+
+optional_units:
+  - "Akali"
+  - "Diana"
+
+required_traits:
+  - [Rogue, 4]
+
+ideal_items:
+  "Riven":
+    - "Infinity Edge"
+    - "Deathblade"
+    - "Bloodthirster"
+  "Kai'Sa":
+    - "Guinsoo's Rageblade"
+    - "Runaan's Hurricane"
+    - "Hand of Justice"
+  "Gwen":
+    - "Spear of Shojin"
+    - "Sunfire Cape"
+    - "Hand of Justice"
+
+tier: "B"

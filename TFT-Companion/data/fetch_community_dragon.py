@@ -19,7 +19,8 @@ from pathlib import Path
 
 import requests
 
-CD_URL = "https://raw.communitydragon.org/latest/cdragon/tft/en_us.json"
+CDRAGON_PATCH = "17.1"   # update when a new patch drops; never use /latest/
+CD_URL = f"https://raw.communitydragon.org/{CDRAGON_PATCH}/cdragon/tft/en_us.json"
 OUT_PATH = Path(__file__).parent / "set_data.json"
 
 

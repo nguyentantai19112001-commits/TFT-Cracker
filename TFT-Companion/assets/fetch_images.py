@@ -13,7 +13,11 @@ Output:
 
 Community Dragon asset path convention:
     game asset path  :  ASSETS/UX/TFT/.../Name.tex
-    CDN url          :  https://raw.communitydragon.org/latest/game/assets/ux/tft/.../name.png
+    CDN url          :  https://raw.communitydragon.org/17.1/game/assets/ux/tft/.../name.png
+
+NOTE: /latest/ is intentionally NOT used here. CDragon's /latest/ has a
+staleness lag of ~5 days at set boundaries. Update CDRAGON_PATCH below
+when a new patch drops.
 """
 
 from __future__ import annotations
@@ -26,8 +30,9 @@ from pathlib import Path
 
 import requests
 
-CD_JSON = "https://raw.communitydragon.org/latest/cdragon/tft/en_us.json"
-CD_GAME = "https://raw.communitydragon.org/latest/game/"
+CDRAGON_PATCH = "17.1"   # update this when a new patch drops; never use /latest/
+CD_JSON = f"https://raw.communitydragon.org/{CDRAGON_PATCH}/cdragon/tft/en_us.json"
+CD_GAME = f"https://raw.communitydragon.org/{CDRAGON_PATCH}/game/"
 ROOT = Path(__file__).parent
 MANIFEST_PATH = ROOT / "manifest.json"
 

@@ -21,14 +21,22 @@ future modules.
 from __future__ import annotations
 
 import json
+import sys
 import time
 from dataclasses import asdict, dataclass, field
+from pathlib import Path
 from typing import Optional
 
 import db
 import game_assets
 import ocr_helpers
 import vision
+
+# Make engine/ importable so `schemas` (the v2 frozen contract) is available
+# from this module. v2 files live under engine/; don't rebuild the contract here.
+_ENGINE_DIR = Path(__file__).resolve().parent / "engine"
+if _ENGINE_DIR.is_dir() and str(_ENGINE_DIR) not in sys.path:
+    sys.path.insert(0, str(_ENGINE_DIR))
 
 
 @dataclass
@@ -62,6 +70,93 @@ class GameState:
         d = asdict(self)
         d["sources"] = asdict(self.sources)
         return d
+
+    def to_schemas(self):
+        """Convert to the v2 Pydantic `schemas.GameState`.
+
+        Phase 0 adapter. Required fields (stage, gold, hp, level, set_id) must be
+        populated before calling — raises ValueError otherwise. Optional fields
+        (round, xp_current, xp_needed) default sensibly when not present.
+        """
+        # Lazy import so modules that don't need v2 types don't load it.
+        import schemas
+
+        missing = [f for f in ("stage", "gold", "hp", "level") if getattr(self, f) is None]
+        if missing:
+            raise ValueError(f"state incomplete: {missing} is None; cannot build schemas.GameState")
+        set_id = self.set or game_assets.SET_ID
+        if set_id is None:
+            raise ValueError("state incomplete: set_id is None")
+
+        xp_current, xp_needed = _parse_xp(self.xp)
+
+        return schemas.GameState(
+            stage=self.stage,
+            gold=int(self.gold),
+            hp=int(self.hp),
+            level=int(self.level),
+            xp_current=xp_current,
+            xp_needed=xp_needed,
+            streak=int(self.streak) if self.streak is not None else 0,
+            set_id=str(set_id),
+            board=[_as_board_unit(u) for u in (self.board or [])],
+            bench=[_as_board_unit(u) for u in (self.bench or [])],
+            shop=[_as_shop_slot(s) for s in (self.shop or [])],
+            active_traits=[_as_trait(t) for t in (self.active_traits or [])],
+            augments=list(self.augments or []),
+            capture_id=self.capture_id,
+        )
+
+
+def _parse_xp(xp: Optional[str]) -> tuple[int, int]:
+    """'38/40' -> (38, 40). Missing / unparseable -> (0, 0)."""
+    if not xp or not isinstance(xp, str):
+        return 0, 0
+    try:
+        cur, need = xp.split("/", 1)
+        return int(cur.strip()), int(need.strip())
+    except (ValueError, AttributeError):
+        return 0, 0
+
+
+def _as_board_unit(u):
+    import schemas
+    if isinstance(u, schemas.BoardUnit):
+        return u
+    if isinstance(u, dict):
+        return schemas.BoardUnit(
+            champion=u.get("champion") or u.get("name") or "",
+            star=u.get("star") or 1,
+            items=list(u.get("items") or []),
+        )
+    return schemas.BoardUnit(champion=str(u), star=1, items=[])
+
+
+def _as_shop_slot(s):
+    import schemas
+    if isinstance(s, schemas.ShopSlot):
+        return s
+    if isinstance(s, dict):
+        return schemas.ShopSlot(
+            champion=s.get("champion") or s.get("name") or "",
+            cost=int(s.get("cost") or 0),
+            locked=bool(s.get("locked") or False),
+        )
+    return schemas.ShopSlot(champion=str(s), cost=0, locked=False)
+
+
+def _as_trait(t):
+    import schemas
+    if isinstance(t, schemas.TraitActivation):
+        return t
+    if isinstance(t, dict):
+        tier = t.get("tier") or "inactive"
+        return schemas.TraitActivation(
+            trait=t.get("trait") or t.get("name") or "",
+            count=int(t.get("count") or 0),
+            tier=tier,
+        )
+    return schemas.TraitActivation(trait=str(t), count=0, tier="inactive")
 
 
 def _lcu_step(state: GameState, capture_id: int) -> None:

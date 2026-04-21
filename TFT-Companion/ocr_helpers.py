@@ -2,17 +2,24 @@
 
 Patterns adapted from jfd02/TFT-OCR-BOT (GPLv3), reimplemented for this project.
 See THIRD_PARTY_NOTICES.md.
+
+OCR hierarchy (cheapest-first):
+    PaddleOCR  — primary path (read_int_hybrid / read_text_paddle)
+    pytesseract — fallback when Paddle returns None or low-confidence
+    None        — last resort (callers handle gracefully)
 """
 
 from __future__ import annotations
 
+import logging
 import threading
 import warnings
 from difflib import SequenceMatcher
 from typing import Optional
 
+import numpy as np
 import requests
-from PIL import ImageGrab
+from PIL import Image, ImageGrab
 
 import ocr
 import screen_coords
@@ -108,3 +115,95 @@ def get_shop(champions: set[str]) -> list[tuple[int, str]]:
     for t in threads:
         t.join()
     return sorted(result)
+
+
+# ── PaddleOCR wrappers ─────────────────────────────────────────────────────────
+# PaddleOCR is the primary OCR path; pytesseract is the fallback.
+# Import is lazy — if paddleocr isn't installed, the helpers return None and
+# callers fall through to tesseract automatically.
+
+_PADDLE: Optional[object] = None
+
+
+def _get_paddle():
+    """Lazy singleton PaddleOCR. Cold start is ~2s; subsequent calls are fast."""
+    global _PADDLE
+    if _PADDLE is not None:
+        return _PADDLE
+    try:
+        from paddleocr import PaddleOCR  # type: ignore[import]
+        _PADDLE = PaddleOCR(use_textline_orientation=False, lang="en", show_log=False)
+    except Exception:
+        _PADDLE = None
+    return _PADDLE
+
+
+def read_text_paddle(
+    region: np.ndarray,
+    *,
+    allow_empty: bool = False,
+    min_confidence: float = 0.7,
+) -> Optional[str]:
+    """Read text from a cropped HxWx3 ndarray using PaddleOCR.
+
+    Returns the highest-confidence string found, or None on failure.
+    """
+    paddle = _get_paddle()
+    if paddle is None:
+        return None
+    try:
+        result = paddle.ocr(region, cls=False)
+    except Exception:
+        return None
+    if not result or not result[0]:
+        return None
+    best = max(result[0], key=lambda item: item[1][1], default=None)
+    if best is None:
+        return None
+    text, conf = best[1]
+    if conf < min_confidence:
+        return None
+    stripped = text.strip()
+    return stripped if (stripped or allow_empty) else None
+
+
+def read_int_paddle(region: np.ndarray, **kwargs) -> Optional[int]:
+    """PaddleOCR integer reader. Returns None if Paddle can't parse a number."""
+    text = read_text_paddle(region, **kwargs)
+    if text is None:
+        return None
+    cleaned = "".join(c for c in text if c.isdigit() or c == "-")
+    try:
+        return int(cleaned)
+    except ValueError:
+        return None
+
+
+def read_int_tesseract(region: np.ndarray) -> Optional[int]:
+    """Read an integer from a cropped ndarray via pytesseract (fallback path).
+
+    Kept as an explicit function so the hybrid wrapper can call it directly
+    and so callers can opt into the tesseract path when Paddle is overkill.
+    """
+    try:
+        import pytesseract  # type: ignore[import]
+        img = Image.fromarray(region)
+        raw = pytesseract.image_to_string(
+            img, config="--psm 7 -c tessedit_char_whitelist=0123456789-"
+        )
+        cleaned = "".join(c for c in raw if c.isdigit() or c == "-")
+        return int(cleaned)
+    except Exception:
+        return None
+
+
+def read_int_hybrid(region: np.ndarray, *, field_name: str = "") -> Optional[int]:
+    """Primary: PaddleOCR. Fallback: pytesseract. Last resort: None.
+
+    field_name is used only for debug logging to identify which field failed.
+    """
+    result = read_int_paddle(region)
+    if result is not None:
+        return result
+    logging.debug("paddle OCR returned None for %s, falling back to tesseract", field_name)
+    return read_int_tesseract(region)

@@ -1,0 +1,49 @@
+# core.yaml — Set-invariant numbers and mechanics.
+#
+# These stay the same across set rotations (interest formula, XP cost, streak schedule
+# per live patch 14.1+). If Riot changes the streak schedule or XP cost in a future
+# patch, update this file. Set-specific numbers (shop odds, pool sizes, 5-cost units)
+# live in set_<N>.yaml, not here.
+
+xp_cost_per_buy: 4
+xp_per_buy: 4
+passive_xp_per_round: 2
+
+interest_cap: 5
+interest_per_10_gold: 1
+
+# Streak bonus schedule — live since patch 14.1, unchanged through 17.1.
+# Applies to both win and loss streaks (absolute value).
+# Format: [low, high, bonus_gold] — streak length in [low, high] inclusive.
+streak_brackets:
+  - {low: 0, high: 2, bonus: 0}
+  - {low: 3, high: 4, bonus: 1}
+  - {low: 5, high: 5, bonus: 2}
+  - {low: 6, high: 999, bonus: 3}
+
+# XP needed from level L to level L+1.
+# Current live values, stable Set 14+. Verify per patch from Community Dragon ShopConstants.
+xp_thresholds:
+  - {from_level: 1, to_level: 2, xp: 2}
+  - {from_level: 2, to_level: 3, xp: 2}
+  - {from_level: 3, to_level: 4, xp: 6}
+  - {from_level: 4, to_level: 5, xp: 10}
+  - {from_level: 5, to_level: 6, xp: 20}
+  - {from_level: 6, to_level: 7, xp: 36}
+  - {from_level: 7, to_level: 8, xp: 48}
+  - {from_level: 8, to_level: 9, xp: 76}
+  - {from_level: 9, to_level: 10, xp: 84}
+  - {from_level: 10, to_level: 11, xp: 100}  # augment/encounter gated
+
+# Hand-tuned weights for the 5 scoring dimensions used by recommender.py.
+# Current intuition:
+# - HP risk weighted higher because ignoring HP is the most common fatal mistake
+# - board_strength slightly higher than tempo (better to be strong now than ahead on tempo)
+# - pivot_value lower (should only matter when contested / comp fell apart)
+# Revise these after logging 50+ games and seeing which dimension predicts bad calls.
+scoring_weights:
+  tempo: 1.0
+  econ: 1.0
+  hp_risk: 1.5
+  board_strength: 1.2
+  pivot_value: 0.8

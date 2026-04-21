@@ -73,6 +73,8 @@ SEVERITY_MAP = {
     "COMMIT_DIRECTION": SEV_INDIGO, "PLAN_GOD_PICK": SEV_INDIGO,
     "SCOUT": SEV_CYAN, "POSITION": SEV_INDIGO, "OTHER": SEV_GRAY,
     "HIGH PRIORITY": SEV_AMBER, "OPTIONAL": SEV_GRAY,
+    # Archetype tier chips (Phase 7)
+    "S": SEV_INDIGO, "A": SEV_AMBER, "B": SEV_CYAN, "C": SEV_GRAY,
 }
 
 GLOWING_SEVERITIES = {"HIGH", "CRITICAL", "ROLL_DOWN", "HIGH PRIORITY"}
@@ -492,6 +494,41 @@ class OverlayPanel(QWidget):
         self.data_note.setMaximumWidth(self.CONTENT_WIDTH)
         inner.addWidget(self.data_note)
 
+        # ---- long-term comp panel (Phase 7) ----
+        self.comp_header = self._section_header("◎  TARGET COMP", color=SEV_CYAN, spacing=True)
+        inner.addWidget(self.comp_header)
+
+        self.comp_card = QFrame()
+        self.comp_card.setObjectName("compCard")
+        comp_layout = QVBoxLayout(self.comp_card)
+        comp_layout.setContentsMargins(14, 12, 14, 14)
+        comp_layout.setSpacing(6)
+
+        comp_name_row = QHBoxLayout()
+        comp_name_row.setSpacing(8)
+        self.comp_name = QLabel("—")
+        self.comp_name.setObjectName("compName")
+        comp_name_row.addWidget(self.comp_name)
+        self.comp_tier_chip = Chip("—")
+        comp_name_row.addWidget(self.comp_tier_chip)
+        comp_name_row.addStretch(1)
+        comp_layout.addLayout(comp_name_row)
+
+        self.comp_reach = QLabel("P(reach): —")
+        self.comp_reach.setObjectName("compReach")
+        comp_layout.addWidget(self.comp_reach)
+
+        self.comp_buys_header = QLabel("NEXT BUYS")
+        self.comp_buys_header.setObjectName("compBuysHeader")
+        comp_layout.addWidget(self.comp_buys_header)
+
+        self.comp_buys = QLabel("—")
+        self.comp_buys.setObjectName("compBuys")
+        self.comp_buys.setWordWrap(True)
+        comp_layout.addWidget(self.comp_buys)
+
+        inner.addWidget(self.comp_card)
+
         inner.addStretch(1)
         self.scroll.setWidget(scroll_inner)
         body.addWidget(self.scroll, 1)
@@ -742,6 +779,38 @@ class OverlayPanel(QWidget):
             QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{
                 background: transparent;
             }}
+            QFrame#compCard {{
+                background-color: rgba(91, 204, 255, 0.04);
+                border: 1px solid rgba(91, 204, 255, 0.18);
+                border-radius: 12px;
+            }}
+            QLabel#compName {{
+                color: {TEXT_PRIMARY};
+                font-family: {FONT_STACK};
+                font-size: 12pt;
+                font-weight: 700;
+            }}
+            QLabel#compReach {{
+                color: {SEV_CYAN};
+                font-family: {FONT_MONO};
+                font-size: 9pt;
+                font-weight: 500;
+            }}
+            QLabel#compBuysHeader {{
+                color: {TEXT_MUTED};
+                font-family: {FONT_STACK};
+                font-size: 7.5pt;
+                font-weight: 700;
+                letter-spacing: 0.12em;
+                padding-top: 4px;
+            }}
+            QLabel#compBuys {{
+                color: {TEXT_PRIMARY};
+                font-family: {FONT_STACK};
+                font-size: 9.5pt;
+                font-weight: 400;
+                line-height: 1.5em;
+            }}
         """
         self.setStyleSheet(qss)
 
@@ -970,6 +1039,8 @@ class OverlayPanel(QWidget):
         self.warn_card.hide()
         self.data_note.setText("")
         self.data_note.hide()
+        self.comp_card.hide()
+        self.comp_header.hide()
         self.meta.setText("")
 
     def set_extracting(self) -> None:
@@ -984,6 +1055,7 @@ class OverlayPanel(QWidget):
         self.consider_header.hide()
         self.warn_card.hide()
         self.data_note.hide()
+        # comp_card intentionally NOT hidden — persists from last F9 press
         self.meta.setText("")
 
     def set_extracted(self, state: dict) -> None:
@@ -1052,6 +1124,30 @@ class OverlayPanel(QWidget):
         total_cost = (vision_cost or 0) + (meta.get("cost_usd") or 0)
         gid = f"game {game_id}" if game_id is not None else "no session"
         self.meta.setText(f"{wall_s:>4.1f}s  ·  ${total_cost:.4f}  ·  {gid}")
+
+    def set_comp_plan(self, comps: list) -> None:
+        """Update the long-term comp panel. comps is a list of CompCandidate.model_dump() dicts.
+        Only updates if the top comp changed — prevents flicker on every F9 press.
+        """
+        if not comps:
+            return
+        top = comps[0]
+        arch = top.get("archetype", {})
+        name = arch.get("display_name") or arch.get("archetype_id") or "—"
+        tier = arch.get("tier") or "B"
+        p_reach = top.get("p_reach", 0.0)
+        next_buys = top.get("recommended_next_buys") or top.get("missing_units") or []
+
+        self.comp_name.setText(name)
+        self.comp_tier_chip.set_severity(tier)
+        self.comp_reach.setText(f"P(reach)  {p_reach:.0%}")
+        if next_buys:
+            buy_text = "  ·  ".join(next_buys[:3])
+        else:
+            buy_text = "All core units owned"
+        self.comp_buys.setText(buy_text)
+        self.comp_card.show()
+        self.comp_header.show()
 
     def set_error(self, text: str) -> None:
         self.dot.set_color(SEV_RED)
