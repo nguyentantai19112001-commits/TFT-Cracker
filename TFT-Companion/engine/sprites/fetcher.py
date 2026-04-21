@@ -98,18 +98,24 @@ def _enumerate_jobs(cdragon_data: dict) -> list[_Job]:
         if api and tex:
             jobs.append(_Job("champion", api, tex_to_png_url(tex)))
 
-    # Items — Phase 0 confirmed: `from` is always null; classify via `composition`.
-    # completed:  composition has exactly 2 entries (the two component apiNames)
-    # components: no composition, not an augment or hero mechanic
-    # augments:   apiName contains _Augment_ or _Hero_
+    # Items — CDragon has 3,500+ entries spanning all historical sets.
+    # Narrow to only what renders in a Set 17 game:
+    #   components: tags contains "component" (~15 cross-set pieces — BF Sword etc.)
+    #   completed:  composition has exactly 2 entries (~50 cross-set recipes)
+    #   augments:   Set 17 only, identified by TFT17 prefix in apiName
+    # Skipping: encounter items, event items, legacy set augments (1,600+ entries
+    # that will never appear on a Set 17 board) — saves ~150-400 MB of disk.
     all_items  = cdragon_data.get("items", [])
-    completed  = [i for i in all_items
-                  if i.get("composition") and len(i.get("composition", [])) == 2]
-    components = [i for i in all_items
-                  if not i.get("composition")
-                  and "_Augment_" not in i.get("apiName", "")
-                  and "_Hero_"    not in i.get("apiName", "")]
-    augments   = [i for i in all_items if "_Augment_" in i.get("apiName", "")]
+    components = [i for i in all_items if "component" in (i.get("tags") or [])]
+    completed  = [i for i in all_items if len(i.get("composition") or []) == 2]
+    # Augments in Set 17 come from two buckets:
+    #   TFT17_Augment_*  — set-specific (hero augments, god augments, etc.)
+    #   TFT_Augment_*    — cross-set generic Silver/Gold/Prismatic tier augments
+    # All other prefixes (TFT13_, TFT16_, etc.) are legacy-set-only — skip them.
+    augments   = [i for i in all_items
+                  if "_Augment_" in i.get("apiName", "")
+                  and ("TFT17" in i.get("apiName", "")
+                       or i.get("apiName", "").startswith("TFT_Augment_"))]
 
     for item in completed + components:
         api = item.get("apiName", "")
