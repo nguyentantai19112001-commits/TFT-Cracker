@@ -1,0 +1,192 @@
+# set_17_patches.yaml
+#
+# APPLY INSTRUCTIONS: These are diffs / additions to knowledge/set_17.yaml, not a
+# replacement file. Follow INTEGRATION_GUIDE.md in this package for the merge steps.
+# Each block below maps to a section of set_17.yaml.
+
+# ==============================================================================
+# PATCH 1 — pool_sizes distinct counts
+# ==============================================================================
+# WHY: original used generic Set 11+ baseline (13/13/13/12/8). Claude Code's
+# game_assets.CHAMPIONS list shows Set 17 has 14/13/13/13/10 distinct champions.
+# Old copies_per_champ values are correct (22/20/17/10/9) — only distinct changes.
+# 5-cost distinct=10 is total; effective pool at game start is 9 (Zed gated).
+# Until the user confirms if another 5-cost is gated, use 9. If another is gated
+# later, update here.
+
+pool_sizes:
+  1: {copies_per_champ: 22, distinct: 14}  # total tier pool 308 (was 286)
+  2: {copies_per_champ: 20, distinct: 13}  # total 260 — unchanged
+  3: {copies_per_champ: 17, distinct: 13}  # total 221 — unchanged
+  4: {copies_per_champ: 10, distinct: 13}  # total 130 (was 120)
+  5: {copies_per_champ: 9,  distinct: 9}   # total 81; 10 in catalog minus Zed gate
+  # NOTE: if the user confirms another 5-cost is gated, change distinct to 8.
+
+
+# ==============================================================================
+# PATCH 2 — champions section (NEW)
+# ==============================================================================
+# WHY: set_17.yaml had no champion list; comment said "load from Community Dragon at
+# runtime." That works long-term but leaves the YAML unverifiable on its own. This
+# block is the authoritative list as of patch 17.1 (sourced from
+# game_assets.CHAMPIONS). Phase 0 loader should cross-check champion strings used
+# in archetypes/rules against this list and fail loud on mismatch.
+
+champions:
+  # 1-cost (14 distinct — 2 more than Set 14+ baseline)
+  - {name: "Briar",         cost: 1}
+  - {name: "Poppy",         cost: 1}
+  - {name: "Veigar",        cost: 1}
+  - {name: "Aatrox",        cost: 1}
+  - {name: "Caitlyn",       cost: 1}
+  - {name: "Teemo",         cost: 1}
+  - {name: "Nasus",         cost: 1}
+  - {name: "Twisted Fate",  cost: 1}
+  - {name: "Talon",         cost: 1}
+  - {name: "Ezreal",        cost: 1}
+  - {name: "Leona",         cost: 1}
+  - {name: "Cho'Gath",      cost: 1}
+  - {name: "Lissandra",     cost: 1}
+  - {name: "Rek'Sai",       cost: 1}
+
+  # 2-cost (13 distinct)
+  - {name: "Bel'Veth",      cost: 2}
+  - {name: "Akali",         cost: 2}
+  - {name: "Jinx",          cost: 2}
+  - {name: "Gnar",          cost: 2}
+  - {name: "Pyke",          cost: 2}
+  - {name: "Gragas",        cost: 2}
+  - {name: "Gwen",          cost: 2}
+  - {name: "Jax",           cost: 2}
+  - {name: "Milio",         cost: 2}
+  - {name: "Zoe",           cost: 2}
+  - {name: "Meepsie",       cost: 2}
+  - {name: "Mordekaiser",   cost: 2}
+  - {name: "Pantheon",      cost: 2}
+
+  # 3-cost (13 distinct)
+  - {name: "Miss Fortune",  cost: 3}
+  - {name: "Illaoi",        cost: 3}
+  - {name: "Aurora",        cost: 3}
+  - {name: "Fizz",          cost: 3}
+  - {name: "Maokai",        cost: 3}
+  - {name: "Kai'Sa",        cost: 3}
+  - {name: "Urgot",         cost: 3}
+  - {name: "Viktor",        cost: 3}
+  - {name: "Samira",        cost: 3}
+  - {name: "Ornn",          cost: 3}
+  - {name: "Lulu",          cost: 3}
+  - {name: "Diana",         cost: 3}
+  - {name: "Rhaast",        cost: 3}
+
+  # 4-cost (13 distinct)
+  - {name: "Rammus",           cost: 4}
+  - {name: "Corki",            cost: 4}
+  - {name: "Kindred",          cost: 4}
+  - {name: "Karma",            cost: 4}
+  - {name: "Aurelion Sol",     cost: 4}
+  - {name: "The Mighty Mech",  cost: 4}
+  - {name: "Master Yi",        cost: 4}
+  - {name: "Nami",             cost: 4}
+  - {name: "Nunu & Willump",   cost: 4}
+  - {name: "Riven",            cost: 4}
+  - {name: "LeBlanc",          cost: 4}
+  - {name: "Xayah",            cost: 4}
+  - {name: "Tahm Kench",       cost: 4}
+
+  # 5-cost (10 distinct total; Zed augment-gated, see gated_units)
+  - {name: "Bard",         cost: 5}
+  - {name: "Fiora",        cost: 5}
+  - {name: "Jhin",         cost: 5}
+  - {name: "Blitzcrank",   cost: 5}
+  - {name: "Sona",         cost: 5}
+  - {name: "Vex",          cost: 5}
+  - {name: "Shen",         cost: 5}
+  - {name: "Zed",          cost: 5}  # gated — see gated_units block
+  - {name: "Graves",       cost: 5}
+  - {name: "Morgana",      cost: 5}
+
+
+# ==============================================================================
+# PATCH 3 — traits section (NEW)
+# ==============================================================================
+# WHY: set_17.yaml had no traits block. 35 traits listed; breakpoints NOT YET
+# VERIFIED. Comp planner (Phase 4) needs breakpoints to validate archetypes.
+# For now, only names are populated. Breakpoints loaded from Community Dragon at
+# runtime (data/set_data.json) or hand-filled in Phase 4 as user verifies.
+
+traits:
+  # Origin / aesthetic traits
+  - {name: "Anima Squad",      kind: "origin", breakpoints: []}  # SEE NOTE — may be legacy reference only
+  - {name: "Dark Star",        kind: "origin", breakpoints: []}
+  - {name: "Factory New",      kind: "origin", breakpoints: []}
+  - {name: "Galaxy Hunter",    kind: "origin", breakpoints: []}
+  - {name: "Gun Goddess",      kind: "origin", breakpoints: []}
+  - {name: "Mecha",            kind: "origin", breakpoints: []}
+  - {name: "Meeple",           kind: "origin", breakpoints: []}
+  - {name: "N.O.V.A.",         kind: "origin", breakpoints: []}
+  - {name: "Party Animal",     kind: "origin", breakpoints: []}
+  - {name: "Primordian",       kind: "origin", breakpoints: []}
+  - {name: "Space Groove",     kind: "origin", breakpoints: []}
+  - {name: "Stargazer",        kind: "origin", breakpoints: []}
+
+  # Class / mechanical traits
+  - {name: "Anima",            kind: "class",  breakpoints: []}  # loss-streak tech trait
+  - {name: "Arbiter",          kind: "class",  breakpoints: []}
+  - {name: "Bastion",          kind: "class",  breakpoints: []}
+  - {name: "Brawler",          kind: "class",  breakpoints: []}
+  - {name: "Bulwark",          kind: "class",  breakpoints: []}
+  - {name: "Challenger",       kind: "class",  breakpoints: []}
+  - {name: "Commander",        kind: "class",  breakpoints: []}
+  - {name: "Conduit",          kind: "class",  breakpoints: []}
+  - {name: "Dark Lady",        kind: "class",  breakpoints: []}
+  - {name: "Divine Duelist",   kind: "class",  breakpoints: []}
+  - {name: "Doomer",           kind: "class",  breakpoints: []}
+  - {name: "Eradicator",       kind: "class",  breakpoints: []}
+  - {name: "Fateweaver",       kind: "class",  breakpoints: []}
+  - {name: "Marauder",         kind: "class",  breakpoints: []}
+  - {name: "Oracle",           kind: "class",  breakpoints: []}
+  - {name: "Psionic",          kind: "class",  breakpoints: []}
+  - {name: "Redeemer",         kind: "class",  breakpoints: []}
+  - {name: "Replicator",       kind: "class",  breakpoints: []}
+  - {name: "Rogue",            kind: "class",  breakpoints: []}
+  - {name: "Shepherd",         kind: "class",  breakpoints: []}
+  - {name: "Sniper",           kind: "class",  breakpoints: []}
+  - {name: "Timebreaker",      kind: "class",  breakpoints: []}
+  - {name: "Vanguard",         kind: "class",  breakpoints: []}
+  - {name: "Voyager",          kind: "class",  breakpoints: []}
+
+  # NOTE ON ANIMA SQUAD: Claude Code's trait list did NOT include "Anima Squad."
+  # My original archetype example used "Anima Squad" which is a SET 10 trait.
+  # Set 17 has "Anima" (loss-streak) but NOT "Anima Squad." The entry above with
+  # empty breakpoints and a comment is a safety net — if it's not a real Set 17
+  # trait, remove it in Phase 0. Do NOT create archetypes that depend on it.
+
+
+# ==============================================================================
+# PATCH 4 — gated_units — already in your set_17.yaml, no changes
+# ==============================================================================
+# (Included here for reference only, so you can verify it matches.)
+
+# gated_units:
+#   - champion: "Zed"
+#     cost: 5
+#     unlock_condition: "Invader Zed hero augment — Zed spawned on stage 4-2, then enters shop"
+
+# If the user confirms another 5-cost is gated, add it here following the same
+# schema and update pool_sizes[5].distinct to 8.
+
+
+# ==============================================================================
+# VALIDATION — the Phase 0 loader should run these checks
+# ==============================================================================
+# Add these to the startup sanity-check script (flagged in STATE.md pre-Phase-0 note):
+#
+# 1. Every champion in `champions:` appears in game_assets.CHAMPIONS. Fail loud
+#    on any mismatch.
+# 2. Every champion referenced in any `knowledge/archetypes/*.yaml` appears in
+#    `champions:`.
+# 3. Every trait referenced in any archetype appears in `traits:`.
+# 4. Count of champions per cost matches pool_sizes[cost].distinct.
+# 5. sum(shop_odds[L]) == 100 for L in 1..11.
+# 6. Every god in realm_of_the_gods.gods has a unique `id`.

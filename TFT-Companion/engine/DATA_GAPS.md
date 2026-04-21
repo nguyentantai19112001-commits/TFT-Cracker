@@ -38,7 +38,7 @@
 
 | Field | Status | Notes |
 |-------|--------|-------|
-| `traits[*].breakpoints` | ❌ **MISSING** | All 35 traits have empty breakpoints. Comp planner scores archetypes by required_traits meeting breakpoints. Needs Community Dragon or tactics.tools verification. |
+| `traits[*].breakpoints` | ✅ | All 35 traits filled 2026-04-21 from data/set_data.json (Community Dragon). Comp planner trait_fit scoring now active. |
 | `champions[*].traits` | ❌ **MISSING** | No champion→trait mapping in YAML. Phase 4 needs this for trait_fit scoring. Load from `data/set_data.json` (Community Dragon) or ask user. |
 | `pool_sizes[5].distinct` | ⚠️ | Currently 9 (Zed gated). If another 5-cost is gated, drop to 8. Ask user. |
 
@@ -70,6 +70,6 @@ Real playable champions per cost — use these names exactly:
 
 ## Known code bugs (found by Hypothesis — Task 9)
 
-| Bug | Location | Minimal reproducer | Fix needed |
+| Bug | Location | Minimal reproducer | Fix status |
 |-----|----------|--------------------|------------|
-| `p_hit_at_least_1` can exceed 1.0 by ~2e-16 | `econ._markov_roll()` | level=1, gold=60, pool=(k=1, R_T=3, distinct=14) | Clamp outputs: `p1 = min(1.0, float(np.sum(dist[1:])))`. Not fixed in Task 9 (protocol: report only). |
+| `p_hit_at_least_1` can exceed 1.0 by ~2e-16 | `econ._markov_roll()` + `_hypergeo_roll()` | level=1, gold=60, pool=(k=1, R_T=3, distinct=14) | ✅ Fixed 2026-04-21 — `min(1.0, ...)` applied to p1/p2/p3 in both functions; property test reverted to strict [0.0, 1.0]. |

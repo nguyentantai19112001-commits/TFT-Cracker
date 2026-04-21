@@ -1,0 +1,69 @@
+# archetype_dark_star.yaml — valid Set 17 archetype example
+#
+# REPLACES the broken "anima_squad" example that appears in:
+#   skills/comp_planner/SKILL.md  (the archetype YAML format section)
+#
+# The old example used Set 10 champions (Xayah/Rakan/Vayne/Sylas/Leona) with a
+# "Anima Squad" trait that doesn't exist in Set 17. It would have taught the
+# sub-agent wrong units and wrong traits.
+#
+# Dark Star is a clean vertical archetype with verifiable Set 17 units at all
+# cost tiers, making it the best teaching example.
+
+archetype_id: dark_star
+display_name: "Dark Star"
+target_level: 9
+playstyle: standard
+
+# All six core_units exist in Set 17 (verified against game_assets.CHAMPIONS).
+# Covers every cost tier, which makes it a good shape for rules + planner tests.
+core_units:
+  - Jhin         # primary carry, 5-cost Dark Star
+  - Karma        # AP carry / caster, 4-cost Dark Star
+  - Kai'Sa       # secondary carry, 3-cost Dark Star
+  - Mordekaiser  # frontline, 2-cost Dark Star
+  - Cho'Gath     # tank, 1-cost Dark Star
+  - Lissandra    # utility / CC, 1-cost Dark Star
+
+optional_units:
+  - Vex          # 5-cost flex — Dark Star (if in your set version)
+  - Morgana      # 5-cost flex — alternate AP carrier
+
+# TRAIT BREAKPOINTS NOT YET VERIFIED — fill in before Phase 4 from Community
+# Dragon or tactics.tools. Default Dark Star historically goes 3/6/9; Set 17
+# breakpoints could differ.
+required_traits:
+  - [Dark Star, 6]
+
+# Item priorities — general defaults. Mid-set patches often change these; Phase 4
+# author revises after checking current tftacademy or mobalytics tier sheets.
+ideal_items:
+  Jhin:
+    - Giant Slayer
+    - Infinity Edge
+    - Last Whisper
+  Karma:
+    - Archangel's Staff
+    - Jeweled Gauntlet
+    - Hextech Gunblade
+  Kai'Sa:
+    - Guinsoo's Rageblade
+    - Runaan's Hurricane
+    - Bloodthirster
+
+tier: "A"  # placeholder — adjust once meta data is available
+
+# ==============================================================================
+# Why Dark Star is a better teaching example than the original anima_squad:
+# ==============================================================================
+# 1. Every named unit exists in Set 17 (verified by Claude Code's champion list).
+# 2. One clear vertical trait (Dark Star) — the required_traits contract is
+#    exercised meaningfully.
+# 3. Units span all 5 cost tiers, so the planner's p_reach math has to handle
+#    every shop-odds row.
+# 4. Clear primary carry (Jhin) + secondary (Kai'Sa) shows the items→units
+#    mapping at more than one priority level.
+#
+# When writing the 12 real archetypes for Phase 4, use this file's STRUCTURE but
+# author distinct content per archetype. Do NOT reuse Dark Star as a template
+# — author fresh from current meta reports.

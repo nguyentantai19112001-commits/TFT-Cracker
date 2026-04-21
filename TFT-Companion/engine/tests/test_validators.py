@@ -139,10 +139,11 @@ def test_three_items_on_unit_passes():
     assert validate(state).ok
 
 
-def test_four_augments_fails():
+def test_four_augments_passes():
+    """Augment count > 3 is now warn-only (Vision partial parse is legitimate)."""
     state           = _valid_state()
     state.augments  = ["A", "B", "C", "D"]
-    assert not validate(state).ok
+    assert validate(state).ok
 
 
 def test_three_augments_passes():

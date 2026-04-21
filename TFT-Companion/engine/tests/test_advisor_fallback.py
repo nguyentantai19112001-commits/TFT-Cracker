@@ -136,3 +136,28 @@ def test_advisor_empty_candidates_safe_message(monkeypatch):
     final_evt = next(e for e in events if e[0] == "final")
     assert final_evt[1]["verdict"] is not None
     assert final_evt[1]["verdict"].confidence == "LOW"
+
+
+def test_advisor_mid_stream_exception_caught(monkeypatch):
+    """Exception raised mid-generator (after yielding some events) is caught by fallback.
+
+    This verifies that `except Exception` wrapping `yield from _advise_stream_llm`
+    catches exceptions that surface after the inner generator has already yielded
+    some events — not just pre-yield failures.
+    """
+    def yield_then_raise(*args, **kwargs):
+        yield ("one_liner", "partial output before crash")
+        raise RuntimeError("mid-stream API disconnect")
+
+    monkeypatch.setattr("advisor._advise_stream_llm", yield_then_raise)
+
+    events = list(advise_stream(
+        state=_fixture_state(), fires=[], actions=[_fixture_action()], comps=[],
+        client=None, capture_id=None,
+    ))
+
+    event_types = [e[0] for e in events]
+    assert "final" in event_types, "fallback must still emit final after mid-stream crash"
+    final_evt = next(e for e in events if e[0] == "final")
+    assert final_evt[1]["__meta__"]["source"] == "deterministic_fallback"
+    assert "disconnect" in final_evt[1]["__meta__"]["error"]

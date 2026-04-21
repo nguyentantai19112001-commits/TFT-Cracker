@@ -90,9 +90,9 @@ def _markov_roll(
     v[0] = 1.0
     dist = v @ np.linalg.matrix_power(M, slots)
 
-    p1 = float(np.sum(dist[1:]))
-    p2 = float(np.sum(dist[2:]))
-    p3 = float(np.sum(dist[3:])) if k >= 3 else 0.0
+    p1 = min(1.0, float(np.sum(dist[1:])))
+    p2 = min(1.0, float(np.sum(dist[2:])))
+    p3 = min(1.0, float(np.sum(dist[3:]))) if k >= 3 else 0.0
     expected = float(np.dot(np.arange(n), dist))
     return p1, p2, p3, expected
 
@@ -136,9 +136,9 @@ def _hypergeo_roll(
     v[0] = 1.0
     dist = v @ np.linalg.matrix_power(M, slots)  # per-slot, not per-refresh
 
-    p1 = float(np.sum(dist[1:]))
-    p2 = float(np.sum(dist[2:]))
-    p3 = float(np.sum(dist[3:])) if k >= 3 else 0.0
+    p1 = min(1.0, float(np.sum(dist[1:])))
+    p2 = min(1.0, float(np.sum(dist[2:])))
+    p3 = min(1.0, float(np.sum(dist[3:]))) if k >= 3 else 0.0
     expected = float(np.dot(np.arange(n), dist))
     return p1, p2, p3, expected
 

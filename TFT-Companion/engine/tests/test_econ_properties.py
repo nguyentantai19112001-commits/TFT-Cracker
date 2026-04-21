@@ -61,9 +61,9 @@ def test_probabilities_in_unit_interval(level, gold, pool):
     Using 1e-9 tolerance rather than fixing econ.py per Task 9 protocol.
     """
     r = analyze_roll("X", level, gold, pool, SET17)
-    assert -1e-9 <= r.p_hit_at_least_1 <= 1.0 + 1e-9
-    assert -1e-9 <= r.p_hit_at_least_2 <= 1.0 + 1e-9
-    assert -1e-9 <= r.p_hit_at_least_3 <= 1.0 + 1e-9
+    assert 0.0 <= r.p_hit_at_least_1 <= 1.0
+    assert 0.0 <= r.p_hit_at_least_2 <= 1.0
+    assert 0.0 <= r.p_hit_at_least_3 <= 1.0
 
 
 @given(level=levels, gold=golds, pool=pool_states())

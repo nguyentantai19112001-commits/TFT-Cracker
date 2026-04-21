@@ -163,41 +163,40 @@ champions:
   - {name: "Morgana",      cost: 5}
 
 # Trait list — sourced from game_assets.CHAMPIONS (35 traits).
-# Breakpoints (e.g. Dark Star 3/6/9) are NOT YET VERIFIED — fill from Community Dragon
-# or tactics.tools before Phase 4 scores archetypes against trait breakpoints.
+# Breakpoints verified from data/set_data.json (Community Dragon) 2026-04-21.
 traits:
-  - {name: "Anima",          kind: "class",  breakpoints: []}  # loss-streak tech trait
-  - {name: "Arbiter",        kind: "class",  breakpoints: []}
-  - {name: "Bastion",        kind: "class",  breakpoints: []}
-  - {name: "Brawler",        kind: "class",  breakpoints: []}
-  - {name: "Bulwark",        kind: "class",  breakpoints: []}
-  - {name: "Challenger",     kind: "class",  breakpoints: []}
-  - {name: "Commander",      kind: "class",  breakpoints: []}
-  - {name: "Conduit",        kind: "class",  breakpoints: []}
-  - {name: "Dark Lady",      kind: "class",  breakpoints: []}
-  - {name: "Dark Star",      kind: "origin", breakpoints: []}
-  - {name: "Divine Duelist", kind: "class",  breakpoints: []}
-  - {name: "Doomer",         kind: "class",  breakpoints: []}
-  - {name: "Eradicator",     kind: "class",  breakpoints: []}
-  - {name: "Factory New",    kind: "origin", breakpoints: []}
-  - {name: "Fateweaver",     kind: "class",  breakpoints: []}
-  - {name: "Galaxy Hunter",  kind: "origin", breakpoints: []}
-  - {name: "Gun Goddess",    kind: "origin", breakpoints: []}
-  - {name: "Marauder",       kind: "class",  breakpoints: []}
-  - {name: "Mecha",          kind: "origin", breakpoints: []}
-  - {name: "Meeple",         kind: "origin", breakpoints: []}
-  - {name: "N.O.V.A.",       kind: "origin", breakpoints: []}
-  - {name: "Oracle",         kind: "class",  breakpoints: []}
-  - {name: "Party Animal",   kind: "origin", breakpoints: []}
-  - {name: "Primordian",     kind: "origin", breakpoints: []}
-  - {name: "Psionic",        kind: "class",  breakpoints: []}
-  - {name: "Redeemer",       kind: "class",  breakpoints: []}
-  - {name: "Replicator",     kind: "class",  breakpoints: []}
-  - {name: "Rogue",          kind: "class",  breakpoints: []}
-  - {name: "Shepherd",       kind: "class",  breakpoints: []}
-  - {name: "Sniper",         kind: "class",  breakpoints: []}
-  - {name: "Space Groove",   kind: "origin", breakpoints: []}
-  - {name: "Stargazer",      kind: "origin", breakpoints: []}
-  - {name: "Timebreaker",    kind: "class",  breakpoints: []}
-  - {name: "Vanguard",       kind: "class",  breakpoints: []}
-  - {name: "Voyager",        kind: "class",  breakpoints: []}
+  - {name: "Anima",          kind: "class",  breakpoints: [3, 6]}
+  - {name: "Arbiter",        kind: "class",  breakpoints: [2, 3]}
+  - {name: "Bastion",        kind: "class",  breakpoints: [2, 4, 6]}
+  - {name: "Brawler",        kind: "class",  breakpoints: [2, 4, 6]}
+  - {name: "Bulwark",        kind: "class",  breakpoints: [1]}
+  - {name: "Challenger",     kind: "class",  breakpoints: [2, 3, 4, 5]}
+  - {name: "Commander",      kind: "class",  breakpoints: [1]}
+  - {name: "Conduit",        kind: "class",  breakpoints: [2, 3, 4, 5]}
+  - {name: "Dark Lady",      kind: "class",  breakpoints: [1]}
+  - {name: "Dark Star",      kind: "origin", breakpoints: [2, 4, 6, 9]}
+  - {name: "Divine Duelist", kind: "class",  breakpoints: [1]}
+  - {name: "Doomer",         kind: "class",  breakpoints: [1]}
+  - {name: "Eradicator",     kind: "class",  breakpoints: [1]}
+  - {name: "Factory New",    kind: "origin", breakpoints: [1]}
+  - {name: "Fateweaver",     kind: "class",  breakpoints: [2, 4]}
+  - {name: "Galaxy Hunter",  kind: "origin", breakpoints: [1]}
+  - {name: "Gun Goddess",    kind: "origin", breakpoints: [1]}
+  - {name: "Marauder",       kind: "class",  breakpoints: [2, 4, 6]}
+  - {name: "Mecha",          kind: "origin", breakpoints: [3, 4, 6]}
+  - {name: "Meeple",         kind: "origin", breakpoints: [3, 5, 7, 10]}
+  - {name: "N.O.V.A.",       kind: "origin", breakpoints: [2, 5]}
+  - {name: "Oracle",         kind: "class",  breakpoints: [1]}
+  - {name: "Party Animal",   kind: "origin", breakpoints: [1]}
+  - {name: "Primordian",     kind: "origin", breakpoints: [2, 3]}
+  - {name: "Psionic",        kind: "class",  breakpoints: [2, 4]}
+  - {name: "Redeemer",       kind: "class",  breakpoints: [1]}
+  - {name: "Replicator",     kind: "class",  breakpoints: [2, 4]}
+  - {name: "Rogue",          kind: "class",  breakpoints: [2, 3, 4, 5]}
+  - {name: "Shepherd",       kind: "class",  breakpoints: [3, 5, 7]}
+  - {name: "Sniper",         kind: "class",  breakpoints: [2, 3, 4]}
+  - {name: "Space Groove",   kind: "origin", breakpoints: [1, 3, 5, 7, 10]}
+  - {name: "Stargazer",      kind: "origin", breakpoints: [3, 5, 7]}
+  - {name: "Timebreaker",    kind: "class",  breakpoints: [2, 3, 4]}
+  - {name: "Vanguard",       kind: "class",  breakpoints: [2, 4, 6]}
+  - {name: "Voyager",        kind: "class",  breakpoints: [2, 3, 4, 5, 6]}

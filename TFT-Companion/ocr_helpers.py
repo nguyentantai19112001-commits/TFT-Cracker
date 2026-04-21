@@ -64,13 +64,11 @@ def get_health() -> Optional[int]:
 
 
 def get_gold() -> int:
-    """Gold via OCR of the gold box. 0 on parse failure."""
-    raw = ocr.get_text(bbox=screen_coords.GOLD_POS.get_coords(), scale=3,
-                       psm=7, whitelist=ocr.DIGIT_WHITELIST)
-    try:
-        return int(raw)
-    except ValueError:
-        return 0
+    """Gold via PaddleOCR (hybrid path). 0 on parse failure."""
+    bbox = screen_coords.GOLD_POS.get_coords()
+    region = np.array(ImageGrab.grab(bbox=bbox).convert("RGB"))
+    result = read_int_hybrid(region, field_name="gold")
+    return result if result is not None else 0
 
 
 def valid_champ(candidate: str, champions: set[str]) -> str:

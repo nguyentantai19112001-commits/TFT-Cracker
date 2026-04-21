@@ -197,3 +197,26 @@
 - BUG FOUND: econ._markov_roll() returns p_hit_at_least_1=1.0000000000000002 due to numpy matrix power precision. Minimal: level=1, gold=60, pool=(k=1,R_T=3,distinct=14). Fix: clamp to min(1.0, ...). NOT fixed in Task 9 — logged in DATA_GAPS.md.
 
 ## Total test count after all 9 tasks: 161 passing, 15 skipped
+
+## Post-handoff fixes — DONE 2026-04-21
+
+### Fix 1 — econ float clamp (blocker)
+- edited: engine/econ.py — `min(1.0, ...)` applied to p1/p2/p3 in both `_markov_roll` and `_hypergeo_roll`
+- edited: engine/tests/test_econ_properties.py — reverted `test_probabilities_in_unit_interval` to strict [0.0, 1.0] assertion (1e-9 tolerance removed)
+- edited: engine/DATA_GAPS.md — bug marked ✅ fixed
+
+### Fix 2 — PaddleOCR wired into get_gold() (blocker)
+- edited: ocr_helpers.py — `get_gold()` now uses `ImageGrab.grab()` + `read_int_hybrid()` instead of `ocr.get_text()`. Paddle primary, tesseract fallback; 0 on total parse failure.
+
+### Fix 3 — Augment validator loosened (should-fix)
+- edited: validators.py — removed augments > 3 hard failure (Vision partial parse is legitimate); replaced with explanatory comment
+- edited: engine/tests/test_validators.py — `test_four_augments_fails` → `test_four_augments_passes` to match new behavior
+
+### Fix 4 — Trait breakpoints filled (should-fix)
+- edited: engine/knowledge/set_17.yaml — all 35 traits now have breakpoints from data/set_data.json (Community Dragon)
+- edited: engine/DATA_GAPS.md — traits[*].breakpoints marked ✅ verified
+
+### Fix 5 — Mid-stream fallback test (should-fix)
+- edited: engine/tests/test_advisor_fallback.py — added `test_advisor_mid_stream_exception_caught`: yields one event then raises, verifies `except Exception` in `yield from` catches mid-stream crash and emits fallback final
+
+- tests: 162 passing, 15 skipped (was 161/15)
