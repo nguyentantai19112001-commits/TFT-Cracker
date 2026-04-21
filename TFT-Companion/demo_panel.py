@@ -102,7 +102,7 @@ def build_demo_state(
     )
 
 
-def main(fixture_name: str = "late") -> None:
+def main(fixture_name: str = "late", screenshot_path: str | None = None) -> None:
     app = QApplication(sys.argv)
     app.setApplicationName("Augie Demo")
 
@@ -136,9 +136,21 @@ def main(fixture_name: str = "late") -> None:
     bindings.on_coach_result(result)
 
     window.show()
+
+    if screenshot_path:
+        from PyQt6.QtCore import QTimer
+        def _snap():
+            px = window.grab()
+            px.save(screenshot_path)
+            print(f"[demo] screenshot saved → {screenshot_path}")
+            app.quit()
+        QTimer.singleShot(800, _snap)
+
     sys.exit(app.exec())
 
 
 if __name__ == "__main__":
+    import os
     fixture = sys.argv[1] if len(sys.argv) > 1 else "late"
-    main(fixture)
+    snap = sys.argv[2] if len(sys.argv) > 2 else None
+    main(fixture, screenshot_path=snap)

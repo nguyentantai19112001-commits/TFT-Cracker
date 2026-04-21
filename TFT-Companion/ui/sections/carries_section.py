@@ -68,7 +68,7 @@ class CarriesSection(QWidget):
             return
 
         self._placeholder.setVisible(False)
-        for carry in carries[:3]:
+        for carry in carries[:2]:
             row = _CarryRow(carry, carry.get("items", []))
             self._rows.append(row)
             self._container.addWidget(row)

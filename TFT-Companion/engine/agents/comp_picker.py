@@ -38,7 +38,7 @@ class CompPickerAgent(AgentBase):
     def _fallback(self, ctx: Any) -> AgentResult:
         archetypes = _load_archetypes()
         scored = _score_archetypes(ctx, archetypes)
-        return _fallback_result(scored, archetypes)
+        return _fallback_result(scored, archetypes, ctx)
 
 
 # ── YAML loader ───────────────────────────────────────────────────────────────
@@ -181,7 +181,7 @@ def _parse_llm_response(raw: str, top5: list[tuple], archetypes: dict) -> CompPi
         )
     except Exception as exc:
         log.warning("CompPicker LLM parse failed: %s | raw=%.200s", exc, raw)
-        return _fallback_result(top5, archetypes)
+        return _fallback_result(top5, archetypes, ctx=None)
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -198,16 +198,33 @@ def _build_comp_option(arch_id: str, arch: dict, scored: list[tuple]) -> CompOpt
     )
 
 
-def _fallback_result(scored: list[tuple], archetypes: dict) -> CompPickerResult:
+def _fallback_result(scored: list[tuple], archetypes: dict, ctx: Any = None) -> CompPickerResult:
     arch_data: dict = archetypes.get("archetypes") or {}
     options: list[CompOption] = []
+    board_map = {s.get("api_name", ""): s for s in (ctx.board_slots or [])} if ctx else {}
 
-    for score, arch_id, arch in scored[:3]:
+    for rank, (score, arch_id, arch) in enumerate(scored[:3]):
         if not arch_data.get(arch_id):
             continue
         opt = _build_comp_option(arch_id, arch, scored)
-        opt.why_this_fits = f"Rule engine: fit score {score:.2f}."
-        opt.why_not_the_others = "LLM unavailable — ranked by rule engine."
+
+        core_units: list[str] = arch.get("core_units", [])
+        cores_held = [u for u in core_units if u in board_map]
+        bis_hits = [u for u in cores_held if board_map[u].get("star", 1) >= 2]
+        carry = arch.get("primary_carry", "")
+        carry_display = carry.split("_")[-1] if "_" in carry else carry
+
+        n_c, n_h = len(core_units), len(cores_held)
+        why = f"{n_h}/{n_c} cores on board" if n_c > 0 else f"Fit {score:.2f}"
+        if bis_hits:
+            unit = bis_hits[0]
+            why += f", {unit.split('_')[-1] if '_' in unit else unit} 2★"
+        stage_gate = arch.get("stage_gate", [1, 1])
+        if ctx and carry_display and tuple(ctx.stage) >= tuple(stage_gate):
+            why += f", {carry_display} online"
+
+        opt.why_this_fits = why
+        opt.why_not_the_others = f"Rule engine rank #{rank + 1} of {len(scored)}."
         options.append(opt)
 
     if not options:

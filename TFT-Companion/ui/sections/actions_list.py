@@ -46,7 +46,7 @@ class ActionsList(QWidget):
             return
 
         self._placeholder.setVisible(False)
-        for action in actions[:5]:
+        for action in actions[:1]:
             row = ActionRow()
             row.set_action(
                 headline=action.get("headline", ""),

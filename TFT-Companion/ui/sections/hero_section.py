@@ -147,8 +147,8 @@ class HeroSection(QWidget):
         self._carry_icons: list[TinyChampIcon] = []
 
     def apply(self, verdict: str, champ_name: str, champ_api: str, cost: int,
-              carries: list[dict]):
-        self.verdict_badge.set_verdict(verdict)
+              carries: list[dict], subline: str = ""):
+        self.verdict_badge.set_verdict(verdict, subline)
         self.main_champ.set_champion(champ_api, cost)
         self.champ_name.setText(champ_name)
         self.champ_detail.setText(f"Cost {cost}")

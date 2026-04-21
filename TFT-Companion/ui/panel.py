@@ -16,16 +16,13 @@ from PyQt6.QtWidgets import (
 from ui.tokens import COLOR, RADIUS, SPACE, SIZE
 from ui.chrome.title_bar import TitleBar
 from ui.widgets.warning_block import WarningBlock
-from ui.widgets.situational_frame_strip import SituationalFrameStrip
 from ui.sections.hero_section import HeroSection
-from ui.sections.status_pills import StatusPills
 from ui.sections.prob_section import ProbSection
 from ui.sections.comp_option_row import CompOptionRow
 from ui.sections.actions_list import ActionsList
 from ui.sections.carries_section import CarriesSection
 from ui.widgets.holder_hint_row import HolderHintRow
 from ui.sections.augment_preview_v3 import AugmentPreviewV3
-from ui.sections.footer import Footer
 
 
 _BLOBS = [
@@ -35,14 +32,27 @@ _BLOBS = [
 ]
 
 
+_FRAME_SUBLINE: dict[str, str] = {
+    "winning": "Winning — press and buy levels",
+    "stable":  "Stable — stay consistent",
+    "losing":  "Losing — econ sack or pivot",
+    "salvage": "Salvage — cut losses, pivot fast",
+    "dying":   "Dying — go 8 and pray",
+}
+
+
 class AuroraPanel(QWidget):
-    """Full v3 overlay panel — 780px, 10 sections."""
+    """Full v3 overlay panel — 620px, 7 sections."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setAutoFillBackground(False)
         self.setFixedWidth(SIZE.panel_width)
+
+        # State for merging frame tag into verdict subline
+        self._frame_tag = "stable"
+        self._frame_sentence = ""
 
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
@@ -71,54 +81,41 @@ class AuroraPanel(QWidget):
         cl.setContentsMargins(SPACE.sm, SPACE.sm, SPACE.sm, SPACE.lg)
         cl.setSpacing(SPACE.md)
 
-        # Warning block (not a section — floats above content)
+        # Warning block (floats above content)
         self.warning = WarningBlock()
         self.warning.setVisible(False)
         cl.addWidget(self.warning)
 
-        # 2. Situational frame strip
-        self.frame_strip = SituationalFrameStrip()
-        cl.addWidget(self.frame_strip)
-
-        # 3. Verdict hero
+        # 2. Verdict hero (frame tag merged into subline)
         self.hero = HeroSection()
         cl.addWidget(self.hero)
 
-        # 4. Econ row
-        self.status_pills = StatusPills()
-        cl.addWidget(self.status_pills)
-
-        # 5. Roll probability (conditionally shown)
+        # 3. Roll probability (conditionally shown)
         self.prob = ProbSection()
         cl.addWidget(self.prob)
 
-        # 6. Target comp — 3 cards
+        # 4. Target comp — 2 cards
         self.comp_options = CompOptionRow()
         cl.addWidget(self.comp_options)
 
-        # 7. Recommended actions
+        # 5. Top recommended action
         self.actions = ActionsList()
         cl.addWidget(self.actions)
 
-        # 8. Carry items + holder matrix
+        # 6. Carry items + holder hint
         self.carries = CarriesSection()
         cl.addWidget(self.carries)
 
-        # 8b. Holder hint row (hidden until data arrives)
         self.holder_hint = HolderHintRow()
         cl.addWidget(self.holder_hint)
 
-        # 9. Priority augments
+        # 7. Priority augments
         self.augments_v3 = AugmentPreviewV3()
         cl.addWidget(self.augments_v3)
 
         cl.addStretch()
         scroll.setWidget(content)
         root.addWidget(scroll, 1)
-
-        # 10. Footer
-        self.footer = Footer()
-        root.addWidget(self.footer)
 
     # ── Paint: blobs then glass ──────────────────────────────────────────────
 
@@ -159,17 +156,21 @@ class AuroraPanel(QWidget):
         self.warning.setVisible(visible and bool(message))
 
     def apply_frame(self, game_tag: str, ev_avg: float, frame_sentence: str) -> None:
-        """Section 2 — SituationalFrameStrip."""
-        self.frame_strip.apply(game_tag, ev_avg, frame_sentence)
+        """Store frame context — merged into verdict subline on next apply_verdict."""
+        self._frame_tag = game_tag
+        self._frame_sentence = (
+            frame_sentence or _FRAME_SUBLINE.get(game_tag, "")
+        )
 
     def apply_verdict(self, verdict: str, champ_name: str, champ_api: str,
                       cost: int, carries: list[dict]):
-        """Section 3 — Verdict hero (existing HeroSection, sized up via tokens)."""
-        self.hero.apply(verdict, champ_name, champ_api, cost, carries)
+        """Section 2 — Verdict hero; subline carries the situational frame."""
+        subline = self._frame_sentence or _FRAME_SUBLINE.get(self._frame_tag, "")
+        self.hero.apply(verdict, champ_name, champ_api, cost, carries, subline=subline)
 
     def apply_econ(self, gold: int, level: int, streak: int, interest: int):
-        """Section 4 — Econ chips."""
-        self.status_pills.apply(gold, level, streak, interest)
+        """No-op — econ row removed in density pass."""
+        pass
 
     def apply_probability(self, prob: float, label: str = "", sublabel: str = ""):
         """Section 5 — Roll probability."""
@@ -212,8 +213,8 @@ class AuroraPanel(QWidget):
         self.augments_v3.apply(silver, gold, prismatic, conditional_text, augment_recs)
 
     def apply_latency(self, ms: int | None):
-        """Section 10 — Footer latency."""
-        self.footer.set_latency(ms)
+        """No-op — footer removed in density pass."""
+        pass
 
     def apply_stage(self, stage: str):
         self.title_bar.set_stage(stage)

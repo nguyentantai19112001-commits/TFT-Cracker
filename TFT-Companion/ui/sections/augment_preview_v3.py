@@ -29,7 +29,7 @@ class AugmentPreviewV3(QWidget):
         card_row = QHBoxLayout()
         card_row.setSpacing(SPACE.sm)
         card_row.setContentsMargins(0, 0, 0, 0)
-        self._cards: list[AugmentRecCard] = [AugmentRecCard() for _ in range(4)]
+        self._cards: list[AugmentRecCard] = [AugmentRecCard() for _ in range(2)]
         for card in self._cards:
             card.setVisible(False)
             card_row.addWidget(card, 0, Qt.AlignmentFlag.AlignTop)

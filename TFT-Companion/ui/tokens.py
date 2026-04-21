@@ -98,7 +98,7 @@ COLOR = SimpleNamespace(
 # ─── Spacing (4px grid) ─────────────────────────────────────────────────
 
 SPACE = SimpleNamespace(
-    xxs=2, xs=4, sm=8, md=12, lg=16, xl=20, xxl=28, xxxl=40,
+    xxs=2, xs=3, sm=6, md=10, lg=13, xl=16, xxl=22, xxxl=32,
 )
 
 
@@ -118,58 +118,58 @@ RADIUS = SimpleNamespace(
 # ─── Sizes ──────────────────────────────────────────────────────────────
 
 SIZE = SimpleNamespace(
-    # Panel (v3 780px)
-    panel_width=780,
-    panel_min_height=520,
-    panel_expanded_height=1400,
-    panel_max_height=1600,
+    # Panel (density v3 — 620px wide, targets 900px vertical)
+    panel_width=620,
+    panel_min_height=420,
+    panel_expanded_height=900,
+    panel_max_height=1000,
 
     # Title bar / chrome
-    title_bar_height=48,
+    title_bar_height=40,
     chrome_btn=24,
     chrome_btn_radius=7,
 
-    # Hero section — v3 evolved
-    hero_champ=80,
-    hero_champ_radius=18,
-    hero_champ_secondary=40,
+    # Hero section
+    hero_champ=64,
+    hero_champ_radius=14,
+    hero_champ_secondary=32,
 
     # Inline icons
     icon_champ_tiny=24,
-    icon_item=28,
+    icon_item=24,
     icon_trait_sym=20,
     icon_mini_item=18,
 
     # Action rows
-    action_icon=48,
-    action_icon_radius=12,
-    action_row_min_height=72,
-    action_row_padding_v=12,
-    action_row_padding_h=16,
+    action_icon=38,
+    action_icon_radius=10,
+    action_row_min_height=58,
+    action_row_padding_v=10,
+    action_row_padding_h=13,
 
     # Probability card
-    prob_card_padding_v=14,
-    prob_card_padding_h=16,
-    prob_bar_height=6,
+    prob_card_padding_v=11,
+    prob_card_padding_h=13,
+    prob_bar_height=5,
 
     # HP pill
-    hp_pill_padding_v=7,
-    hp_pill_padding_h=16,
+    hp_pill_padding_v=6,
+    hp_pill_padding_h=13,
 
-    # Econ chips (v3 sized up)
-    econ_chip_height=60,
-    econ_icon_tile=32,
+    # Econ chips
+    econ_chip_height=48,
+    econ_icon_tile=26,
 
     # v3 — section-specific sizes
-    frame_strip_height=68,
-    verdict_hero_height=140,
-    comp_card_width=240,
-    comp_card_height=320,
-    action_row_height=72,
-    carry_row_height=56,
-    augment_card_width=176,
-    augment_card_height=100,
-    augment_tier_bar_height=52,
+    frame_strip_height=54,
+    verdict_hero_height=90,
+    comp_card_width=188,
+    comp_card_height=256,
+    action_row_height=58,
+    carry_row_height=45,
+    augment_card_width=140,
+    augment_card_height=80,
+    augment_tier_bar_height=42,
 )
 
 
@@ -180,20 +180,20 @@ FONT = SimpleNamespace(
     family_mono="'JetBrains Mono', 'Cascadia Code', Consolas, monospace",
     family_display="Orbitron, 'Segoe UI', system-ui, sans-serif",
 
-    size_header_title=18,
-    size_header_subtitle=11,
-    size_hero_verdict=19,
-    size_verdict_subtitle=13,
-    size_section_label=11,
-    size_verdict_headline=22,
-    size_body=12,
-    size_body_small=11,
-    size_row_title=13,
-    size_row_subtitle=11,
-    size_badge=11,
-    size_footer=10,
-    size_metric=24,
-    size_hero_glyph=26,
+    size_header_title=14,
+    size_header_subtitle=9,
+    size_hero_verdict=15,
+    size_verdict_subtitle=10,
+    size_section_label=9,
+    size_verdict_headline=18,
+    size_body=10,
+    size_body_small=9,
+    size_row_title=10,
+    size_row_subtitle=9,
+    size_badge=9,
+    size_footer=8,
+    size_metric=19,
+    size_hero_glyph=21,
 
     weight_regular=400,
     weight_medium=500,
