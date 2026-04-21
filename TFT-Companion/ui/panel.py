@@ -58,6 +58,7 @@ class AuroraPanel(QWidget):
 
         # Glass body
         self._body = _PanelBody(self)
+        self._body.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         body_layout = QVBoxLayout(self._body)
         body_layout.setContentsMargins(0, 0, 0, 0)
         body_layout.setSpacing(0)
@@ -71,7 +72,11 @@ class AuroraPanel(QWidget):
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        scroll.setStyleSheet("background: transparent;")
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        scroll.viewport().setAutoFillBackground(False)
+        scroll.setStyleSheet("QScrollArea { background: transparent; border: none; }"
+                             "QScrollArea > QWidget > QWidget { background: transparent; }")
 
         content = QWidget()
         content.setStyleSheet("background: transparent;")
@@ -129,7 +134,6 @@ class AuroraPanel(QWidget):
 
     def apply_econ(self, gold: int, level: int, streak: int, interest: int):
         self.status_pills.apply(gold, level, streak, interest)
-        self.title_bar.set_hp(gold)
 
     def apply_probability(self, prob: float, label: str = "", sublabel: str = ""):
         self.prob.apply(prob, label=label, sublabel=sublabel)

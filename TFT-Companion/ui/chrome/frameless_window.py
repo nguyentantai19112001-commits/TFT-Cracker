@@ -45,6 +45,7 @@ class AugieFrameless(FramelessWindow):
 
         self.setFixedWidth(SIZE.panel_width)
         self.setMinimumHeight(SIZE.panel_min_height)
+        self.resize(SIZE.panel_width, SIZE.panel_expanded_height)
 
         self._pinned = True
         self._apply_mica()
