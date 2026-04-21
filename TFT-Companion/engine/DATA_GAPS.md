@@ -68,6 +68,14 @@ Real playable champions per cost — use these names exactly:
 
 ---
 
+## UI bindings gaps (added 2026-04-21)
+
+| Gap | Status | Notes |
+|-----|--------|-------|
+| Augment tier (silver/gold/prismatic) | ❌ | Vision pipeline returns augment API names only. Tier not extracted. `bindings.on_state_extracted` defaults all augments to "silver". Needs either OCR tier-text recognition or icon-region template match against tier art. |
+| Trait breakpoint tier per chip | ⚠️ | `on_comp_plan` uses comp archetype power tier (S/A/B/C) as a proxy for chip tier. Actual per-trait breakpoint tiers are in set_17.yaml but not wired to the TraitChip call. Wire when comp_planner exposes trait activation counts. |
+| Roll p_hit in ProbCard | ❌ | ProbCard currently shows `p_reach` from top CompCandidate. The recommender computes `p_hit_at_least_1` via `econ.analyze_roll()` for ROLL_TO actions but does not persist it in `ActionCandidate.params`. Needs `params["p_hit"]` added to ROLL_TO candidates in recommender.py. |
+
 ## Known code bugs (found by Hypothesis — Task 9)
 
 | Bug | Location | Minimal reproducer | Fix status |
