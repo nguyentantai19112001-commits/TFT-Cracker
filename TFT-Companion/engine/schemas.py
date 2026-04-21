@@ -237,7 +237,11 @@ class AdvisorVerdict(BaseModel):
     confidence: Literal["HIGH", "MEDIUM", "LOW"]
     tempo_read: Literal["AHEAD", "ON_PACE", "BEHIND", "CRITICAL"]
     primary_action: ActionType
-    chosen_candidate: ActionCandidate   # which of the top-K recommender picked
+    # Required (not Optional) because overlay always needs an action to display.
+    # When the recommender returns no candidates, advisor.py substitutes a
+    # HOLD_ECON placeholder (score=0, params={}) so the field is never None.
+    # This is a deliberate contract: callers must always get an actionable verdict.
+    chosen_candidate: ActionCandidate
     reasoning: str                      # 2-4 sentences
     considerations: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)

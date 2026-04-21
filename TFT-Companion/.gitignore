@@ -6,8 +6,12 @@ sessions/
 .venv/
 venv/
 
-# Local game-state data
+# Local game-state data (screenshots, raw captures)
 captures/
+# Allow JSON test fixtures inside the engine test captures dir
+!engine/tests/fixtures/captures/
+!engine/tests/fixtures/captures/**/
+!engine/tests/fixtures/captures/**/*.json
 db/tftcoach.db
 db/tftcoach.db-journal
 

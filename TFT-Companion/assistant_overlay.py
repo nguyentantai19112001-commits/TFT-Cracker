@@ -246,12 +246,12 @@ class AppController(QObject):
 
     def on_start(self) -> None:
         gid = session.start_game(queue_type="ranked")
-        print(f">>> Game session started (game_id={gid})")
+        logger.info("Game session started (game_id={})", gid)
 
     def on_end(self) -> None:
         gid = session.current_game_id()
         if gid is None:
-            print(">>> No active game session.")
+            logger.warning("on_end called with no active game session")
             return
         try:
             raw       = input("Final placement (1-8, blank to skip): ").strip()
@@ -259,7 +259,7 @@ class AppController(QObject):
         except (ValueError, EOFError):
             placement = None
         session.end_game(final_placement=placement)
-        print(f">>> Game session {gid} closed (placement={placement}).")
+        logger.info("Game session {} closed (placement={})", gid, placement)
 
 
 # ── Entry point ────────────────────────────────────────────────────────────────
@@ -269,7 +269,7 @@ def main() -> int:
     load_dotenv()
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key:
-        print("ERROR: ANTHROPIC_API_KEY not set. Copy .env.example to .env.")
+        logger.critical("ANTHROPIC_API_KEY not set — copy .env.example to .env and restart")
         return 1
 
     client = Anthropic(api_key=api_key)
@@ -298,14 +298,12 @@ def main() -> int:
     keyboard.add_hotkey(HOTKEY_END,    bridge.endRequested.emit)
     keyboard.add_hotkey(HOTKEY_QUIT,   app.quit)
 
-    print("=" * 72)
-    print("  AUGIE  —  v2 pipeline (engine/)")
-    print("=" * 72)
-    print(f"  {HOTKEY_ADVISE.upper()}   advise on current state")
-    print(f"  {HOTKEY_START.upper()}  start a game session")
-    print(f"  {HOTKEY_END.upper()}  end game session  (prompts for placement)")
-    print(f"  {HOTKEY_QUIT.upper()}  quit")
-    print("\nOverlay floats top-right. Drag by the title bar.\n")
+    logger.info("AUGIE v2 pipeline started")
+    logger.info(
+        "Hotkeys: {} advise | {} start session | {} end session | {} quit",
+        HOTKEY_ADVISE.upper(), HOTKEY_START.upper(),
+        HOTKEY_END.upper(), HOTKEY_QUIT.upper(),
+    )
 
     return app.exec()
 

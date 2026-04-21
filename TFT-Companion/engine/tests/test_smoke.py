@@ -13,16 +13,15 @@ then add a parametrize entry below.
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
 import pytest
 
-# Import guards — tests should only run on modules that exist.
-# As phases are completed, remove the skip markers.
-pytestmark = pytest.mark.skipif(
-    not Path("schemas.py").exists(),
-    reason="schemas.py not yet created (Phase 0 incomplete)",
-)
+# engine/ root — all module paths resolve relative to here, not CWD.
+_ENGINE = Path(__file__).resolve().parents[1]
+if sys.path[0] != str(_ENGINE):
+    sys.path.insert(0, str(_ENGINE))
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures" / "captures"
 
@@ -69,7 +68,7 @@ def test_econ_available():
     pytest.importorskip("econ")
 
 
-@pytest.mark.skipif(not Path("econ.py").exists(), reason="econ.py not yet built")
+@pytest.mark.skipif(not (_ENGINE / "econ.py").exists(), reason="econ.py not yet built")
 def test_econ_p_hit_reasonable():
     from knowledge import load_set
     from schemas import PoolState
@@ -88,7 +87,7 @@ def test_econ_p_hit_reasonable():
 # Phase 2 smoke — pool tracker updates
 # ==============================================================================
 
-@pytest.mark.skipif(not Path("pool.py").exists(), reason="pool.py not yet built")
+@pytest.mark.skipif(not (_ENGINE / "pool.py").exists(), reason="pool.py not yet built")
 def test_pool_tracker_decrement():
     from pool import PoolTracker
     from schemas import BoardUnit
@@ -105,7 +104,7 @@ def test_pool_tracker_decrement():
 # Phase 3 smoke — rules fire
 # ==============================================================================
 
-@pytest.mark.skipif(not Path("rules.py").exists(), reason="rules.py not yet extended")
+@pytest.mark.skipif(not (_ENGINE / "rules.py").exists(), reason="rules.py not yet extended")
 def test_rules_hp_urgent_fires():
     from schemas import GameState
     import rules
@@ -124,7 +123,7 @@ def test_rules_hp_urgent_fires():
 # Phase 5 smoke — recommender returns top-k
 # ==============================================================================
 
-@pytest.mark.skipif(not Path("recommender.py").exists(), reason="recommender.py not yet built")
+@pytest.mark.skipif(not (_ENGINE / "recommender.py").exists(), reason="recommender.py not yet built")
 def test_recommender_returns_top_k():
     from schemas import GameState
     from pool import PoolTracker
@@ -152,7 +151,7 @@ def test_recommender_returns_top_k():
 # Phase 6 smoke — advisor picks from top-k (requires live API or recorded session)
 # ==============================================================================
 
-@pytest.mark.skipif(not Path("advisor.py").exists(), reason="advisor.py not yet refactored")
+@pytest.mark.skipif(not (_ENGINE / "advisor.py").exists(), reason="advisor.py not yet refactored")
 @pytest.mark.slow  # needs API key; skip in CI without one
 def test_advisor_picks_from_top_k():
     pytest.skip("Enable after Phase 6 with recorded API responses")
@@ -165,15 +164,46 @@ def test_advisor_picks_from_top_k():
 @pytest.mark.parametrize("fixture_name", _available_fixtures())
 @pytest.mark.skipif(not _available_fixtures(), reason="no capture fixtures")
 def test_full_pipeline_on_capture(fixture_name):
-    """Run vision + state build + rules + recommender + advisor on a recorded capture.
-    Asserts nothing crashes and the output verdict has required fields."""
+    """Full pipeline on a recorded capture: state → validate → rules → comp → recommender.
+
+    Does NOT call the advisor (that requires a live API key). Verifies the deterministic
+    layers don't crash and produce well-formed output on any fixture state.
+    """
     fixture_dir = FIXTURES_DIR / fixture_name
     state_json = json.loads((fixture_dir / "state.json").read_text())
 
     from schemas import GameState
-    state = GameState.model_validate(state_json)
+    import econ
+    import rules
+    import knowledge as km
+    from pool import PoolTracker
+    from comp_planner import load_archetypes, top_k_comps
+    from recommender import top_k
+    from validators import validate
 
-    # As phases complete, extend this test to exercise each layer.
+    state = GameState.model_validate(state_json)
     assert state.stage
     assert state.hp >= 0
     assert state.level >= 1
+
+    # Validator must not raise
+    result = validate(state)
+    assert result.ok, f"fixture state failed validation: {result.failures}"
+
+    # Deterministic rule engine
+    set17 = km.load_set("17")
+    core  = km.load_core()
+    pt    = PoolTracker(set17)
+    fires = rules.evaluate(state, econ, pt, km)
+    assert isinstance(fires, list)
+
+    # Comp planner
+    archs = load_archetypes()
+    comps = top_k_comps(state, pt, archs, set17, k=3)
+    assert len(comps) <= 3
+
+    # Recommender
+    actions = top_k(state, fires, comps, pt, set17, core, k=3)
+    assert len(actions) <= 3
+    for a in actions:
+        assert -15 <= a.total_score <= 15

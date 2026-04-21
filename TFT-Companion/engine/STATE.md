@@ -220,3 +220,22 @@
 - edited: engine/tests/test_advisor_fallback.py — added `test_advisor_mid_stream_exception_caught`: yields one event then raises, verifies `except Exception` in `yield from` catches mid-stream crash and emits fallback final
 
 - tests: 162 passing, 15 skipped (was 161/15)
+
+## Score-push fixes — DONE 2026-04-21
+
+### Fix 6 — Smoke tests: 0/9 → 8/9 passing
+- edited: engine/tests/test_smoke.py — all `Path("*.py")` skipif guards replaced with `_ENGINE / "*.py"` absolute-path checks; added `_ENGINE` path constant + sys.path insert so engine modules resolve from the test CWD
+- added: engine/tests/fixtures/captures/minimal/state.json — minimal GameState fixture so test_full_pipeline_on_capture runs without a live game
+- extended: test_full_pipeline_on_capture now exercises validate → rules → comp_planner → recommender on the fixture (not just JSON parse)
+- 1 remaining skip: test_advisor_picks_from_top_k — explicitly `pytest.skip()`'d; requires live API key by design
+
+### Fix 7 — Logging migration: print() → logger in assistant_overlay.py
+- edited: assistant_overlay.py — all 9 print() calls replaced with logger.info/warning/critical calls; structured log lines now capture game_id and placement
+
+### Fix 8 — Schema deviation documented
+- edited: engine/schemas.py — AdvisorVerdict.chosen_candidate annotated with 3-line comment explaining why it is required (not Optional) and the HOLD_ECON placeholder contract
+
+### Fix 9 — pytest slow mark registered
+- added: engine/tests/conftest.py — registers 'slow' mark to eliminate PytestUnknownMarkWarning
+
+- tests: 170 passing, 7 skipped (7 legitimately require live game/API key/labeled corpus)
