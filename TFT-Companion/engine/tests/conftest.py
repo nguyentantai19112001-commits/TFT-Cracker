@@ -9,10 +9,15 @@ from pathlib import Path
 
 import pytest
 
-# engine/ root — must be sys.path[0] before any test file imports.
+# engine/ root — must be sys.path[0] for direct module imports (e.g. schemas, econ).
 _ENGINE = Path(__file__).resolve().parent.parent
 if sys.path[0] != str(_ENGINE):
     sys.path.insert(0, str(_ENGINE))
+
+# Project root (TFT-Companion/) — needed for `from engine.X import ...` and `from ui.X import ...`
+_ROOT = _ENGINE.parent
+if str(_ROOT) not in sys.path:
+    sys.path.append(str(_ROOT))
 
 
 def pytest_configure(config):
