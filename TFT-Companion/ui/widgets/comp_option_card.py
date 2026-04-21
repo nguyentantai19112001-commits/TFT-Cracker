@@ -128,14 +128,14 @@ class CompOptionCard(QWidget):
         # Display name
         p.setPen(QPen(QColor(COLOR.text_primary)))
         f_name = QFont()
-        f_name.setPointSize(13)
+        f_name.setPointSize(FONT.comp_name_size)
         f_name.setWeight(QFont.Weight.DemiBold)
         p.setFont(f_name)
-        name_rect = QRectF(pad, y, w - pad * 2, 36)
+        name_rect = QRectF(pad, y, w - pad * 2, 28)
         p.drawText(name_rect,
                    Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft | Qt.TextFlag.TextWordWrap,
                    self._display_name)
-        y += 44
+        y += 32
 
         # Primary carry
         if self._primary_carry:
@@ -197,29 +197,11 @@ class CompOptionCard(QWidget):
         f_why = QFont()
         f_why.setPointSize(FONT.size_body_small)
         p.setFont(f_why)
-        why_rect = QRectF(pad, y, w - pad * 2, 64)
+        f_why.setPointSize(FONT.comp_why_size)
+        p.setFont(f_why)
+        why_rect = QRectF(pad, y, w - pad * 2, 44)
         p.drawText(why_rect,
                    Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft | Qt.TextFlag.TextWordWrap,
                    self._why_this_fits or "—")
-        y += 68
-
-        # Still need
-        if self._missing_units:
-            p.setPen(QPen(QColor(COLOR.text_muted)))
-            p.setFont(f_label)
-            p.drawText(QRectF(pad, y, w - pad * 2, 14),
-                       Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft,
-                       "STILL NEED")
-            y += 16
-
-            p.setPen(QPen(QColor(COLOR.text_tertiary)))
-            p.setFont(f_why)
-            missing_str = ", ".join(
-                u.split("_")[-1] if "_" in u else u
-                for u in self._missing_units[:4]
-            )
-            p.drawText(QRectF(pad, y, w - pad * 2, 32),
-                       Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft | Qt.TextFlag.TextWordWrap,
-                       missing_str)
 
         p.end()

@@ -56,12 +56,13 @@ class Bindings:
         """Called with engine.agents.schemas.CoachResult from orchestrator."""
         panel = self._panel
 
-        # Section 2 — Situational frame
+        # Section 2 — Situational frame (econ_tier feeds tiny tag above verdict)
         frame = result.frame
         panel.apply_frame(
             game_tag=frame.game_tag,
             ev_avg=frame.ev_avg_placement,
             frame_sentence=frame.frame_sentence,
+            econ_tier=frame.econ_tier,
         )
 
         # Section 3 — Verdict hero: primary carry from BIS + TempoAgent verdict

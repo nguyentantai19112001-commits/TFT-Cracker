@@ -4,7 +4,7 @@ from PyQt6.QtCore import Qt, QRectF, QSize
 from PyQt6.QtGui import (
     QPainter, QColor, QBrush, QPen, QPainterPath, QLinearGradient, QFont,
 )
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QSizePolicy
 
 from ui.tokens import COLOR, FONT, SPACE, RADIUS, SIZE
 from ui.widgets.champ_icon import ChampIcon, TinyChampIcon
@@ -94,13 +94,26 @@ class VerdictBadge(QWidget):
 
 
 class HeroSection(QWidget):
-    """Top verdict section: VerdictBadge + main champ + carry strip."""
+    """Top verdict section: frame tag + VerdictBadge + main champ + carry strip."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(SPACE.xl, SPACE.md, SPACE.xl, SPACE.md)
-        layout.setSpacing(SPACE.md)
+        layout.setContentsMargins(SPACE.md, SPACE.sm, SPACE.md, SPACE.sm)
+        layout.setSpacing(SPACE.xs)
+
+        # Frame tag label — tiny uppercase line above verdict ("STABLE · ON CURVE")
+        self._frame_tag_label = QLabel()
+        self._frame_tag_label.setObjectName("frame_tag")
+        self._frame_tag_label.setStyleSheet(
+            f"color: #7ab4ff; font-size: {FONT.frame_tag_size}pt; "
+            f"font-weight: {FONT.weight_extra}; letter-spacing: 1.3px;"
+        )
+        self._frame_tag_label.setSizePolicy(
+            QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed
+        )
+        self._frame_tag_label.setVisible(False)
+        layout.addWidget(self._frame_tag_label)
 
         self.verdict_badge = VerdictBadge()
         layout.addWidget(self.verdict_badge)
@@ -143,7 +156,17 @@ class HeroSection(QWidget):
         self._carry_icons: list[TinyChampIcon] = []
 
     def apply(self, verdict: str, champ_name: str, champ_api: str, cost: int,
-              carries: list[dict], subline: str = ""):
+              carries: list[dict], subline: str = "",
+              frame_tag: str = "", frame_color: str = "#7ab4ff"):
+        if frame_tag:
+            self._frame_tag_label.setText(f"● {frame_tag}")
+            self._frame_tag_label.setStyleSheet(
+                f"color: {frame_color}; font-size: {FONT.frame_tag_size}pt; "
+                f"font-weight: {FONT.weight_extra}; letter-spacing: 1.3px;"
+            )
+            self._frame_tag_label.setVisible(True)
+        else:
+            self._frame_tag_label.setVisible(False)
         self.verdict_badge.set_verdict(verdict, subline)
         self.main_champ.set_champion(champ_api, cost)
         self.champ_name.setText(champ_name)

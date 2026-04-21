@@ -40,6 +40,14 @@ _FRAME_SUBLINE: dict[str, str] = {
     "dying":   "Dying — go 8 and pray",
 }
 
+_FRAME_TAG_COLORS: dict[str, str] = {
+    "winning": "#7affb4",
+    "stable":  "#7ab4ff",
+    "losing":  "#ffd27a",
+    "salvage": "#ff9454",
+    "dying":   "#ff6b88",
+}
+
 
 class AuroraPanel(QWidget):
     """Full v3 overlay panel — 620px, 7 sections."""
@@ -50,9 +58,10 @@ class AuroraPanel(QWidget):
         self.setAutoFillBackground(False)
         self.setFixedWidth(SIZE.panel_width)
 
-        # State for merging frame tag into verdict subline
+        # State for merging frame tag into verdict hero
         self._frame_tag = "stable"
         self._frame_sentence = ""
+        self._frame_econ_tier = "on_curve"
 
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
@@ -78,8 +87,9 @@ class AuroraPanel(QWidget):
         content.setAutoFillBackground(False)
         content.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         cl = QVBoxLayout(content)
-        cl.setContentsMargins(SPACE.sm, SPACE.sm, SPACE.sm, SPACE.lg)
-        cl.setSpacing(SPACE.md)
+        cl.setContentsMargins(SPACE.panel_margin_h, SPACE.panel_margin_v,
+                              SPACE.panel_margin_h, SPACE.panel_margin_v)
+        cl.setSpacing(SPACE.section_gap)
 
         # Warning block (floats above content)
         self.warning = WarningBlock()
@@ -107,7 +117,8 @@ class AuroraPanel(QWidget):
         cl.addWidget(self.carries)
 
         self.holder_hint = HolderHintRow()
-        cl.addWidget(self.holder_hint)
+        # V3_COMPACT: removed — hide by default; re-add later if needed
+        # cl.addWidget(self.holder_hint)
 
         # 7. Priority augments
         self.augments_v3 = AugmentPreviewV3()
@@ -155,18 +166,22 @@ class AuroraPanel(QWidget):
         self.warning.set_message(message)
         self.warning.setVisible(visible and bool(message))
 
-    def apply_frame(self, game_tag: str, ev_avg: float, frame_sentence: str) -> None:
-        """Store frame context — merged into verdict subline on next apply_verdict."""
+    def apply_frame(self, game_tag: str, ev_avg: float, frame_sentence: str,
+                    econ_tier: str = "on_curve") -> None:
+        """Store frame context — displayed as tiny tag above verdict verb."""
         self._frame_tag = game_tag
-        self._frame_sentence = (
-            frame_sentence or _FRAME_SUBLINE.get(game_tag, "")
-        )
+        self._frame_sentence = frame_sentence or _FRAME_SUBLINE.get(game_tag, "")
+        self._frame_econ_tier = econ_tier
 
     def apply_verdict(self, verdict: str, champ_name: str, champ_api: str,
                       cost: int, carries: list[dict]):
-        """Section 2 — Verdict hero; subline carries the situational frame."""
+        """Section 2 — Verdict hero; frame tag shown above verb."""
+        tag_text = (f"{self._frame_tag} · {self._frame_econ_tier}"
+                    .upper().replace("_", " "))
+        tag_color = _FRAME_TAG_COLORS.get(self._frame_tag, "#7ab4ff")
         subline = self._frame_sentence or _FRAME_SUBLINE.get(self._frame_tag, "")
-        self.hero.apply(verdict, champ_name, champ_api, cost, carries, subline=subline)
+        self.hero.apply(verdict, champ_name, champ_api, cost, carries,
+                        subline=subline, frame_tag=tag_text, frame_color=tag_color)
 
     def apply_econ(self, gold: int, level: int, streak: int, interest: int):
         """No-op — econ row removed in density pass."""

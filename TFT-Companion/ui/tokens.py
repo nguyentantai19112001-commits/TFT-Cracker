@@ -99,6 +99,9 @@ COLOR = SimpleNamespace(
 
 SPACE = SimpleNamespace(
     xxs=2, xs=3, sm=6, md=10, lg=13, xl=16, xxl=22, xxxl=32,
+    section_gap=10,
+    panel_margin_h=16,
+    panel_margin_v=12,
 )
 
 
@@ -118,20 +121,21 @@ RADIUS = SimpleNamespace(
 # ─── Sizes ──────────────────────────────────────────────────────────────
 
 SIZE = SimpleNamespace(
-    # Panel (density v3 — 620px wide, targets 900px vertical)
+    # Panel (compact v3 — 620×720)
     panel_width=620,
-    panel_min_height=420,
-    panel_expanded_height=900,
-    panel_max_height=1000,
+    panel_min_height=360,
+    panel_expanded_height=720,
+    panel_max_height=820,
 
     # Title bar / chrome
-    title_bar_height=40,
+    title_bar_height=44,
     chrome_btn=24,
     chrome_btn_radius=7,
 
     # Hero section
-    hero_champ=64,
-    hero_champ_radius=14,
+    hero_height=78,
+    hero_champ=54,
+    hero_champ_radius=12,
     hero_champ_secondary=32,
 
     # Inline icons
@@ -143,9 +147,10 @@ SIZE = SimpleNamespace(
     # Action rows
     action_icon=38,
     action_icon_radius=10,
-    action_row_min_height=58,
+    action_row_min_height=52,
     action_row_padding_v=10,
     action_row_padding_h=13,
+    action_row_height=52,
 
     # Probability card
     prob_card_padding_v=11,
@@ -162,14 +167,16 @@ SIZE = SimpleNamespace(
 
     # v3 — section-specific sizes
     frame_strip_height=54,
-    verdict_hero_height=90,
+    verdict_hero_height=78,
     comp_card_width=188,
-    comp_card_height=256,
-    action_row_height=58,
-    carry_row_height=45,
+    comp_card_height=196,
+    comp_card_gap=6,
+    carry_row_height=40,
     augment_card_width=140,
     augment_card_height=80,
     augment_tier_bar_height=42,
+    augment_bar_height=28,
+    augment_pick_card_height=40,
 )
 
 
@@ -202,6 +209,18 @@ FONT = SimpleNamespace(
     weight_extra=800,
 
     letter_spacing_caps=1.8,
+
+    # v3 compact semantic scale
+    verdict_size=20,
+    verdict_sub_size=10,
+    frame_tag_size=8,
+    section_label_size=8,
+    comp_name_size=11,
+    comp_why_size=9,
+    action_title_size=11,
+    action_sub_size=9,
+    carry_name_size=10,
+    carry_sub_size=8,
 )
 
 
