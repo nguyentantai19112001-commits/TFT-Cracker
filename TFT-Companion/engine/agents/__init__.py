@@ -1,0 +1,52 @@
+"""Augie v3 agent system — 8 specialized agents orchestrated by CoachOrchestrator."""
+from __future__ import annotations
+
+from engine.agents.base import AgentBase, AgentError, AgentResult
+from engine.agents.schemas import (
+    AugmentQualityResult,
+    AugmentRec,
+    BISEngineResult,
+    CoachResult,
+    CompOption,
+    CompPickerResult,
+    EconScenario,
+    EconSnapshot,
+    HolderAssignment,
+    HolderMatrixResult,
+    ItemEconomyResult,
+    ItemSlam,
+    ItemSlamRec,
+    MicroEconResult,
+    SituationalFrameResult,
+    TempoAgentResult,
+    TierProbabilities,
+    TraitBP,
+    UnitBIS,
+    UnitRef,
+)
+
+__all__ = [
+    "AgentBase",
+    "AgentError",
+    "AgentResult",
+    "AugmentQualityResult",
+    "AugmentRec",
+    "BISEngineResult",
+    "CoachResult",
+    "CompOption",
+    "CompPickerResult",
+    "EconScenario",
+    "EconSnapshot",
+    "HolderAssignment",
+    "HolderMatrixResult",
+    "ItemEconomyResult",
+    "ItemSlam",
+    "ItemSlamRec",
+    "MicroEconResult",
+    "SituationalFrameResult",
+    "TempoAgentResult",
+    "TierProbabilities",
+    "TraitBP",
+    "UnitBIS",
+    "UnitRef",
+]
