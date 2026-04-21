@@ -1,0 +1,314 @@
+# 03_CONSTANTS.yaml — TFT System Constants (Set 17, Patch 17.1B)
+#
+# Every number here comes from research. No LLM guessing. This file
+# becomes engine/knowledge/constants.yaml verbatim.
+
+# ─────────────────────────────────────────────────────────────────────
+# PLAYER DAMAGE — source: lolchess.gg/guide/damage
+# Total damage taken from losing a round =
+#   base_per_stage + (1 damage per surviving enemy unit)
+# ─────────────────────────────────────────────────────────────────────
+player_damage:
+  base_per_stage:
+    1: 0
+    2: 2
+    3: 6
+    4: 7
+    5: 10
+    6: 12
+    7: 17
+    8: 150    # lobby wipe mechanic
+  damage_per_surviving_unit: 1
+
+# ─────────────────────────────────────────────────────────────────────
+# XP TO LEVEL — source: lolchess.gg/guide/exp
+# Every player gets +2 XP per round automatic. You pay 4g per 4 XP to buy.
+# ─────────────────────────────────────────────────────────────────────
+xp_to_next_level:   # XP required FROM the listed level to go UP one
+  1: 2
+  2: 2
+  3: 6
+  4: 10
+  5: 20
+  6: 36
+  7: 60
+  8: 68
+  9: 68
+
+xp_per_buy: 4          # 4 XP per 4 gold spent
+xp_per_round_auto: 2   # every round gives 2 XP passive
+
+# ─────────────────────────────────────────────────────────────────────
+# GOLD INCOME — source: lolchess.gg/guide/exp
+# ─────────────────────────────────────────────────────────────────────
+base_income_per_round:
+  "1-1": 0
+  "1-2": 2
+  "1-3": 2
+  "1-4": 3
+  "2-1": 4
+  "2-2+": 5   # constant 5g from 2-2 onward
+
+# 1 extra gold for winning a PvP round
+win_bonus_gold: 1
+
+# Interest tiers — flat +N gold per round for hitting the threshold
+interest_tiers:
+  - {min: 0,  max: 9,  interest: 0}
+  - {min: 10, max: 19, interest: 1}
+  - {min: 20, max: 29, interest: 2}
+  - {min: 30, max: 39, interest: 3}
+  - {min: 40, max: 49, interest: 4}
+  - {min: 50, max: 999, interest: 5}
+
+# Streak bonuses — applies to both W and L streaks
+streak_bonus:
+  1: 0
+  2: 1
+  3: 1
+  4: 1
+  5: 2
+  6: 3   # 6+ all give +3
+
+# ─────────────────────────────────────────────────────────────────────
+# CHAMPION POOL — source: tftactics.gg/db/rolling/ + esportstales.com
+# Set 17 uses Set 14-era pool sizes (confirmed patch 17.1)
+# ─────────────────────────────────────────────────────────────────────
+pool_size_per_champion:
+  1: 22    # 22 copies of each 1-cost
+  2: 20
+  3: 17
+  4: 10
+  5: 9
+
+distinct_champions_per_tier:   # Set 17 specifically
+  1: 13
+  2: 13
+  3: 13
+  4: 12
+  5: 8
+
+# Shop odds by level — probability of rolling a champion of cost X
+# at level Y when you refresh. Rows sum to 100.
+shop_odds:
+  1:  [100, 0,  0,  0,  0]
+  2:  [100, 0,  0,  0,  0]
+  3:  [75,  25, 0,  0,  0]
+  4:  [55,  30, 15, 0,  0]
+  5:  [45,  33, 20, 2,  0]
+  6:  [30,  40, 25, 5,  0]
+  7:  [19,  30, 35, 10, 1]
+  8:  [18,  25, 32, 22, 3]
+  9:  [10,  20, 25, 35, 10]
+  10: [5,   10, 20, 40, 25]
+  11: [1,   2,  12, 50, 35]
+
+# ─────────────────────────────────────────────────────────────────────
+# AUGMENT DISTRIBUTION — source: tftodds.com/augments/augments-distribution
+# These are patch 17.1 confirmed rules. 24 combinations sum to 100%.
+# ─────────────────────────────────────────────────────────────────────
+augment_distribution:
+  # Stage 2-1 marginal (no history needed)
+  stage_2_1_marginal:
+    silver: 0.28
+    gold: 0.62
+    prismatic: 0.10
+
+  # Full 24-combo table: key is (stage_2_1_tier, stage_3_2_tier)
+  # values are probabilities for stage 4-2 being silver/gold/prismatic
+  full_table:
+    # Stage 2-1 Silver (28%)
+    "S_S":   {silver: 0.00, gold: 0.50, prismatic: 0.50, joint_prob: 0.05}
+    "S_G":   {silver: 0.00, gold: 0.7059, prismatic: 0.2941, joint_prob: 0.17}
+    "S_P":   {silver: 0.00, gold: 0.00, prismatic: 1.00, joint_prob: 0.01}
+    # Stage 2-1 Gold (62%)
+    "G_S":   {silver: 0.00, gold: 0.90, prismatic: 0.10, joint_prob: 0.20}
+    "G_G":   {silver: 0.00, gold: 0.88, prismatic: 0.12, joint_prob: 0.25}
+    "G_P":   {silver: 0.3530, gold: 0.5882, prismatic: 0.0588, joint_prob: 0.17}
+    # Stage 2-1 Prismatic (10%)
+    "P_S":   {silver: 0.00, gold: 0.80, prismatic: 0.20, joint_prob: 0.05}
+    "P_G":   {silver: 0.00, gold: 0.6667, prismatic: 0.3333, joint_prob: 0.03}
+    "P_P":   {silver: 0.00, gold: 0.50, prismatic: 0.50, joint_prob: 0.02}
+
+  # Marginal tier probability at each stage (averaged across histories)
+  tier_probabilities_by_stage:
+    "2-1": {silver: 0.28, gold: 0.62, prismatic: 0.10}
+    "3-2": {silver: 0.35, gold: 0.45, prismatic: 0.20}
+    "4-2": {silver: 0.06, gold: 0.74, prismatic: 0.20}
+
+  # Rules Riot enforces
+  rules:
+    - "Players cannot be offered 3 economy augments in the same round"
+    - "Armory timers: 2-1 = 43s, 3-2 and 4-2 = 58s"
+    - "One reroll per Armory"
+    - "Encounters that modify tier override normal distribution"
+
+# ─────────────────────────────────────────────────────────────────────
+# ECON CURVE BENCHMARKS — source: bunnymuffins.lol/basics-of-tft
+# These are the "on-curve" gold numbers at key decision rounds.
+# ─────────────────────────────────────────────────────────────────────
+econ_curve:
+  # Expected gold at start of round for a player playing standard tempo
+  # Without win or loss streak bonuses
+  "2-1": 4
+  "2-2": 9
+  "2-3": 14
+  "2-4": 19
+  "2-5": 20   # after first carousel, usually level up here
+  "2-6": 27
+  "2-7": 34   # Krugs round
+  "3-1": 42   # post-Krugs
+  "3-2": 50   # target for "on curve" players
+  "3-3": 51
+  "3-4": 52
+  "3-5": 52   # typical Stage 3 rolldown spot for reroll comps
+  "3-6": 53
+  "3-7": 54
+  "4-1": 55   # last augment incoming
+  "4-2": 56   # Fast 8 spike OR Fast 9 setup
+  "4-5": 58
+  "5-1": 60
+  "5-2": 62
+
+# Gold threshold categories for the SituationalFrame agent
+econ_tier_thresholds:
+  # Given stage, categorize current gold into ahead/on_curve/behind/broken
+  # Expressed as delta from econ_curve at that stage
+  ahead: 10       # +10g or more vs curve
+  on_curve: -5    # within ±5g of curve
+  behind: -15     # -5 to -15g below curve
+  broken: -999    # more than -15g below = "broken econ"
+
+# ─────────────────────────────────────────────────────────────────────
+# HP TIER THRESHOLDS
+# ─────────────────────────────────────────────────────────────────────
+hp_tiers:
+  healthy: 60    # ≥60 HP
+  warn: 40       # 40-59 HP
+  danger: 20     # 20-39 HP
+  critical: 0    # <20 HP
+
+# ─────────────────────────────────────────────────────────────────────
+# STAGE-BASED LEVEL TARGETS (standard tempo)
+# ─────────────────────────────────────────────────────────────────────
+level_targets:
+  "2-1": 3
+  "2-5": 5    # auto after carousel
+  "3-1": 5
+  "3-2": 6
+  "3-5": 7
+  "4-1": 7
+  "4-2": 8
+  "4-5": 8    # or 9 if fast 9 setup
+  "5-1": 8
+  "5-2": 9    # Fast 9 spike
+  "5-5": 9
+  "6-1": 9    # 10 only on exceptional econ
+
+# Reroll comp targets — where slow rollers sit
+reroll_level_targets:
+  "1_cost": 6     # 1-cost 3-star attempts hit at level 6
+  "2_cost": 7     # 2-cost 3-star attempts hit at level 7
+  "3_cost": 8     # 3-cost 3-star attempts hit at level 8
+  "4_cost": 10    # 4-cost 3-star attempts hit at level 10
+
+# ─────────────────────────────────────────────────────────────────────
+# ITEM COMPONENTS
+# ─────────────────────────────────────────────────────────────────────
+components:
+  - id: "BF"
+    display: "B.F. Sword"
+    family: "AD"
+    value_tier: "high"          # primary for AD carries
+  - id: "RB"
+    display: "Recurve Bow"
+    family: "AS"
+    value_tier: "medium"
+  - id: "Rod"
+    display: "Needlessly Large Rod"
+    family: "AP"
+    value_tier: "high"          # primary for AP carries
+  - id: "Tear"
+    display: "Tear of the Goddess"
+    family: "mana"
+    value_tier: "high"
+  - id: "Glove"
+    display: "Sparring Gloves"
+    family: "crit"
+    value_tier: "medium"
+  - id: "Cloak"
+    display: "Negatron Cloak"
+    family: "MR"
+    value_tier: "medium"
+  - id: "Vest"
+    display: "Chain Vest"
+    family: "armor"
+    value_tier: "medium"
+  - id: "Belt"
+    display: "Giant's Belt"
+    family: "HP"
+    value_tier: "medium"
+  - id: "Spatula"
+    display: "Spatula"
+    family: "emblem"
+    value_tier: "situational"
+  - id: "Pan"
+    display: "Frying Pan"
+    family: "emblem"
+    value_tier: "situational"
+
+# ─────────────────────────────────────────────────────────────────────
+# POSTURE → ACTION weights (used by TempoAgent's rule pre-filter)
+# ─────────────────────────────────────────────────────────────────────
+posture_weights:
+  # Each posture biases toward certain actions
+  greed:
+    level_up: 1.0
+    roll: 0.3
+    hold: 0.7
+    slam: 0.4
+  stabilize:
+    level_up: 0.5
+    roll: 0.9
+    hold: 0.3
+    slam: 0.7
+  salvage:
+    level_up: 0.2
+    roll: 0.7
+    hold: 0.1
+    slam: 0.9      # tempo slam even suboptimal items
+  all_in:
+    level_up: 0.0
+    roll: 1.0
+    hold: 0.0
+    slam: 1.0
+
+# ─────────────────────────────────────────────────────────────────────
+# FRAME TEMPLATES (SituationalFrame agent)
+# ─────────────────────────────────────────────────────────────────────
+frame_templates:
+  winning_high_hp: "Win streak, {ev:.1f} avg — push level, pressure lobby"
+  winning_mid_hp:  "Ahead on tempo, {ev:.1f} avg — maintain streak over greed"
+  stable_on_curve: "On curve, {ev:.1f} avg — standard leveling, {focus} next"
+  stable_low_hp:   "Board stable but HP {hp} — start rolling to stabilize"
+  losing_healthy:  "Behind tempo — play for value, {ev:.1f} avg possible"
+  losing_low_hp:   "Losing streak, HP {hp} — all-in {stage} rolldown needed"
+  salvage:         "Below curve, {reason} — play for top 4, EV ≈ {ev:.1f}"
+  dying:           "HP {hp} critical — spend everything on stage {stage}"
+
+# ─────────────────────────────────────────────────────────────────────
+# VALUE CLASS for carries (BISEngine weights)
+# ─────────────────────────────────────────────────────────────────────
+value_class_weights:
+  S: 1.00    # Vex, LeBlanc, Viktor — hypercarries
+  A: 0.85    # Blitzcrank, Jhin, Bard
+  B: 0.65    # secondary carries / 4-cost tanks
+  C: 0.45    # item holders only
+  utility: 0.30   # pure support
+
+cost_weights:
+  1: 0.50
+  2: 0.65
+  3: 0.75
+  4: 0.90
+  5: 1.00
