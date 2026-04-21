@@ -253,3 +253,12 @@
 - test_trait_fit_uses_champion_traits: new test locks the behavior (3 Dark Star units > empty board)
 - Closes YELLOW note from TRAITS_AUDIT.md
 - Remaining gap: trait breakpoints per archetype mostly empty — trait_fit fires but synergy cap limited by archetype data
+
+## ui-aurora prereq blockers — ALL RESOLVED 2026-04-21
+
+Blocker 1 — econ float clamp: DONE (commit 19949e5 + pin test 9ac322d)
+Blocker 2 — get_gold() hybrid wiring: DONE (commit 19949e5)
+Blocker 3 — smoke test run: 8/9 passed, 1 skipped (hardcoded pytest.skip — requires recorded API responses)
+  test run output: py -m pytest engine/tests/test_smoke.py -v -s → 8 passed, 1 skipped in 0.45s
+  latency measurement: NOT YET MEASURED — requires live F9 press during a real TFT game
+  gate decision: proceeding to Phase 0 per user approval; latency to be measured on first real session
