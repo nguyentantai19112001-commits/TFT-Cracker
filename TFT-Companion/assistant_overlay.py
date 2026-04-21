@@ -40,7 +40,7 @@ if str(_ENGINE_DIR) not in sys.path:
 import keyboard
 from anthropic import Anthropic
 from dotenv import load_dotenv
-from PyQt6.QtCore import QObject, QThread, Qt, pyqtSignal
+from PyQt6.QtCore import QObject, QThread, Qt, pyqtSignal, QVBoxLayout
 from PyQt6.QtWidgets import QApplication
 
 # v2 engine modules — imported from engine/ via sys.path priority above
@@ -55,9 +55,16 @@ from pool import PoolTracker  # engine/pool.py
 # v1 infrastructure — no v2 counterparts for these
 import session
 from logging_setup import logger, setup_logging
-from overlay import OverlayPanel
 from state_builder import build_state
 from vision import capture_screen, release_camera
+
+# Aurora UI (v2)
+_UI_ROOT = Path(__file__).resolve().parent
+if str(_UI_ROOT) not in sys.path:
+    sys.path.append(str(_UI_ROOT))
+from ui.chrome.frameless_window import AugieFrameless
+from ui.panel import AuroraPanel
+from ui.bindings import Bindings
 
 
 HOTKEY_ADVISE = "f9"
@@ -209,40 +216,38 @@ class HotkeyBridge(QObject):
 # ── App controller ─────────────────────────────────────────────────────────────
 
 class AppController(QObject):
-    def __init__(self, client: Anthropic, overlay: OverlayPanel) -> None:
+    def __init__(self, client: Anthropic, panel: AuroraPanel, bindings: Bindings) -> None:
         super().__init__()
-        self.client  = client
-        self.overlay = overlay
+        self.client   = client
+        self.panel    = panel
+        self.bindings = bindings
         self._worker: Optional[PipelineWorker] = None
 
     def on_advise(self) -> None:
         if self._worker is not None and self._worker.isRunning():
             return  # drop duplicate F9 while pipeline is in-flight
-        self.overlay.reset()
 
         w = PipelineWorker(self.client)
         # All connections use QueuedConnection so signals emitted from the
-        # QThread are delivered on the Qt main thread (where the overlay lives).
+        # QThread are delivered on the Qt main thread (where the panel lives).
         w.extractingStarted.connect(
-            self.overlay.set_extracting, Qt.ConnectionType.QueuedConnection)
+            self.bindings.on_extracting, Qt.ConnectionType.QueuedConnection)
         w.stateExtracted.connect(
-            self.overlay.set_extracted, Qt.ConnectionType.QueuedConnection)
+            self.bindings.on_state_extracted, Qt.ConnectionType.QueuedConnection)
         w.compPlanReady.connect(
-            self.overlay.set_comp_plan, Qt.ConnectionType.QueuedConnection)
+            self.bindings.on_comp_plan, Qt.ConnectionType.QueuedConnection)
         w.verdictReady.connect(
-            self.overlay.set_verdict, Qt.ConnectionType.QueuedConnection)
-        w.reasoningReady.connect(
-            self.overlay.set_reasoning, Qt.ConnectionType.QueuedConnection)
+            self.bindings.on_verdict_ready, Qt.ConnectionType.QueuedConnection)
         w.finalReady.connect(
-            self._on_final, Qt.ConnectionType.QueuedConnection)
+            self.bindings.on_final, Qt.ConnectionType.QueuedConnection)
         w.errorOccurred.connect(
-            self.overlay.set_error, Qt.ConnectionType.QueuedConnection)
+            self.bindings.on_error, Qt.ConnectionType.QueuedConnection)
         w.finished.connect(w.deleteLater)
         self._worker = w
         w.start()
 
     def _on_final(self, rec, meta, wall_s, vision_cost, game_id) -> None:
-        self.overlay.set_final(rec, meta, wall_s, vision_cost, game_id)
+        self.bindings.on_final(rec, meta, wall_s, vision_cost, game_id)
 
     def on_start(self) -> None:
         gid = session.start_game(queue_type="ranked")
@@ -280,10 +285,23 @@ def main() -> int:
     # handle is freed cleanly (avoids "camera not released" warnings on restart).
     app.aboutToQuit.connect(release_camera)
 
-    overlay = OverlayPanel()
-    overlay.show()
+    window = AugieFrameless()
+    panel  = AuroraPanel(window)
 
-    controller = AppController(client, overlay)
+    # Embed panel in window
+    _layout = QVBoxLayout(window)
+    _layout.setContentsMargins(0, 0, 0, 0)
+    _layout.addWidget(panel)
+
+    # Wire chrome buttons
+    panel.title_bar.minimize_clicked.connect(window.showMinimized)
+    panel.title_bar.close_clicked.connect(app.quit)
+    panel.title_bar.pin_toggled.connect(window.set_pinned)
+
+    window.show()
+
+    bindings   = Bindings(panel)
+    controller = AppController(client, panel, bindings)
 
     bridge = HotkeyBridge()
     bridge.adviseRequested.connect(
