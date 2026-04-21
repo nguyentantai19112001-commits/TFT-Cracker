@@ -1,8 +1,14 @@
-"""Thin translation layer: pipeline dicts → AuroraPanel apply_* calls.
+"""Thin translation layer: CoachResult + pipeline dicts → AuroraPanel apply_* calls.
+
+v3 primary path: on_coach_result(CoachResult) → all 8 agents → panel
+Legacy path (v2 pipeline): on_state_extracted, on_comp_plan, on_final still wired.
 
 Usage (in assistant_overlay.py AppController):
     from ui.bindings import Bindings
     self.bindings = Bindings(aurora_panel)
+    # v3 path
+    orchestrator_worker.coachResultReady.connect(self.bindings.on_coach_result)
+    # legacy v2 path
     worker.stateExtracted.connect(self.bindings.on_state_extracted)
     worker.compPlanReady.connect(self.bindings.on_comp_plan)
     worker.verdictReady.connect(self.bindings.on_verdict_ready)
@@ -38,11 +44,134 @@ _TEMPO_TO_VERDICT: dict[str, str] = {
 
 
 class Bindings:
-    """Wires PipelineWorker signals to AuroraPanel.apply_* calls."""
+    """Wires PipelineWorker signals + CoachResult to AuroraPanel.apply_* calls."""
 
     def __init__(self, panel: "AuroraPanel") -> None:
         self._panel = panel
         self._t0: float = 0.0
+
+    # ── v3 primary path — CoachResult → panel ────────────────────────────────
+
+    def on_coach_result(self, result) -> None:
+        """Called with engine.agents.schemas.CoachResult from orchestrator."""
+        panel = self._panel
+
+        # Section 2 — Situational frame
+        frame = result.frame
+        panel.apply_frame(
+            game_tag=frame.game_tag,
+            ev_avg=frame.ev_avg_placement,
+            frame_sentence=frame.frame_sentence,
+        )
+
+        # Section 3 — Verdict hero: primary carry from BIS + TempoAgent verdict
+        bis = result.bis
+        tempo = result.tempo
+        primary_carry = ""
+        if bis.priority_units:
+            u = bis.priority_units[0]
+            primary_carry = u.display_name
+            cost = u.cost
+            carries = [{"api_name": u.api_name, "name": u.display_name, "cost": u.cost}
+                       for u in bis.priority_units[:2]]
+        else:
+            cost = 1
+            carries = []
+        verdict_key = _tempo_to_verdict(tempo.verdict_template)
+        panel.apply_verdict(verdict_key, primary_carry, "", cost, carries)
+
+        # Section 4 — Econ
+        econ = result.econ
+        if econ.current:
+            snap = econ.current
+            panel.apply_econ(snap.gold, snap.level, snap.streak, snap.interest)
+
+        # Section 5 — Probability (only if rolling is recommended)
+        if "roll" in tempo.verdict_template.lower() or "all-in" in tempo.verdict_template.lower():
+            panel.apply_probability(0.0, label=tempo.verdict_display, sublabel=tempo.subline)
+            panel.prob.setVisible(True)
+        else:
+            panel.prob.setVisible(False)
+
+        # Section 6 — Comp options
+        comp = result.comp
+        if comp.top_comp and comp.top_comp.archetype_id:
+            top_dict = comp.top_comp.model_dump()
+            alt_dicts = [a.model_dump() for a in comp.alternates]
+            panel.apply_comp_options(top_dict, alt_dicts)
+
+        # Section 7 — Actions: tempo → econ → item_econ
+        item_econ = result.item_econ
+        econ_scenario = econ.scenarios[0] if econ.scenarios else None
+        actions = [
+            {
+                "headline": tempo.verdict_display,
+                "subline": tempo.subline,
+                "score": 8.0 if tempo.action_priority == "critical" else 6.0,
+                "priority": tempo.action_priority,
+                "glyph": _tempo_glyph(tempo.verdict_template),
+                "color": "#FF89C8",
+            },
+        ]
+        if econ_scenario:
+            actions.append({
+                "headline": econ.one_liner or econ_scenario.action,
+                "subline": f"{econ_scenario.gold_before}g → {econ_scenario.gold_after}g",
+                "score": max(0.0, econ_scenario.recommendation_score * 10),
+                "priority": "medium",
+                "glyph": "◈",
+                "color": "#FFC889",
+            })
+        if item_econ.decision == "slam_now" and item_econ.slam:
+            slam = item_econ.slam
+            actions.append({
+                "headline": f"Slam {slam.item_id} on {slam.holder_display}",
+                "subline": item_econ.reasoning,
+                "score": 7.0 if slam.is_bis else 4.0,
+                "priority": "high",
+                "glyph": "⚙",
+                "color": "#B48CFF",
+            })
+        panel.apply_actions(actions)
+
+        # Section 8 — Carries
+        carries_data = [
+            {
+                "name": u.display_name,
+                "api_name": u.api_name,
+                "cost": u.cost,
+                "items": [{"api_name": it, "category": "ap"} for it in u.items_currently_held],
+            }
+            for u in bis.priority_units
+        ]
+        panel.apply_carries(carries_data)
+
+        # Section 9 — Augments
+        aug = result.augments
+        tier_probs = aug.tier_probabilities
+        if tier_probs:
+            silver = tier_probs.silver
+            gold = tier_probs.gold
+            prismatic = tier_probs.prismatic
+        else:
+            silver, gold, prismatic = 0.28, 0.62, 0.10
+
+        aug_recs = [
+            {
+                "display_name": r.display_name,
+                "tier": r.tier,
+                "fit_score": r.fit_score,
+                "why": r.why,
+            }
+            for r in aug.top_overall_picks[:4]
+        ]
+        panel.apply_augments_v3(
+            silver=silver, gold=gold, prismatic=prismatic,
+            conditional_text=aug.probability_conditional_on_history,
+            augment_recs=aug_recs,
+        )
+
+        panel.apply_latency(None)
 
     def on_extracting(self) -> None:
         self._t0 = time.time()
@@ -176,6 +305,35 @@ class Bindings:
     def on_error(self, msg: str) -> None:
         self._panel.apply_warning(f"Error: {msg}", visible=True)
         self._panel.apply_latency(None)
+
+
+def _tempo_to_verdict(template: str) -> str:
+    """Map TempoAgent verdict_template to HeroSection verdict key."""
+    t = template.lower()
+    if "level" in t:
+        return "buy"
+    if "roll down" in t or "all-in" in t:
+        return "sell"
+    if "hold" in t:
+        return "hold"
+    if "slam" in t:
+        return "transition"
+    if "pivot" in t:
+        return "transition"
+    if "stabilize" in t:
+        return "hold"
+    return "hold"
+
+
+def _tempo_glyph(template: str) -> str:
+    """Map TempoAgent verdict_template to a display glyph."""
+    t = template.lower()
+    if "level" in t: return "↑"
+    if "roll" in t or "all-in" in t: return "↓"
+    if "slam" in t: return "⚙"
+    if "pivot" in t: return "⇄"
+    if "hold" in t or "stabilize" in t: return "→"
+    return "→"
 
 
 def _action_to_row(verdict: dict, candidate: dict) -> dict:

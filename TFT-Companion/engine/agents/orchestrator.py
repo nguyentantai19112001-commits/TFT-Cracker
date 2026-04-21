@@ -1,8 +1,7 @@
-"""Orchestrator — phase 1 (rule-based agents only).
+"""Orchestrator — all 8 agents in parallel.
 
-Runs 5 deterministic agents in parallel via asyncio.gather, returns
-CoachResult. LLM agents (CompPicker, TempoAgent, ItemEconomy) are
-stubbed as no-ops in this phase and will be wired in phase 2 (C10-C13).
+Runs 5 rule-based + 3 LLM agents via asyncio.gather, returns CoachResult.
+LLM agents (CompPicker, TempoAgent, ItemEconomy) have rule-based fallbacks.
 """
 from __future__ import annotations
 
@@ -19,6 +18,9 @@ from engine.agents.micro_econ import MicroEconAgent, MicroEconInput
 from engine.agents.holder_matrix import HolderMatrixAgent, HolderMatrixInput
 from engine.agents.holder_matrix import BoardSlot as HolderBoardSlot
 from engine.agents.augment_quality import AugmentQualityAgent, AugmentQualityInput
+from engine.agents.tempo_agent import TempoAgentAgent
+from engine.agents.item_economy import ItemEconomyAgent
+from engine.agents.comp_picker import CompPickerAgent
 
 log = logging.getLogger(__name__)
 
@@ -51,22 +53,10 @@ class AgentContext:
     active_items: dict[str, list[str]] = field(default_factory=dict)
 
 
-# ── Stub LLM agents ───────────────────────────────────────────────────────────
-
-class _StubAgent(AgentBase):
-    """No-op placeholder for LLM agents not yet implemented in phase 1."""
-    def __init__(self, name: str, result_factory):
-        self.name = name
-        self._factory = result_factory
-
-    async def _run_impl(self, ctx: Any) -> AgentResult:
-        return self._factory()
-
-
 # ── Orchestrator ──────────────────────────────────────────────────────────────
 
 class CoachOrchestrator:
-    """Runs 5 rule-based + 3 stub agents in parallel, returns CoachResult."""
+    """Runs all 8 agents in parallel, returns CoachResult."""
 
     def __init__(self):
         self._frame_agent = SituationalFrameAgent()
@@ -74,14 +64,9 @@ class CoachOrchestrator:
         self._econ_agent = MicroEconAgent()
         self._holder_agent = HolderMatrixAgent()
         self._augment_agent = AugmentQualityAgent()
-
-        # LLM stubs (replaced in phase 2)
-        from engine.agents.schemas import (
-            CompPickerResult, TempoAgentResult, ItemEconomyResult
-        )
-        self._comp_agent = _StubAgent("comp_picker", CompPickerResult)
-        self._tempo_agent = _StubAgent("tempo_agent", TempoAgentResult)
-        self._item_econ_agent = _StubAgent("item_economy", ItemEconomyResult)
+        self._comp_agent = CompPickerAgent()
+        self._tempo_agent = TempoAgentAgent()
+        self._item_econ_agent = ItemEconomyAgent()
 
     async def run(self, ctx: AgentContext) -> CoachResult:
         """Run all agents; failures fall back rather than crashing."""

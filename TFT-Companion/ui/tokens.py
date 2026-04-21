@@ -42,6 +42,13 @@ COLOR = SimpleNamespace(
     accent_red="#FF8BA3",
     accent_red_soft_rgba=(255, 137, 137, 36),
 
+    # Game tag colors (SituationalFrameStrip)
+    tag_winning="#7affb4",
+    tag_stable="#7ab4ff",
+    tag_losing="#ffd27a",
+    tag_salvage="#ff9454",
+    tag_dying="#ff6b88",
+
     # Cost colors for champion borders (match TFT in-game palette)
     cost_1="#9AA3B0",          # gray
     cost_2="#7AFFB4",          # green
@@ -99,33 +106,34 @@ RADIUS = SimpleNamespace(
 # ─── Sizes ──────────────────────────────────────────────────────────────
 
 SIZE = SimpleNamespace(
-    # Panel (Change 1)
-    panel_width=640,
-    panel_min_height=420,
-    panel_expanded_height=880,
-    panel_max_height=1040,
+    # Panel (v3 780px)
+    panel_width=780,
+    panel_min_height=520,
+    panel_expanded_height=1400,
+    panel_max_height=1600,
 
     # Title bar / chrome
-    title_bar_height=56,
+    title_bar_height=48,
     chrome_btn=24,
     chrome_btn_radius=7,
 
-    # Hero section
-    hero_champ=52,
-    hero_champ_radius=14,
+    # Hero section — v3 evolved
+    hero_champ=80,
+    hero_champ_radius=18,
+    hero_champ_secondary=40,
 
     # Inline icons
-    icon_champ_tiny=20,
-    icon_item=20,
-    icon_trait_sym=18,
-    icon_mini_item=16,
+    icon_champ_tiny=24,
+    icon_item=28,
+    icon_trait_sym=20,
+    icon_mini_item=18,
 
     # Action rows
-    action_icon=32,
-    action_icon_radius=10,
-    action_row_min_height=54,
-    action_row_padding_v=11,
-    action_row_padding_h=14,
+    action_icon=48,
+    action_icon_radius=12,
+    action_row_min_height=72,
+    action_row_padding_v=12,
+    action_row_padding_h=16,
 
     # Probability card
     prob_card_padding_v=14,
@@ -136,9 +144,20 @@ SIZE = SimpleNamespace(
     hp_pill_padding_v=7,
     hp_pill_padding_h=16,
 
-    # Econ chips (Change 3)
-    econ_chip_height=44,
-    econ_icon_tile=28,
+    # Econ chips (v3 sized up)
+    econ_chip_height=60,
+    econ_icon_tile=32,
+
+    # v3 — section-specific sizes
+    frame_strip_height=68,
+    verdict_hero_height=140,
+    comp_card_width=240,
+    comp_card_height=320,
+    action_row_height=72,
+    carry_row_height=56,
+    augment_card_width=176,
+    augment_card_height=100,
+    augment_tier_bar_height=52,
 )
 
 
@@ -203,6 +222,10 @@ SHADOW = SimpleNamespace(
     glow_hero =dict(blur=36, dy=0,  alpha=110, color="#FF9454"),
     glow_gold =dict(blur=20, dy=0,  alpha=80,  color="#FFD27A"),
     glow_pink =dict(blur=24, dy=0,  alpha=70,  color="#FF89C8"),
+
+    # v3 — comp card shadows
+    elev_comp_card_primary=dict(blur=32, dy=12, alpha=120, color="#ff89c8"),
+    elev_comp_card_alt    =dict(blur=20, dy=8,  alpha=80,  color="#000000"),
 )
 
 

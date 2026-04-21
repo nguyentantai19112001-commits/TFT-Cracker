@@ -1,4 +1,4 @@
-"""AuroraPanel — the main overlay panel.
+"""AuroraPanel — v3 main overlay panel (780px).
 
 Paints its own background (blobs + glass rect) so transparency works
 correctly with the frameless window. No separate backdrop widget needed.
@@ -16,13 +16,14 @@ from PyQt6.QtWidgets import (
 from ui.tokens import COLOR, RADIUS, SPACE, SIZE
 from ui.chrome.title_bar import TitleBar
 from ui.widgets.warning_block import WarningBlock
+from ui.widgets.situational_frame_strip import SituationalFrameStrip
 from ui.sections.hero_section import HeroSection
 from ui.sections.status_pills import StatusPills
 from ui.sections.prob_section import ProbSection
-from ui.sections.target_comp import TargetComp
+from ui.sections.comp_option_row import CompOptionRow
 from ui.sections.actions_list import ActionsList
 from ui.sections.carries_section import CarriesSection
-from ui.sections.augment_preview import AugmentPreview
+from ui.sections.augment_preview_v3 import AugmentPreviewV3
 from ui.sections.footer import Footer
 
 
@@ -34,7 +35,7 @@ _BLOBS = [
 
 
 class AuroraPanel(QWidget):
-    """Full overlay panel — paints blobs + glass rect in its own paintEvent."""
+    """Full v3 overlay panel — 780px, 10 sections."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -46,6 +47,7 @@ class AuroraPanel(QWidget):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
+        # 1. Title bar
         self.title_bar = TitleBar()
         root.addWidget(self.title_bar)
 
@@ -64,39 +66,52 @@ class AuroraPanel(QWidget):
         content = QWidget()
         content.setAutoFillBackground(False)
         content.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        content_layout = QVBoxLayout(content)
-        content_layout.setContentsMargins(0, SPACE.sm, 0, SPACE.lg)
-        content_layout.setSpacing(SPACE.md)
+        cl = QVBoxLayout(content)
+        cl.setContentsMargins(SPACE.sm, SPACE.sm, SPACE.sm, SPACE.lg)
+        cl.setSpacing(SPACE.md)
 
+        # Warning block (not a section — floats above content)
         self.warning = WarningBlock()
         self.warning.setVisible(False)
-        content_layout.addWidget(self.warning)
+        cl.addWidget(self.warning)
 
+        # 2. Situational frame strip
+        self.frame_strip = SituationalFrameStrip()
+        cl.addWidget(self.frame_strip)
+
+        # 3. Verdict hero
         self.hero = HeroSection()
-        content_layout.addWidget(self.hero)
+        cl.addWidget(self.hero)
 
+        # 4. Econ row
         self.status_pills = StatusPills()
-        content_layout.addWidget(self.status_pills)
+        cl.addWidget(self.status_pills)
 
+        # 5. Roll probability (conditionally shown)
         self.prob = ProbSection()
-        content_layout.addWidget(self.prob)
+        cl.addWidget(self.prob)
 
-        self.target_comp = TargetComp()
-        content_layout.addWidget(self.target_comp)
+        # 6. Target comp — 3 cards
+        self.comp_options = CompOptionRow()
+        cl.addWidget(self.comp_options)
 
+        # 7. Recommended actions
         self.actions = ActionsList()
-        content_layout.addWidget(self.actions)
+        cl.addWidget(self.actions)
 
+        # 8. Carry items + holder matrix
         self.carries = CarriesSection()
-        content_layout.addWidget(self.carries)
+        cl.addWidget(self.carries)
 
-        self.augments = AugmentPreview()
-        content_layout.addWidget(self.augments)
+        # 9. Priority augments
+        self.augments_v3 = AugmentPreviewV3()
+        cl.addWidget(self.augments_v3)
 
-        content_layout.addStretch()
+        cl.addStretch()
         scroll.setWidget(content)
         root.addWidget(scroll, 1)
 
+        # 10. Footer
         self.footer = Footer()
         root.addWidget(self.footer)
 
@@ -107,7 +122,6 @@ class AuroraPanel(QWidget):
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
         w, h = self.width(), self.height()
 
-        # Aurora blobs
         for cx_f, cy_f, r_f, color_hex, alpha in _BLOBS:
             cx = w * cx_f
             cy = h * cy_f
@@ -123,7 +137,6 @@ class AuroraPanel(QWidget):
             p.setPen(Qt.PenStyle.NoPen)
             p.drawEllipse(QRectF(cx - radius, cy - radius, radius * 2, radius * 2))
 
-        # Glass panel
         rect = QRectF(0, 0, w, h)
         path = QPainterPath()
         path.addRoundedRect(rect, RADIUS.panel, RADIUS.panel)
@@ -134,36 +147,70 @@ class AuroraPanel(QWidget):
         p.drawPath(path)
         p.end()
 
-    # ── Public apply methods ─────────────────────────────────────────────────
+    # ── Public apply methods — v3 ─────────────────────────────────────────────
 
     def apply_warning(self, message: str, visible: bool = True):
         self.warning.set_message(message)
         self.warning.setVisible(visible and bool(message))
 
+    def apply_frame(self, game_tag: str, ev_avg: float, frame_sentence: str) -> None:
+        """Section 2 — SituationalFrameStrip."""
+        self.frame_strip.apply(game_tag, ev_avg, frame_sentence)
+
     def apply_verdict(self, verdict: str, champ_name: str, champ_api: str,
                       cost: int, carries: list[dict]):
+        """Section 3 — Verdict hero (existing HeroSection, sized up via tokens)."""
         self.hero.apply(verdict, champ_name, champ_api, cost, carries)
 
     def apply_econ(self, gold: int, level: int, streak: int, interest: int):
+        """Section 4 — Econ chips."""
         self.status_pills.apply(gold, level, streak, interest)
 
     def apply_probability(self, prob: float, label: str = "", sublabel: str = ""):
+        """Section 5 — Roll probability."""
         self.prob.apply(prob, label=label, sublabel=sublabel)
 
-    def apply_comp(self, traits: list[dict], champions: list[dict]):
-        self.target_comp.apply(traits, champions)
+    def apply_comp_options(self, top_comp: dict, alternates: list[dict]) -> None:
+        """Section 6 — Target comp 3-card row."""
+        self.comp_options.apply(top_comp, alternates)
 
     def apply_actions(self, actions: list[dict]):
+        """Section 7 — Recommended actions (3 rows)."""
         self.actions.apply(actions)
 
     def apply_carries(self, carries: list[dict]):
+        """Section 8 — Carry items (CarriesSection, upgrading to v3 rows in future pass)."""
         self.carries.apply(carries)
 
-    def apply_augments(self, augments: list[dict]):
-        self.augments.apply(augments)
+    def apply_augments_v3(
+        self,
+        silver: float = 0.28,
+        gold: float = 0.62,
+        prismatic: float = 0.10,
+        conditional_text: str = "",
+        augment_recs: list[dict] | None = None,
+    ) -> None:
+        """Section 9 — Priority augments with tier bar + rec cards."""
+        self.augments_v3.apply(silver, gold, prismatic, conditional_text, augment_recs)
 
     def apply_latency(self, ms: int | None):
+        """Section 10 — Footer latency."""
         self.footer.set_latency(ms)
 
     def apply_stage(self, stage: str):
         self.title_bar.set_stage(stage)
+
+    # ── Legacy shims (keep bindings.py working during transition) ─────────────
+
+    def apply_comp(self, traits: list[dict], champions: list[dict]):
+        """Legacy: route to CompOptionRow with minimal data."""
+        pass  # v3 uses apply_comp_options; old path no longer primary
+
+    def apply_augments(self, augments: list[dict]):
+        """Legacy: augments list without tier data — show name/tier only."""
+        recs = [
+            {"display_name": a.get("name", "?"), "tier": a.get("tier", "gold"),
+             "fit_score": 0.5, "why": ""}
+            for a in augments
+        ]
+        self.augments_v3.apply(augment_recs=recs)
