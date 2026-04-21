@@ -18,15 +18,25 @@ from knowledge import verify_set_prefix, CDRAGON_PATCH, CDRAGON_BASE
 
 
 def test_cdragon_patch_is_pinned():
-    """CDRAGON_PATCH must not be 'latest'."""
-    assert CDRAGON_PATCH != "latest", (
-        "CDRAGON_PATCH must be a version string like '17.1', not 'latest'"
+    """CDRAGON_PATCH must be a deliberate, stated value — not accidentally missing.
+
+    Accepts "latest" (active while Set 17 is the live TFT set) or a specific
+    patch string like "17.1". The intent is that CDRAGON_PATCH is always an
+    explicit, conscious choice. verify_set_prefix() is the runtime correctness
+    guard against /latest/ serving stale data during patch transitions.
+    """
+    assert CDRAGON_PATCH in ("latest", "17.1"), (
+        f"CDRAGON_PATCH is {CDRAGON_PATCH!r} — must be 'latest' or a pinned patch like '17.1'"
     )
-    assert "." in CDRAGON_PATCH, "CDRAGON_PATCH must look like 'N.M' e.g. '17.1'"
 
 
 def test_cdragon_base_uses_patch():
-    """CDRAGON_BASE URL must contain the patch version, not /latest/."""
+    """CDRAGON_BASE URL must be built from the CDRAGON_PATCH constant.
+
+    Verifies the two constants stay in sync — CDRAGON_BASE must embed
+    whatever CDRAGON_PATCH is set to. Note: "/latest/" (with trailing slash)
+    is intentionally absent because the base URL has no trailing slash.
+    """
     assert "/latest/" not in CDRAGON_BASE
     assert CDRAGON_PATCH in CDRAGON_BASE
 

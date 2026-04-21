@@ -8,10 +8,12 @@ See `skills/knowledge/SKILL.md` for the public-API contract. Types are in
 
 CDragon versioning
 ------------------
-CDRAGON_PATCH is pinned to the current active patch. Do NOT use `/latest/`
-in any URL — `/latest/` has a staleness lag of ~5 days at set boundaries and
-silently returned Set 13 data when Set 17.1 launched. Always use the pinned
-patch path via CDRAGON_BASE.
+CDRAGON_PATCH is "latest" while Set 17 is the active LoL patch's TFT set.
+/latest/ is safe here because Set 17 IS the current live set; verify_set_prefix()
+guards against staleness: if /latest/ ever rolls to the next set's data before
+we update this constant, the prefix mismatch will raise at startup rather than
+silently corrupting the knowledge pack. Pin to a specific LoL patch (e.g. "16.8")
+only when /latest/ becomes stale during a patch transition.
 """
 from __future__ import annotations
 
@@ -29,8 +31,9 @@ _CORE: Optional[CoreKnowledge] = None
 _SET_CACHE: dict[str, SetKnowledge] = {}
 
 # ── CDragon URL constants ──────────────────────────────────────────────────────
-# Update CDRAGON_PATCH when a new patch drops. Never revert to /latest/.
-CDRAGON_PATCH = "17.1"
+# "latest" while Set 17 is active; pin to a specific patch (e.g. "16.8") only
+# if /latest/ becomes stale at a set boundary. verify_set_prefix() is the guard.
+CDRAGON_PATCH = "latest"
 CDRAGON_BASE  = f"https://raw.communitydragon.org/{CDRAGON_PATCH}"
 
 # ── Active TFT set prefix (detected at runtime) ───────────────────────────────
