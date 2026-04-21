@@ -239,3 +239,10 @@
 - added: engine/tests/conftest.py — registers 'slow' mark to eliminate PytestUnknownMarkWarning
 
 - tests: 170 passing, 7 skipped (7 legitimately require live game/API key/labeled corpus)
+
+## Champion → traits mapping — DONE 2026-04-21
+- scripts/fill_champion_traits.py added (ruamel.yaml; display-name join key; ARTIFACT_TRAITS filter)
+- set_17.yaml: 63/63 champions newly populated; 0 conflicts; 0 no-match; 0 already-had
+- test_champion_traits.py: 5 tests locking the mapping
+- Unblocks: comp_planner trait_fit consumer (Phase C wires it)
+- Still blocked: trait_fit scoring reads board/augments/items only; champion.traits consumer not yet written (Phase C)
