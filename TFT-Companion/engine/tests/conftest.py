@@ -24,3 +24,65 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "slow: marks tests as slow (requires live API key or live game)"
     )
+
+
+# ---------------------------------------------------------------------------
+# Shared PyQt6 stub — installed once for all UI tests.
+# Each sub-module (QtCore, QtGui, QtWidgets) auto-creates class stubs for
+# any attribute access so widget code can be imported without a display.
+# ---------------------------------------------------------------------------
+import types as _types
+
+
+class _StubBase:
+    """Absorbs all constructor args; attribute access returns a new stub."""
+    def __init__(self, *a, **kw): pass
+    def __call__(self, *a, **kw): return self
+    def __set_name__(self, owner, name): pass
+    def __getattr__(self, name): return _StubBase()
+    def __iter__(self): return iter([])
+    def __class_getitem__(cls, item): return cls
+
+
+def _make_qt_class(name: str) -> type:
+    return type(name, (_StubBase,), {})
+
+
+class _QtSubModule(_types.ModuleType):
+    _cache: dict[str, type] = {}
+
+    def __getattr__(self, name: str):
+        if name not in _QtSubModule._cache:
+            _QtSubModule._cache[name] = _make_qt_class(name)
+        return _QtSubModule._cache[name]
+
+
+def _install_pyqt6_stub():
+    if "PyQt6" in sys.modules:
+        # Replace bare stub if it's not our class-based one
+        existing = sys.modules["PyQt6"]
+        if not isinstance(existing, _QtSubModule) and not hasattr(existing, "_qt_stubbed"):
+            pass  # fall through to reinstall
+        else:
+            return  # already our stub
+
+    qt = _QtSubModule("PyQt6")
+    qt._qt_stubbed = True  # type: ignore[attr-defined]
+    for sub in ("QtCore", "QtGui", "QtWidgets", "QtNetwork"):
+        m = _QtSubModule(f"PyQt6.{sub}")
+        sys.modules[f"PyQt6.{sub}"] = m
+        setattr(qt, sub, m)
+    sys.modules["PyQt6"] = qt
+
+    for dep in ("qframelesswindow", "winmica"):
+        if dep not in sys.modules:
+            sys.modules[dep] = _QtSubModule(dep)
+
+    if "loguru" not in sys.modules:
+        import logging as _logging
+        lm = _types.ModuleType("loguru")
+        lm.logger = _logging.getLogger("loguru")  # type: ignore[attr-defined]
+        sys.modules["loguru"] = lm
+
+
+_install_pyqt6_stub()

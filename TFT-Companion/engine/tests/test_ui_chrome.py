@@ -1,27 +1,8 @@
-"""Phase 2 smoke tests: design tokens + chrome widgets."""
-import sys
-import types
+"""Phase 2 smoke tests: design tokens + chrome widgets.
+PyQt6 stub is installed by conftest.py before collection.
+"""
 import pytest
-
-# Stub PyQt6 before any ui import so tests run without a display
-_qt_stub = types.ModuleType("PyQt6")
-for _sub in ("QtCore", "QtGui", "QtWidgets"):
-    _mod = types.ModuleType(f"PyQt6.{_sub}")
-    setattr(_qt_stub, _sub.replace("Qt", "").lower(), _mod)
-    sys.modules[f"PyQt6.{_sub}"] = _mod
-sys.modules["PyQt6"] = _qt_stub
-
-# Stub optional deps
-for _dep in ("qframelesswindow", "winmica", "loguru"):
-    if _dep not in sys.modules:
-        _m = types.ModuleType(_dep)
-        if _dep == "loguru":
-            import logging
-            _logger = logging.getLogger("loguru")
-            _m.logger = _logger  # type: ignore[attr-defined]
-        sys.modules[_dep] = _m
-
-from ui.tokens import COLOR, SPACE, RADIUS, SIZE, FONT, MOTION, SHADOW, Z  # noqa: E402
+from ui.tokens import COLOR, SPACE, RADIUS, SIZE, FONT, MOTION, SHADOW, Z
 
 
 def test_tokens_has_all_required_namespaces():

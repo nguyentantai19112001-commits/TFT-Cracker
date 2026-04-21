@@ -1,56 +1,11 @@
-"""Phase 3 smoke tests: bespoke widgets (no display required)."""
-import sys
-import types
+"""Phase 3 smoke tests: bespoke widgets (no display required).
+PyQt6 stub is installed by conftest.py before collection.
+"""
 import pytest
-
-# Stub PyQt6 before any import that touches it
-class _Stub:
-    """Base stub for any Qt class — absorbs all args, returns self from calls."""
-    def __init__(self, *a, **kw): pass
-    def __call__(self, *a, **kw): return self
-    def __getattr__(self, name): return _Stub()
-    def __set_name__(self, owner, name): pass
-
-
-def _make_stub_class(name: str) -> type:
-    return type(name, (_Stub,), {})
-
-
-class _AutoAttrModule(types.ModuleType):
-    """Module stub that auto-creates class stubs for any attribute access."""
-    _classes: dict[str, type] = {}
-
-    def __getattr__(self, name):
-        if name not in _AutoAttrModule._classes:
-            _AutoAttrModule._classes[name] = _make_stub_class(name)
-        return _AutoAttrModule._classes[name]
-
-
-def _stub_pyqt():
-    if "PyQt6" in sys.modules:
-        return
-    qt = _AutoAttrModule("PyQt6")
-    for sub in ("QtCore", "QtGui", "QtWidgets"):
-        m = _AutoAttrModule(f"PyQt6.{sub}")
-        sys.modules[f"PyQt6.{sub}"] = m
-        setattr(qt, sub, m)
-    sys.modules["PyQt6"] = qt
-
-_stub_pyqt()
-
-for _dep in ("qframelesswindow", "winmica", "loguru"):
-    if _dep not in sys.modules:
-        _m = types.ModuleType(_dep)
-        if _dep == "loguru":
-            import logging
-            _m.logger = logging.getLogger("loguru")  # type: ignore[attr-defined]
-        sys.modules[_dep] = _m
 
 
 def test_section_label_uppercases_text():
-    """SectionLabel must force text to uppercase."""
     from ui.tokens import COLOR, FONT
-    # Validate token fields used by SectionLabel exist
     assert hasattr(COLOR, "text_muted")
     assert hasattr(FONT, "size_section_label")
     assert hasattr(FONT, "letter_spacing_caps")
