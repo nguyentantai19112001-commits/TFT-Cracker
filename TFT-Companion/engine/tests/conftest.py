@@ -51,6 +51,11 @@ def _make_qt_class(name: str) -> type:
 class _QtSubModule(_types.ModuleType):
     _cache: dict[str, type] = {}
 
+    def __init__(self, name: str):
+        super().__init__(name)
+        self.__file__ = ""          # hypothesis iterates __file__ as string
+        self.__spec__ = None
+
     def __getattr__(self, name: str):
         if name not in _QtSubModule._cache:
             _QtSubModule._cache[name] = _make_qt_class(name)
