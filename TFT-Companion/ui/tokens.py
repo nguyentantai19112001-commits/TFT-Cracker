@@ -17,9 +17,21 @@ COLOR = SimpleNamespace(
     bg_raised="#24213A",                   # raised rows, cards
     bg_input="#13111F",                    # deepest surfaces
 
+    # Elevation tiers — opaque solid surfaces (defeat Mica transparency)
+    elev_0="#1A1830",           # panel base reference
+    elev_1="#2D2A48",           # subtle raise — rows, chips, strips
+    elev_2="#363258",           # raised — action rows
+    elev_3="#423D6B",           # prominent — comp cards (alt), prob card, augment cards
+    elev_4="#4E4880",           # primary — top comp card, selected states
+
     # Borders
     border_subtle_rgba=(255, 255, 255, 20),   # 0.08 alpha
     border_hover_rgba=(255, 255, 255, 38),    # 0.15 alpha
+    border_medium_rgba=(255, 255, 255, 36),   # 0.14 alpha — rows, chips
+    border_strong_rgba=(255, 255, 255, 56),   # 0.22 alpha — cards
+    border_accent_pink_rgba=(255, 137, 200, 115),  # primary comp card
+    border_accent_gold_rgba=(255, 210, 122, 89),   # augment cards
+    inner_highlight_rgba=(255, 255, 255, 25),      # 0.10 alpha — top edge 1px
     border_accent="#FF89C8",                  # aurora pink
 
     # Text

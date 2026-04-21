@@ -44,12 +44,20 @@ class SituationalFrameStrip(QWidget):
         label, accent_hex = _TAG_META.get(self._game_tag, ("STABLE", COLOR.tag_stable))
         accent = QColor(accent_hex)
 
-        # Background — glass rect
+        # Background — opaque solid fill
         bg_path = QPainterPath()
         bg_path.addRoundedRect(QRectF(0, 0, w, h), RADIUS.row, RADIUS.row)
-        bg_c = QColor(*COLOR.bg_panel_rgba)
-        bg_c.setAlpha(200)
+        bg_c = QColor(COLOR.elev_1)
+        bg_c.setAlpha(255)
         p.fillPath(bg_path, QBrush(bg_c))
+        # Border stroke
+        p.setPen(QPen(QColor(*COLOR.border_subtle_rgba), 1))
+        p.setBrush(Qt.BrushStyle.NoBrush)
+        p.drawRoundedRect(QRectF(0, 0, w, h).adjusted(0, 0, -1, -1), RADIUS.row, RADIUS.row)
+        # Inner top highlight
+        hl = QColor(*COLOR.inner_highlight_rgba)
+        p.setPen(QPen(hl, 1))
+        p.drawLine(RADIUS.row, 1, w - RADIUS.row, 1)
 
         # Left accent bar (4px)
         bar_w = 4

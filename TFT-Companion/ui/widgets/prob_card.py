@@ -62,13 +62,14 @@ class ProbCard(QWidget):
         ph = SIZE.prob_card_padding_h
         pv = SIZE.prob_card_padding_v
 
-        # Card bg — slightly more opaque than bg_raised
+        # Card bg — elevated opaque fill
         bg_path = QPainterPath()
         bg_path.addRoundedRect(QRectF(0, 0, w, h), RADIUS.card, RADIUS.card)
-        bg = QColor(COLOR.bg_raised)
-        bg.setAlpha(230)
+        bg = QColor(COLOR.elev_3)
+        bg.setAlpha(255)
         p.fillPath(bg_path, QBrush(bg))
-        p.setPen(QPen(QColor(*COLOR.border_subtle_rgba), 1))
+        p.setPen(QPen(QColor(*COLOR.border_strong_rgba), 1))
+        p.setBrush(Qt.BrushStyle.NoBrush)
         p.drawPath(bg_path)
 
         # Inner top highlight (glassmorphic signature)

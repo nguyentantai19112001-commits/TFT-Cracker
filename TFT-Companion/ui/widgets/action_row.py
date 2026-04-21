@@ -87,13 +87,25 @@ class ActionRow(QWidget):
         ph, pv = SIZE.action_row_padding_h, SIZE.action_row_padding_v
         rect = QRectF(0, 0, w, h)
 
-        # Hover background
+        # Row background — always solid
+        bg_path = QPainterPath()
+        bg_path.addRoundedRect(rect, RADIUS.row, RADIUS.row)
+        bg = QColor(COLOR.elev_2)
+        bg.setAlpha(255)
+        p.fillPath(bg_path, QBrush(bg))
+        # Hover brightening
         if self._hover_t > 0:
-            bg = QColor(COLOR.bg_raised)
-            bg.setAlpha(int(self._hover_t * 80))
-            path = QPainterPath()
-            path.addRoundedRect(rect, RADIUS.row, RADIUS.row)
-            p.fillPath(path, QBrush(bg))
+            hover_c = QColor(255, 255, 255)
+            hover_c.setAlpha(int(self._hover_t * 15))
+            p.fillPath(bg_path, QBrush(hover_c))
+        # Border
+        p.setPen(QPen(QColor(*COLOR.border_medium_rgba), 1))
+        p.setBrush(Qt.BrushStyle.NoBrush)
+        p.drawRoundedRect(rect.adjusted(0, 0, -1, -1), RADIUS.row, RADIUS.row)
+        # Inner top highlight
+        hl = QColor(*COLOR.inner_highlight_rgba)
+        p.setPen(QPen(hl, 1))
+        p.drawLine(RADIUS.row, 1, w - RADIUS.row, 1)
 
         # Icon square — soft glow behind it
         icon_size = SIZE.action_icon

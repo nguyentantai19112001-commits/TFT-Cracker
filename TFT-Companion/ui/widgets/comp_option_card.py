@@ -75,14 +75,22 @@ class CompOptionCard(QWidget):
         c1_hex, c2_hex = _TIER_COLORS.get(self._tier, ("#9AA3B0", "#6A7380"))
         tier_label = _TIER_LABEL.get(self._tier, self._tier)
 
-        # Card background
+        # Card background — solid elevated fill
         card_path = QPainterPath()
         card_path.addRoundedRect(QRectF(0, 0, w, h), RADIUS.card, RADIUS.card)
 
-        bg_c = QColor(COLOR.bg_raised)
-        if self._is_primary:
-            bg_c = QColor("#1E1C38")
+        bg_c = QColor(COLOR.elev_4 if self._is_primary else COLOR.elev_3)
+        bg_c.setAlpha(255)
         p.fillPath(card_path, QBrush(bg_c))
+        # Border
+        border_rgba = COLOR.border_accent_pink_rgba if self._is_primary else COLOR.border_strong_rgba
+        p.setPen(QPen(QColor(*border_rgba), 2 if self._is_primary else 1))
+        p.setBrush(Qt.BrushStyle.NoBrush)
+        p.drawPath(card_path)
+        # Inner top highlight
+        hl = QColor(*COLOR.inner_highlight_rgba)
+        p.setPen(QPen(hl, 1))
+        p.drawLine(RADIUS.card, 1, w - RADIUS.card, 1)
 
         # Top accent gradient strip (24px)
         top_strip = QRectF(0, 0, w, 24)
@@ -216,13 +224,5 @@ class CompOptionCard(QWidget):
             p.drawText(QRectF(pad, y, w - pad * 2, 32),
                        Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft | Qt.TextFlag.TextWordWrap,
                        missing_str)
-
-        # Primary card pulsing border
-        if self._is_primary:
-            border = QColor(COLOR.accent_pink)
-            border.setAlpha(80)
-            p.setPen(QPen(border, 2))
-            p.setBrush(Qt.BrushStyle.NoBrush)
-            p.drawPath(card_path)
 
         p.end()

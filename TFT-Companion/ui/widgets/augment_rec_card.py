@@ -46,10 +46,20 @@ class AugmentRecCard(QWidget):
 
         c1_hex, c2_hex = _TIER_COLORS.get(self._tier, _TIER_COLORS["gold"])
 
-        # Card background
+        # Card background — opaque elevated fill
         card_path = QPainterPath()
         card_path.addRoundedRect(QRectF(0, 0, w, h), RADIUS.chip, RADIUS.chip)
-        p.fillPath(card_path, QBrush(QColor(COLOR.bg_raised)))
+        bg_c = QColor(COLOR.elev_3)
+        bg_c.setAlpha(255)
+        p.fillPath(card_path, QBrush(bg_c))
+        # Border
+        p.setPen(QPen(QColor(*COLOR.border_accent_gold_rgba), 1))
+        p.setBrush(Qt.BrushStyle.NoBrush)
+        p.drawRoundedRect(QRectF(0, 0, w, h).adjusted(0, 0, -1, -1), RADIUS.chip, RADIUS.chip)
+        # Inner top highlight
+        hl = QColor(*COLOR.inner_highlight_rgba)
+        p.setPen(QPen(hl, 1))
+        p.drawLine(RADIUS.chip, 1, w - RADIUS.chip, 1)
 
         # Top gradient accent strip (4px)
         strip_path = QPainterPath()
