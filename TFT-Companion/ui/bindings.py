@@ -134,6 +134,9 @@ class Bindings:
             })
         panel.apply_actions(actions)
 
+        # Section 8b — Holder hint
+        panel.apply_holders(result.holders)
+
         # Section 8 — Carries
         carries_data = [
             {

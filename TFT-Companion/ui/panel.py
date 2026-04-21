@@ -23,6 +23,7 @@ from ui.sections.prob_section import ProbSection
 from ui.sections.comp_option_row import CompOptionRow
 from ui.sections.actions_list import ActionsList
 from ui.sections.carries_section import CarriesSection
+from ui.widgets.holder_hint_row import HolderHintRow
 from ui.sections.augment_preview_v3 import AugmentPreviewV3
 from ui.sections.footer import Footer
 
@@ -103,6 +104,10 @@ class AuroraPanel(QWidget):
         self.carries = CarriesSection()
         cl.addWidget(self.carries)
 
+        # 8b. Holder hint row (hidden until data arrives)
+        self.holder_hint = HolderHintRow()
+        cl.addWidget(self.holder_hint)
+
         # 9. Priority augments
         self.augments_v3 = AugmentPreviewV3()
         cl.addWidget(self.augments_v3)
@@ -181,6 +186,19 @@ class AuroraPanel(QWidget):
     def apply_carries(self, carries: list[dict]):
         """Section 8 — Carry items (CarriesSection, upgrading to v3 rows in future pass)."""
         self.carries.apply(carries)
+
+    def apply_holders(self, result) -> None:
+        """Section 8b — Holder matrix: show one hint (highest-conflict or best advice)."""
+        hint = ""
+        if result.conflicts:
+            hint = f"HOLDER: {result.conflicts[0]}"
+        elif result.assignments:
+            for a in result.assignments:
+                if not a.current_holding_good and a.stage_role in ("primary", "secondary"):
+                    items = " / ".join(a.preferred_items_given_components[:2])
+                    hint = f"HOLDER: {a.unit_display} wants {items or a.preferred_family}"
+                    break
+        self.holder_hint.apply_hint(hint)
 
     def apply_augments_v3(
         self,
