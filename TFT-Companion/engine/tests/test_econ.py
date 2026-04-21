@@ -94,3 +94,23 @@ def test_streak_bonus_applied():
     proj_streak = interest_projection(30, 2, streak=5, core=CORE)
     proj_no_streak = interest_projection(30, 2, streak=0, core=CORE)
     assert proj_streak[0] > proj_no_streak[0]  # +2 more gold
+
+
+def test_markov_float_clamp_edge_case():
+    """Pin the exact edge case Hypothesis found: p_hit_at_least_1 must be <= 1.0.
+
+    Before the min(1.0, ...) clamp was added, numpy matrix power accumulation
+    returned 1.0000000000000002 for this config. This is a deterministic
+    regression guard so the fix can never silently revert.
+    """
+    pool = PoolState(
+        copies_of_target_remaining=1,
+        same_cost_copies_remaining=3,
+        distinct_same_cost=14,   # 1-cost tier: 14 distinct in Set 17
+    )
+    r = analyze_roll("X", level=1, gold=60, pool=pool, set_=SET17)
+    assert r.p_hit_at_least_1 <= 1.0, (
+        f"p_hit_at_least_1 exceeded 1.0: {r.p_hit_at_least_1!r} "
+        "(min(1.0,...) clamp missing in econ._markov_roll)"
+    )
+    assert r.p_hit_at_least_1 >= 0.0
