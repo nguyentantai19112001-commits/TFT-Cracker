@@ -1,24 +1,23 @@
-"""Augie — overlay-driven live TFT advisor (v2 pipeline).
+"""Augie — overlay-driven live TFT advisor (v3 pipeline).
 
 Full F9 pipeline:
-    capture → state_builder → validate → rules → comp_planner
-    → recommender → advisor → overlay
+    capture → state_builder → validate → CoachOrchestrator (8 agents)
+    → CoachResult → bindings.on_coach_result → AuroraPanel
 
 Hotkeys:
-    F9   → capture + full v2 pipeline + streamed advisor verdict
+    F9   → capture + v3 8-agent pipeline
     F10  → start a new game session
     F11  → end the current game session (console prompt for placement)
     ESC  → quit
 
 Threading:
-    Main thread      — QApplication + OverlayPanel (all UI updates)
+    Main thread      — QApplication + AuroraPanel (all UI updates)
     Hotkey thread    — `keyboard` lib. F9 callback emits a Qt signal.
     Pipeline thread  — QThread per F9 press. Emits signals for each
-                       stream event; overlay updates via QueuedConnection.
+                       stage; overlay updates via QueuedConnection.
 
-v2 engine lives in engine/ (formerly augie-v2/). All imports from that
-package are performed AFTER the engine path is inserted at sys.path[0]
-so they shadow any legacy root-level files with the same name.
+v3 engine lives in engine/agents/. All imports from the engine package
+are performed AFTER the engine path is inserted at sys.path[0].
 """
 
 from __future__ import annotations
@@ -43,14 +42,8 @@ from dotenv import load_dotenv
 from PyQt6.QtCore import QObject, QThread, Qt, pyqtSignal
 from PyQt6.QtWidgets import QApplication, QVBoxLayout
 
-# v2 engine modules — imported from engine/ via sys.path priority above
-import advisor          # engine/advisor.py  (v2 Haiku narrator)
-import comp_planner     # engine/comp_planner.py
-import econ             # engine/econ.py
-import knowledge        # engine/knowledge/__init__.py
-import recommender      # engine/recommender.py
-import rules            # engine/rules.py  (v2 — 40 deterministic rules)
-from pool import PoolTracker  # engine/pool.py
+# v3 orchestrator — 8-agent system
+from engine.agents.orchestrator import CoachOrchestrator, AgentContext
 
 # v1 infrastructure — no v2 counterparts for these
 import session
@@ -72,30 +65,26 @@ HOTKEY_START  = "f10"
 HOTKEY_END    = "f11"
 HOTKEY_QUIT   = "esc"
 
+# Singleton — agents have startup cost (YAML loading); don't recreate per F9.
+_ORCHESTRATOR = CoachOrchestrator()
+
 
 # ── Pipeline worker ────────────────────────────────────────────────────────────
 
 class PipelineWorker(QThread):
     """Runs one F9 pipeline invocation on a background thread.
 
-    Signal contract (consumed by OverlayPanel slots via QueuedConnection):
-        extractingStarted  → overlay.set_extracting()
-        stateExtracted(dict) → overlay.set_extracted(state_dict)
-        compPlanReady(list)  → overlay.set_comp_plan(comps_dicts)
-        verdictReady(str)    → overlay.set_verdict(one_liner)
-        reasoningReady(str)  → bindings.on_reasoning(text)
-        finalReady(dict, dict, float, float, object)
-                             → overlay.set_final(rec, meta, wall_s, vcost, game_id)
-        errorOccurred(str)   → overlay.set_error(msg)
+    Signal contract (consumed by Bindings slots via QueuedConnection):
+        extractingStarted   → bindings.on_extracting()
+        stateExtracted(dict) → bindings.on_state_extracted(state_dict)  [fast header update]
+        coachResultReady(object) → bindings.on_coach_result(CoachResult)
+        errorOccurred(str)  → bindings.on_error(msg)
     """
 
-    extractingStarted = pyqtSignal()
-    stateExtracted    = pyqtSignal(dict)
-    compPlanReady     = pyqtSignal(list)   # list of CompCandidate.model_dump()
-    verdictReady      = pyqtSignal(str)
-    reasoningReady    = pyqtSignal(str)
-    finalReady        = pyqtSignal(dict, dict, float, float, object)
-    errorOccurred     = pyqtSignal(str)
+    extractingStarted  = pyqtSignal()
+    stateExtracted     = pyqtSignal(dict)
+    coachResultReady   = pyqtSignal(object)  # CoachResult instance
+    errorOccurred      = pyqtSignal(str)
 
     def __init__(self, client: Anthropic) -> None:
         super().__init__()
@@ -104,108 +93,87 @@ class PipelineWorker(QThread):
     def run(self) -> None:
         try:
             self.extractingStarted.emit()
-            t0 = time.time()
 
-            # ── 1. Capture + legacy state extraction ──────────────────────────
-            png       = capture_screen()
-            game_id   = session.current_game_id()
-            state     = build_state(png, self.client, game_id=game_id, trigger="hotkey")
+            # ── 1. Capture + state extraction ─────────────────────────────────
+            png     = capture_screen()
+            game_id = session.current_game_id()
+            state   = build_state(png, self.client, game_id=game_id, trigger="hotkey")
 
             if not state.sources.vision_ok:
                 self.errorOccurred.emit(f"Vision failed: {state.sources.vision_error}")
                 return
 
-            # Emit the raw dict so the overlay header updates immediately
+            # Fast header update — happens before the 8 agents run.
             self.stateExtracted.emit(state.to_dict())
 
-            # ── 2. Convert to v2 schemas ───────────────────────────────────────
-            # to_schemas() raises ValueError if required fields (stage/gold/hp/level)
-            # are None — this means Vision returned an incomplete parse.
+            # ── 2. Parse to v2 schema ──────────────────────────────────────────
             try:
                 v2_state = state.to_schemas()
             except ValueError as exc:
                 self.errorOccurred.emit(f"State incomplete: {exc}")
                 return
 
-            # ── 3. State validation (Task 2 — inserted after to_schemas) ──────
-            # Imported here (lazy) so it works before Task 2 creates validators.py.
+            # ── 3. State validation ────────────────────────────────────────────
             try:
                 from validators import validate as validate_state
                 validation = validate_state(v2_state)
                 if not validation.ok:
+                    import logging
                     failure_summary = "; ".join(
                         f"{f.check_name}={f.actual_value}" for f in validation.failures[:3]
                     )
-                    import logging
                     logging.warning("State validation failed: %s", failure_summary)
-                    self.verdictReady.emit("⚠ verifying state — press F9 again in a moment")
                     self.errorOccurred.emit("state_validation_failed")
                     return
             except ImportError:
-                pass  # validators.py not yet present (pre-Task-2)
+                pass
 
-            # ── 4. v2 pipeline: rules → comp_planner → recommender ────────────
-            set_  = knowledge.load_set(v2_state.set_id)
-            core  = knowledge.load_core()
-            pool  = PoolTracker(set_)
-            pool.observe_own_board(v2_state.board, v2_state.bench)
-            archetypes = comp_planner.load_archetypes()
-
-            fires   = rules.evaluate(v2_state, econ, pool, knowledge)
-            comps   = comp_planner.top_k_comps(v2_state, pool, archetypes, set_, k=3)
-            actions = recommender.top_k(v2_state, fires, comps, pool, set_, core, k=3)
-
-            # Emit comp plan so the long-term comp panel updates
-            self.compPlanReady.emit([c.model_dump() for c in comps])
-
-            # ── 5. Advisor: streams verdict tokens then emits final ────────────
-            recommendation: Optional[dict] = None
-            meta: Optional[dict]           = None
-
-            for evt, payload in advisor.advise_stream(
-                state=v2_state,
-                fires=fires,
-                actions=actions,
-                comps=comps,
-                client=self.client,
-                capture_id=state.capture_id,
-                pool=pool,
-            ):
-                if evt == "one_liner":
-                    self.verdictReady.emit(payload)
-                elif evt == "reasoning":
-                    self.reasoningReady.emit(payload)
-                elif evt == "final":
-                    verdict       = payload.get("verdict")
-                    meta          = payload.get("__meta__") or {}
-                    # Always prefer the parsed AdvisorVerdict; raw recommendation
-                    # from the LLM path has chosen_candidate_index (not the
-                    # resolved ActionCandidate object that the overlay needs).
-                    recommendation = (
-                        verdict.model_dump() if verdict
-                        else payload.get("recommendation") or {}
-                    )
-                    break
-
-            if not meta or not meta.get("parse_ok"):
-                # Advisor produced no clean JSON — still show what we have
-                err = (meta or {}).get("error") or "no final event"
-                self.errorOccurred.emit(f"Advisor: {err}")
-                return
-
-            wall_s       = time.time() - t0
-            vision_cost  = state.to_dict()["sources"].get("vision_cost_usd") or 0
-            self.finalReady.emit(
-                recommendation or {},
-                meta,
-                wall_s,
-                vision_cost,
-                game_id,
-            )
+            # ── 4. v3 orchestrator — 8 agents in parallel ─────────────────────
+            ctx    = _build_agent_context(v2_state)
+            result = _ORCHESTRATOR.run_sync(ctx)
+            self.coachResultReady.emit(result)
 
         except Exception as exc:
             logger.exception("F9 pipeline failed")
             self.errorOccurred.emit(f"{type(exc).__name__}: {exc}")
+
+
+# ── State conversion helper ────────────────────────────────────────────────────
+
+def _build_agent_context(v2_state) -> AgentContext:
+    """Convert engine.schemas.GameState → AgentContext for the orchestrator."""
+    stage_str = str(v2_state.stage or "2-1")
+    parts = stage_str.split("-")
+    stage = (int(parts[0]), int(parts[1])) if len(parts) == 2 else (2, 1)
+
+    board_slots = []
+    for unit in (v2_state.board or []):
+        champ = unit.champion or ""
+        board_slots.append({
+            "api_name": champ,
+            "display_name": champ.split("_")[-1] if "_" in champ else champ,
+            "cost": 1,
+            "star": int(unit.star or 1),
+            "items_held": list(unit.items or []),
+            "bis_trios": [],
+            "value_class": "B",
+        })
+
+    return AgentContext(
+        hp=int(v2_state.hp or 100),
+        gold=int(v2_state.gold or 0),
+        level=int(v2_state.level or 4),
+        stage=stage,
+        streak=int(v2_state.streak or 0),
+        interest_tier=min(5, int(v2_state.gold or 0) // 10),
+        board_strength=0.5,
+        board_slots=board_slots,
+        bench_components=list(v2_state.item_components_on_bench or []),
+        augments_picked=list(v2_state.augments or []),
+        augment_tiers=[],
+        target_comp_apis=[],
+        active_items={},
+    )
 
 
 # ── Hotkey bridge ──────────────────────────────────────────────────────────────
@@ -232,20 +200,12 @@ class AppController(QObject):
             return  # drop duplicate F9 while pipeline is in-flight
 
         w = PipelineWorker(self.client)
-        # All connections use QueuedConnection so signals emitted from the
-        # QThread are delivered on the Qt main thread (where the panel lives).
         w.extractingStarted.connect(
             self.bindings.on_extracting, Qt.ConnectionType.QueuedConnection)
         w.stateExtracted.connect(
             self.bindings.on_state_extracted, Qt.ConnectionType.QueuedConnection)
-        w.compPlanReady.connect(
-            self.bindings.on_comp_plan, Qt.ConnectionType.QueuedConnection)
-        w.reasoningReady.connect(
-            self.bindings.on_reasoning, Qt.ConnectionType.QueuedConnection)
-        w.verdictReady.connect(
-            self.bindings.on_verdict_ready, Qt.ConnectionType.QueuedConnection)
-        w.finalReady.connect(
-            self.bindings.on_final, Qt.ConnectionType.QueuedConnection)
+        w.coachResultReady.connect(
+            self.bindings.on_coach_result, Qt.ConnectionType.QueuedConnection)
         w.errorOccurred.connect(
             self.bindings.on_error, Qt.ConnectionType.QueuedConnection)
         w.finished.connect(w.deleteLater)
@@ -319,7 +279,7 @@ def main() -> int:
     keyboard.add_hotkey(HOTKEY_END,    bridge.endRequested.emit)
     keyboard.add_hotkey(HOTKEY_QUIT,   app.quit)
 
-    logger.info("AUGIE v2 pipeline started")
+    logger.info("AUGIE v3 pipeline started (8-agent orchestrator)")
     logger.info(
         "Hotkeys: {} advise | {} start session | {} end session | {} quit",
         HOTKEY_ADVISE.upper(), HOTKEY_START.upper(),
