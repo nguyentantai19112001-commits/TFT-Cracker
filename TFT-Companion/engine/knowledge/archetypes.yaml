@@ -1,0 +1,534 @@
+# engine/knowledge/archetypes.yaml — Set 17 "Space Gods" comp archetypes
+# 20 archetypes shipped for v3 initial release.
+# Sources: TFTAcademy, bunnymuffins.lol, Mobalytics (patch 17.1B).
+# ⚠️ = data estimated / not confirmed from primary source
+# ❌ = field missing — must be added before using in production
+
+archetypes:
+
+  # ── S-TIER ──────────────────────────────────────────────────────────────────
+
+  vex_9_5:
+    display_name: "Vex 9-5 Fast 9"
+    tier: "S"
+    style: "fast_9"
+    difficulty: "hard"
+    core_units:
+      - TFT17_Vex
+      - TFT17_Blitzcrank
+      - TFT17_Bard
+      - TFT17_Shen
+      - TFT17_Rammus
+      - TFT17_Karma
+      - TFT17_Mordekaiser
+      - TFT17_Rhaast
+    primary_carry: TFT17_Vex
+    secondary_carry: TFT17_Blitzcrank
+    breakpoints:
+      Meeple: 3
+      Bastion: 2
+      Voyager: 2
+      DarkStar: 2
+      PartyAnimal: 1
+      Doomer: 1
+      Vanguard: 2
+      Conduit: 2
+      SpaceGroove: 1
+    stage_gate: [3, 5]
+    game_plan:
+      stage_1_2: "Play strongest opener, win streak if possible. Slam Guinsoo early."
+      stage_3: "Build econ, maintain streak. Level 7 on 3-5 if win streaking."
+      stage_4: "Level 8 on 4-2, stabilize, level 9 on 4-5 if healthy."
+      stage_5_plus: "Roll for Vex 2★, add 5-costs, cap with legendary frontline."
+    bis_priority:
+      - {unit: TFT17_Vex, items: [GuinsoosRageblade, StatikkShiv, MadredsBloodrazor]}
+      - {unit: TFT17_Blitzcrank, items: [JeweledGauntlet, RabadonsDeathcap, UnstableConcoction]}
+    augments:
+      prismatic_s: [LateGameSpecialist, MaxLevel10]
+      gold_s: [LateGameScaling, GildedSteel, UpwardMobility]
+      silver_s: [AuraFarming, DuoQueue]
+    contest_rate: 0.40  # ⚠️ estimated
+    openers: [TFT17_Briar, TFT17_Ezreal, TFT17_Reksai, TFT17_Pantheon]
+
+  viktor_b4l:
+    display_name: "Viktor Bronze for Life"
+    tier: "S"
+    style: "reroll_3c"
+    difficulty: "medium"
+    core_units:
+      - TFT17_Viktor
+      - TFT17_Illaoi
+      - TFT17_Nami
+      - TFT17_Pyke
+      - TFT17_Gragas
+    primary_carry: TFT17_Viktor
+    secondary_carry: TFT17_Illaoi
+    breakpoints:
+      Psionic: 4
+      Vanguard: 2
+      Anima: 3
+      SpaceGroove: 3
+    stage_gate: [3, 2]
+    game_plan:
+      stage_3: "Roll at 3-2 for Viktor 2★. Stabilize on Psionic 4."
+      stage_4: "Cap with Nami 2★, level 8 for Illaoi 2★."
+    bis_priority:
+      - {unit: TFT17_Viktor, items: [AdaptiveHelm, Morellonomicon, HextechGunblade]}
+    augments:
+      gold_s: [Psionic4, AdaptiveHelm_plus, VictorGain]
+    contest_rate: 0.45  # ⚠️ estimated
+    openers: [TFT17_Viktor, TFT17_Pyke, TFT17_Gragas]
+
+  nami_space_groove:
+    display_name: "Nami Space Groove"
+    tier: "S"
+    style: "fast_8"
+    difficulty: "medium"
+    core_units:
+      - TFT17_Nami
+      - TFT17_Teemo
+      - TFT17_Nasus
+      - TFT17_Samira
+      - TFT17_Ornn
+      - TFT17_Blitzcrank
+    primary_carry: TFT17_Nami
+    secondary_carry: TFT17_Samira
+    breakpoints:
+      SpaceGroove: 5
+      Shepherd: 3
+      Vanguard: 2
+      Bastion: 2
+    stage_gate: [3, 5]
+    game_plan:
+      stage_3: "Hold econ. Get Space Groove 3 by 3-5."
+      stage_4: "Level 8 on 4-2. Roll for Nami 2★."
+    bis_priority:
+      - {unit: TFT17_Nami, items: [BlueBuff, ArchangelsStaff, Morellonomicon]}
+    augments:
+      gold_s: [SpaceGroovePlus, ShepherdBonus]
+    contest_rate: 0.35  # ⚠️ estimated
+    openers: [TFT17_Teemo, TFT17_Nasus, TFT17_Gwen]
+
+  # ── A-TIER ──────────────────────────────────────────────────────────────────
+
+  mountain_stargazer:
+    display_name: "Mountain Stargazer"
+    tier: "A"
+    style: "fast_8"
+    difficulty: "medium"
+    core_units:
+      - TFT17_Lulu
+      - TFT17_Jax
+      - TFT17_NunuWillump
+      - TFT17_Xayah
+      - TFT17_Twisted_Fate
+      - TFT17_Talon
+    primary_carry: TFT17_Lulu
+    secondary_carry: TFT17_Xayah
+    breakpoints:
+      Stargazer: 5
+      Replicator: 2
+    stage_gate: [3, 5]
+    game_plan:
+      stage_4: "Level 8 on 4-2. Roll for Stargazer 5."
+    bis_priority:
+      - {unit: TFT17_Lulu, items: [Rabadon, ArchangelsStaff, BlueBuff]}
+    contest_rate: 0.25  # ⚠️ estimated
+    openers: [TFT17_Lulu, TFT17_Jax, TFT17_TwistedFate]
+    augments:
+      gold_s: [StargazerCore]
+
+  nova_reroll:
+    display_name: "N.O.V.A. Reroll"
+    tier: "A"
+    style: "reroll_2c"
+    difficulty: "medium"
+    core_units:
+      - TFT17_Kindred
+      - TFT17_Caitlyn
+      - TFT17_Akali
+      - TFT17_Aatrox
+      - TFT17_Maokai
+    primary_carry: TFT17_Kindred
+    secondary_carry: TFT17_Caitlyn
+    breakpoints:
+      NOVA: 5
+      Challenger: 2
+      Bastion: 2
+      Fateweaver: 2
+    stage_gate: [3, 2]
+    game_plan:
+      stage_3: "Roll at 3-2 for Kindred 3★."
+      stage_4: "Level 8, add 4-cost Kindred + Caitlyn upgrades."
+    bis_priority:
+      - {unit: TFT17_Kindred, items: [GuinsoosRageblade, StatikkShiv, InfinityEdge]}
+    contest_rate: 0.30  # ⚠️ estimated
+    openers: [TFT17_Caitlyn, TFT17_Aatrox, TFT17_Akali]
+    augments:
+      gold_s: [NOVACore]
+
+  anima_cashout:
+    display_name: "Anima Cashout Jinx"
+    tier: "A"
+    style: "reroll_2c"
+    difficulty: "easy"
+    core_units:
+      - TFT17_Jinx
+      - TFT17_Briar
+      - TFT17_Aurora
+      - TFT17_Illaoi
+    primary_carry: TFT17_Jinx
+    secondary_carry: TFT17_Briar
+    breakpoints:
+      Anima: 3
+      Challenger: 2
+    stage_gate: [3, 1]
+    game_plan:
+      stage_3: "Roll for Jinx 3★, Briar 3★."
+    bis_priority:
+      - {unit: TFT17_Jinx, items: [GuinsoosRageblade, InfinityEdge, LastWhisper]}
+    contest_rate: 0.30  # ⚠️ estimated
+    openers: [TFT17_Jinx, TFT17_Briar]
+    augments:
+      gold_s: [AnimaBonus]
+
+  conduit_reroll:
+    display_name: "Conduit Reroll"
+    tier: "A"
+    style: "reroll_2c"
+    difficulty: "medium"
+    core_units:
+      - TFT17_Zoe
+      - TFT17_Mordekaiser
+      - TFT17_Viktor
+    primary_carry: TFT17_Zoe
+    secondary_carry: TFT17_Viktor
+    breakpoints:
+      Conduit: 4
+      DarkStar: 2
+    stage_gate: [3, 2]
+    game_plan:
+      stage_3: "Roll for Zoe 3★. Hit Conduit 4."
+    bis_priority:
+      - {unit: TFT17_Zoe, items: [BlueBuff, ArchangelsStaff, JeweledGauntlet]}
+    contest_rate: 0.20  # ⚠️ estimated
+    openers: [TFT17_Zoe, TFT17_Mordekaiser]
+    augments: {}
+
+  astral_meep:
+    display_name: "Astral Meep 10"
+    tier: "A"
+    style: "fast_9"
+    difficulty: "hard"
+    core_units:
+      - TFT17_Bard
+      - TFT17_Rammus
+      - TFT17_Veigar
+      - TFT17_Poppy
+      - TFT17_Meepsie
+      - TFT17_Corki
+      - TFT17_Gnar
+    primary_carry: TFT17_Bard
+    secondary_carry: TFT17_Corki
+    breakpoints:
+      Meeple: 7
+      Bastion: 2
+    stage_gate: [4, 1]
+    game_plan:
+      stage_4: "Level 9 on 4-5. Hit Meeple 7."
+      stage_5: "Level 10 for Meeple 10 trait."
+    bis_priority:
+      - {unit: TFT17_Bard, items: [BlueBuff, ArchangelsStaff, Morellonomicon]}
+    contest_rate: 0.15  # ⚠️ estimated
+    openers: [TFT17_Poppy, TFT17_Veigar]
+    augments:
+      gold_s: [MeepleCore, LevelBoost]
+
+  contract_killer:
+    display_name: "Contract Killer"
+    tier: "A"
+    style: "fast_8"
+    difficulty: "medium"
+    core_units:
+      - TFT17_Diana
+      - TFT17_Leona
+      - TFT17_Zoe
+    primary_carry: TFT17_Diana
+    secondary_carry: null
+    breakpoints:
+      Arbiter: 3
+      Challenger: 2
+    stage_gate: [3, 5]
+    game_plan:
+      stage_4: "Level 8 on 4-2. Roll Diana 2★."
+    bis_priority:
+      - {unit: TFT17_Diana, items: [GuinsoosRageblade, JeweledGauntlet, HextechGunblade]}
+    contest_rate: 0.15  # ⚠️ estimated
+    openers: [TFT17_Leona, TFT17_Zoe]
+    augments: {}
+
+  invader_zed:
+    display_name: "Invader Zed"
+    tier: "A"
+    style: "fast_9"
+    difficulty: "hard"
+    core_units:
+      - TFT17_Zed
+      - TFT17_Vex
+      - TFT17_Bard
+    primary_carry: TFT17_Zed
+    secondary_carry: TFT17_Vex
+    breakpoints:
+      GalaxyHunter: 1
+    stage_gate: [4, 2]  # Zed is augment-gated, available stage 4+
+    game_plan:
+      stage_4: "Get Zed hero augment on 4-2 if offered. Level 9 and stabilize."
+    bis_priority:
+      - {unit: TFT17_Zed, items: [InfinityEdge, LastWhisper, GiantSlayer]}
+    contest_rate: 0.10  # ⚠️ estimated
+    openers: [TFT17_Vex, TFT17_Bard]
+    augments: {}
+
+  capped_loaded:
+    display_name: "Capped Loaded"
+    tier: "A"
+    style: "fast_8"
+    difficulty: "easy"
+    core_units:
+      - TFT17_Graves
+      - TFT17_Jhin
+      - TFT17_Karma
+    primary_carry: TFT17_Graves
+    secondary_carry: TFT17_Jhin
+    breakpoints:
+      FactoryNew: 1
+      DarkStar: 4
+      Eradicator: 1
+    stage_gate: [3, 5]
+    game_plan:
+      stage_4: "Level 8 on 4-2. Add Jhin + Karma."
+    bis_priority:
+      - {unit: TFT17_Jhin, items: [InfinityEdge, LastWhisper, GiantSlayer]}
+    contest_rate: 0.20  # ⚠️ estimated
+    openers: [TFT17_Lissandra, TFT17_Cho_Gath]
+    augments:
+      gold_s: [DarkStarCore]
+
+  # ── B-TIER ──────────────────────────────────────────────────────────────────
+
+  shepherd_comp:
+    display_name: "Shepherd Board"
+    tier: "B"
+    style: "fast_8"
+    difficulty: "easy"
+    core_units:
+      - TFT17_LeBlanc
+      - TFT17_Illaoi
+      - TFT17_Teemo
+      - TFT17_Sona
+      - TFT17_Lissandra
+    primary_carry: TFT17_LeBlanc
+    secondary_carry: TFT17_Illaoi
+    breakpoints:
+      Shepherd: 5
+      Arbiter: 2
+    stage_gate: [3, 5]
+    game_plan:
+      stage_4: "Level 8. Hit Shepherd 5."
+    bis_priority:
+      - {unit: TFT17_LeBlanc, items: [GuinsoosRageblade, JeweledGauntlet, Morellonomicon]}
+    contest_rate: 0.20  # ⚠️ estimated
+    openers: [TFT17_Teemo, TFT17_Lissandra]
+    augments: {}
+
+  redeemer:
+    display_name: "Redeemer Rhaast"
+    tier: "B"
+    style: "reroll_3c"
+    difficulty: "easy"
+    core_units:
+      - TFT17_Rhaast
+    primary_carry: TFT17_Rhaast
+    secondary_carry: null
+    breakpoints:
+      Redeemer: 1
+    stage_gate: [3, 2]
+    game_plan:
+      stage_3: "Roll for Rhaast 3★ at 3-2."
+    bis_priority:
+      - {unit: TFT17_Rhaast, items: [GuinsoosRageblade, HextechGunblade, ArchangelsStaff]}
+    contest_rate: 0.15  # ⚠️ estimated
+    openers: [TFT17_Rhaast]
+    augments: {}
+
+  jhin_dark_star:
+    display_name: "Jhin Dark Star"
+    tier: "B"
+    style: "fast_8"
+    difficulty: "medium"
+    core_units:
+      - TFT17_Jhin
+      - TFT17_Karma
+      - TFT17_Kai_Sa
+      - TFT17_Cho_Gath
+      - TFT17_Lissandra
+    primary_carry: TFT17_Jhin
+    secondary_carry: TFT17_Kai_Sa
+    breakpoints:
+      DarkStar: 6
+      Sniper: 2
+      Eradicator: 1
+    stage_gate: [3, 5]
+    game_plan:
+      stage_4: "Level 8 on 4-2. Add Jhin + Karma."
+    bis_priority:
+      - {unit: TFT17_Jhin, items: [InfinityEdge, LastWhisper, GiantSlayer]}
+    contest_rate: 0.25  # ⚠️ estimated
+    openers: [TFT17_Lissandra, TFT17_Cho_Gath]
+    augments: {}
+
+  transformers:
+    display_name: "Mecha Transformers"
+    tier: "B"
+    style: "fast_8"
+    difficulty: "medium"
+    core_units:
+      - TFT17_AurelionSol
+      - TFT17_Urgot
+      - TFT17_TheMightyMech
+    primary_carry: TFT17_AurelionSol
+    secondary_carry: TFT17_TheMightyMech
+    breakpoints:
+      Mecha: 4
+      Conduit: 2
+    stage_gate: [3, 5]
+    game_plan:
+      stage_4: "Level 8. Hit Mecha 4."
+    bis_priority:
+      - {unit: TFT17_AurelionSol, items: [ArchangelsStaff, BlueBuff, Rabadon]}
+    contest_rate: 0.15  # ⚠️ estimated
+    openers: [TFT17_Urgot]
+    augments: {}
+
+  space_opera:
+    display_name: "Space Opera"
+    tier: "B"
+    style: "fast_8"
+    difficulty: "easy"
+    core_units:
+      - TFT17_Nasus
+      - TFT17_Gwen
+      - TFT17_Samira
+      - TFT17_Ornn
+      - TFT17_Nami
+    primary_carry: TFT17_Samira
+    secondary_carry: TFT17_Nami
+    breakpoints:
+      SpaceGroove: 7
+    stage_gate: [3, 5]
+    game_plan:
+      stage_4: "Level 8. Hit Space Groove 7."
+    bis_priority:
+      - {unit: TFT17_Samira, items: [InfinityEdge, LastWhisper, GuinsoosRageblade]}
+    contest_rate: 0.20  # ⚠️ estimated
+    openers: [TFT17_Teemo, TFT17_Nasus, TFT17_Gwen]
+    augments: {}
+
+  # ── FLEX / SITUATIONAL ────────────────────────────────────────────────────────
+
+  anima_reroll:
+    display_name: "Anima Reroll (Flex)"
+    tier: "B"
+    style: "reroll_2c"
+    difficulty: "easy"
+    core_units:
+      - TFT17_Jinx
+      - TFT17_Briar
+      - TFT17_Aurora
+    primary_carry: TFT17_Jinx
+    secondary_carry: TFT17_Aurora
+    breakpoints:
+      Anima: 6
+    stage_gate: [3, 1]
+    game_plan:
+      stage_3: "Full roll for Anima 3-stars."
+    bis_priority:
+      - {unit: TFT17_Jinx, items: [GuinsoosRageblade, InfinityEdge, LastWhisper]}
+    contest_rate: 0.25  # ⚠️ estimated
+    openers: [TFT17_Jinx, TFT17_Briar]
+    augments: {}
+
+  fiora_flex:
+    display_name: "Fiora Divine Flex"
+    tier: "B"
+    style: "fast_9"
+    difficulty: "hard"
+    core_units:
+      - TFT17_Fiora
+      - TFT17_Riven
+      - TFT17_Bel_Veth
+    primary_carry: TFT17_Fiora
+    secondary_carry: TFT17_Riven
+    breakpoints:
+      DivineDuelist: 1
+      Marauder: 4
+      Timebreaker: 3
+    stage_gate: [4, 2]
+    game_plan:
+      stage_4_5: "Level 9. Fiora hits hard at 5-cost."
+    bis_priority:
+      - {unit: TFT17_Fiora, items: [InfinityEdge, LastWhisper, GuinsoosRageblade]}
+    contest_rate: 0.10  # ⚠️ estimated
+    openers: [TFT17_BelVeth, TFT17_Riven]
+    augments: {}
+
+  rhaast_flex:
+    display_name: "Rhaast Redeemer Flex"
+    tier: "B"
+    style: "reroll_3c"
+    difficulty: "easy"
+    core_units:
+      - TFT17_Rhaast
+      - TFT17_Fizz
+      - TFT17_Kai_Sa
+    primary_carry: TFT17_Rhaast
+    secondary_carry: TFT17_Kai_Sa
+    breakpoints:
+      Redeemer: 1
+      Rogue: 3
+      DarkStar: 2
+    stage_gate: [3, 2]
+    game_plan:
+      stage_3: "Roll for Rhaast + Fizz 3-stars."
+    bis_priority:
+      - {unit: TFT17_Rhaast, items: [GuinsoosRageblade, HextechGunblade, ArchangelsStaff]}
+    contest_rate: 0.10  # ⚠️ estimated
+    openers: [TFT17_Rhaast, TFT17_Fizz]
+    augments: {}
+
+  blitz_space_groove:
+    display_name: "Blitzcrank Space Groove"
+    tier: "B"
+    style: "fast_8"
+    difficulty: "medium"
+    core_units:
+      - TFT17_Blitzcrank
+      - TFT17_Nami
+      - TFT17_Teemo
+      - TFT17_Nasus
+      - TFT17_Gwen
+      - TFT17_Ornn
+    primary_carry: TFT17_Blitzcrank
+    secondary_carry: TFT17_Nami
+    breakpoints:
+      SpaceGroove: 5
+      PartyAnimal: 1
+      Vanguard: 2
+    stage_gate: [4, 1]
+    game_plan:
+      stage_4: "Level 8. Hit Space Groove 5 with Blitzcrank."
+    bis_priority:
+      - {unit: TFT17_Blitzcrank, items: [JeweledGauntlet, RabadonsDeathcap, UnstableConcoction]}
+    contest_rate: 0.15  # ⚠️ estimated
+    openers: [TFT17_Teemo, TFT17_Nasus]
+    augments: {}

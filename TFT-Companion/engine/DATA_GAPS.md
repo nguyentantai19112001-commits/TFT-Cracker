@@ -42,11 +42,38 @@
 | `champions[*].traits` | ❌ **MISSING** | No champion→trait mapping in YAML. Phase 4 needs this for trait_fit scoring. Load from `data/set_data.json` (Community Dragon) or ask user. |
 | `pool_sizes[5].distinct` | ⚠️ | Currently 9 (Zed gated). If another 5-cost is gated, drop to 8. Ask user. |
 
-## knowledge/archetypes/ (Phase 4 — NOT STARTED)
+## knowledge/archetypes/ (Phase 4 → v3 C7 partial)
 
 | Status | Notes |
 |--------|-------|
-| ❌ **NOT CREATED** | 12 archetype YAML files needed. Source from tactics.tools / Mobalytics Set 17 tier lists. All champion names must be verified against `game_assets.CHAMPIONS` before writing. |
+| ✅ archetypes.yaml | 20 archetypes created in v3 C7 with core_units, breakpoints, stage_gate, bis_priority, openers |
+| ⚠️ contest_rate | All values estimated — not from Mobalytics data. Flag as approximate. |
+| ⚠️ augment lists | Only vex_9_5 has verified augment keys — others are stubs or empty. Pull from TFTAcademy. |
+| ❌ winrate_confidence | No per-BIS-trio winrate data available. Field omitted on all units. |
+| ❌ Champion BIS for 58/63 units | Only Vex, Blitzcrank, Viktor, LeBlanc, Jhin have BIS from the v3 brief. All others need fetch from TFTAcademy or Mobalytics. |
+
+## knowledge/item_holders.yaml (v3 C7)
+
+| Status | Notes |
+|--------|-------|
+| ✅ 5-cost units | Vex, Blitzcrank, Jhin, LeBlanc, Bard, Shen, Fiora, Graves, Morgana, Sona — primary family from brief |
+| ✅ 4-cost units | Nami, Kindred, Karma, Xayah, Rammus, AurelionSol, Corki, Riven, MasterYi, LeBlanc |
+| ✅ 3-cost carries | Viktor, Samira, Rhaast, Kai'Sa, Lulu, Diana, Illaoi, Ornn, Aurora |
+| ⚠️ 2-cost holders | Pyke, Mordekaiser, Jinx, Zoe — stage roles are estimated |
+| ⚠️ 1-cost holders | Ezreal, Briar, Poppy only — 11 others missing |
+| ❌ BIS item recipes | item_holders.yaml references items by display name not component IDs. Needs recipe cross-reference for BISEngine. |
+
+## constants.yaml (v3 C2)
+
+| Field | Status | Notes |
+|-------|--------|-------|
+| interest_tiers | ✅ | Standard TFT math |
+| streak_bonus | ✅ | Standard |
+| shop_odds | ✅ (L7 ≈95%) | Level 7 sums to 95 not 100 — source rounding in brief; 5% margin applied in tests |
+| xp_to_next_level | ✅ | Standard |
+| econ_curve | ✅ | From bunnymuffins.lol |
+| augment_distribution | ✅ | From tftodds.com |
+| item_recipes | ❌ MISSING | BISEngine tests use inline recipe dict; canonical item recipes not yet in any YAML |
 
 ---
 

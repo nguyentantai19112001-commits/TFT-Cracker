@@ -1,0 +1,337 @@
+# engine/knowledge/item_holders.yaml — Per-unit item family preferences
+# Used by Agent 7 (HolderMatrix) for pure YAML lookup.
+# Sources: TFTAcademy, Mobalytics (patch 17.1B).
+# ⚠️ = estimated — verify before shipping
+# ❌ = missing — must be added
+
+# Schema:
+#   unit_api:
+#     primary_family: "AD" | "AP" | "AD_crit" | "AP_mana" | "tank" | "utility"
+#     secondary_family: optional
+#     avoid: list of item component families to never put here
+#     stage_2: role literal
+#     stage_3: role literal
+#     stage_4: role literal
+#     stage_5_plus: role literal
+# Stage roles: "skip" | "hold_only" | "secondary" | "primary"
+
+# ── 5-cost carries ────────────────────────────────────────────────────────────
+
+TFT17_Vex:
+  primary_family: "AP"
+  secondary_family: "AS"          # Guinsoo's specifically
+  avoid: ["IE", "DB", "KR", "LW"]  # AD-crit items — wrong family
+  stage_2: "skip"
+  stage_3: "hold_only"
+  stage_4: "primary"
+  stage_5_plus: "primary"
+
+TFT17_Blitzcrank:
+  primary_family: "AP"
+  secondary_family: "tank"
+  avoid: ["IE", "DB"]
+  stage_2: "skip"
+  stage_3: "hold_only"
+  stage_4: "secondary"
+  stage_5_plus: "primary"
+
+TFT17_Jhin:
+  primary_family: "AD_crit"
+  secondary_family: "AD"
+  avoid: ["ArchangelsStaff", "BlueBuff", "Rabadon"]
+  stage_2: "skip"
+  stage_3: "hold_only"
+  stage_4: "primary"
+  stage_5_plus: "primary"
+
+TFT17_LeBlanc:
+  primary_family: "AP"
+  secondary_family: "AP_mana"
+  avoid: ["IE", "DB", "KR"]
+  stage_2: "skip"
+  stage_3: "hold_only"
+  stage_4: "primary"
+  stage_5_plus: "primary"
+
+TFT17_Bard:
+  primary_family: "AP_mana"
+  secondary_family: "utility"
+  avoid: ["IE"]
+  stage_2: "skip"
+  stage_3: "skip"
+  stage_4: "secondary"
+  stage_5_plus: "primary"
+
+TFT17_Shen:
+  primary_family: "tank"
+  secondary_family: "utility"
+  avoid: ["GuinsoosRageblade"]
+  stage_2: "hold_only"
+  stage_3: "hold_only"
+  stage_4: "secondary"
+  stage_5_plus: "secondary"
+
+TFT17_Fiora:
+  primary_family: "AD_crit"
+  secondary_family: "AD"
+  avoid: ["ArchangelsStaff", "BlueBuff"]
+  stage_2: "skip"
+  stage_3: "skip"
+  stage_4: "secondary"
+  stage_5_plus: "primary"
+
+TFT17_Graves:
+  primary_family: "AD"
+  secondary_family: "AD_crit"
+  avoid: ["ArchangelsStaff", "Rabadon"]
+  stage_2: "skip"
+  stage_3: "hold_only"
+  stage_4: "primary"
+  stage_5_plus: "primary"
+
+TFT17_Morgana:
+  primary_family: "AP"
+  secondary_family: "utility"
+  avoid: ["IE", "DB"]
+  stage_2: "skip"
+  stage_3: "skip"
+  stage_4: "secondary"
+  stage_5_plus: "secondary"
+
+TFT17_Sona:
+  primary_family: "utility"
+  secondary_family: "AP"
+  avoid: []
+  stage_2: "skip"
+  stage_3: "hold_only"
+  stage_4: "secondary"
+  stage_5_plus: "secondary"
+
+# ── 4-cost carries ────────────────────────────────────────────────────────────
+
+TFT17_Nami:
+  primary_family: "AP_mana"
+  secondary_family: "AP"
+  avoid: ["IE", "DB"]
+  stage_2: "hold_only"
+  stage_3: "secondary"
+  stage_4: "primary"
+  stage_5_plus: "primary"
+
+TFT17_Kindred:
+  primary_family: "AD_crit"
+  secondary_family: "AS"
+  avoid: ["ArchangelsStaff", "Rabadon"]
+  stage_2: "hold_only"
+  stage_3: "secondary"
+  stage_4: "primary"
+  stage_5_plus: "primary"
+
+TFT17_LeBlanc_4:  # if used as 4-cost
+  primary_family: "AP"
+  secondary_family: "AP_mana"
+  avoid: ["IE"]
+  stage_3: "secondary"
+  stage_4: "primary"
+  stage_5_plus: "primary"
+
+TFT17_Karma:
+  primary_family: "AP"
+  secondary_family: "utility"
+  avoid: ["IE", "DB"]
+  stage_2: "hold_only"
+  stage_3: "secondary"
+  stage_4: "secondary"
+  stage_5_plus: "secondary"
+
+TFT17_Xayah:
+  primary_family: "AD_crit"
+  secondary_family: "AD"
+  avoid: ["ArchangelsStaff", "Rabadon"]
+  stage_3: "secondary"
+  stage_4: "primary"
+  stage_5_plus: "primary"
+
+TFT17_Rammus:
+  primary_family: "tank"
+  secondary_family: "utility"
+  avoid: ["IE", "DB", "GuinsoosRageblade"]
+  stage_2: "hold_only"
+  stage_3: "hold_only"
+  stage_4: "secondary"
+  stage_5_plus: "secondary"
+
+TFT17_AurelionSol:
+  primary_family: "AP"
+  secondary_family: "AP_mana"
+  avoid: ["IE", "DB"]
+  stage_3: "secondary"
+  stage_4: "primary"
+  stage_5_plus: "primary"
+
+TFT17_Corki:
+  primary_family: "AD"
+  secondary_family: "AD_crit"
+  avoid: ["ArchangelsStaff"]
+  stage_3: "hold_only"
+  stage_4: "secondary"
+  stage_5_plus: "secondary"
+
+TFT17_Riven:
+  primary_family: "AD_crit"
+  secondary_family: "AD"
+  avoid: ["ArchangelsStaff", "Rabadon"]
+  stage_3: "secondary"
+  stage_4: "primary"
+  stage_5_plus: "primary"
+
+TFT17_MasterYi:
+  primary_family: "AD"
+  secondary_family: "AS"
+  avoid: ["ArchangelsStaff"]
+  stage_3: "secondary"
+  stage_4: "primary"
+  stage_5_plus: "primary"
+
+# ── 3-cost carries ────────────────────────────────────────────────────────────
+
+TFT17_Viktor:
+  primary_family: "AP"
+  secondary_family: "AP_mana"
+  avoid: ["IE", "DB", "KR"]
+  stage_2: "hold_only"
+  stage_3: "primary"
+  stage_4: "primary"
+  stage_5_plus: "primary"
+
+TFT17_Samira:
+  primary_family: "AD_crit"
+  secondary_family: "AD"
+  avoid: ["ArchangelsStaff", "Rabadon"]
+  stage_3: "primary"
+  stage_4: "primary"
+  stage_5_plus: "primary"
+
+TFT17_Rhaast:
+  primary_family: "AP"
+  secondary_family: "AS"
+  avoid: ["IE", "DB"]
+  stage_3: "primary"
+  stage_4: "primary"
+  stage_5_plus: "primary"
+
+TFT17_Kai_Sa:
+  primary_family: "AD_crit"
+  secondary_family: "AS"
+  avoid: ["ArchangelsStaff"]
+  stage_3: "secondary"
+  stage_4: "primary"
+  stage_5_plus: "primary"
+
+TFT17_Lulu:
+  primary_family: "AP"
+  secondary_family: "utility"
+  avoid: ["IE", "DB"]
+  stage_3: "secondary"
+  stage_4: "primary"
+  stage_5_plus: "primary"
+
+TFT17_Diana:
+  primary_family: "AP"
+  secondary_family: "AS"
+  avoid: ["IE", "DB"]
+  stage_3: "secondary"
+  stage_4: "primary"
+  stage_5_plus: "primary"
+
+TFT17_Illaoi:
+  primary_family: "tank"
+  secondary_family: "AP"
+  avoid: ["IE", "DB"]
+  stage_3: "secondary"
+  stage_4: "secondary"
+  stage_5_plus: "secondary"
+
+TFT17_Ornn:
+  primary_family: "tank"
+  secondary_family: "utility"
+  avoid: ["IE", "DB"]
+  stage_3: "hold_only"
+  stage_4: "secondary"
+  stage_5_plus: "secondary"
+
+TFT17_Aurora:
+  primary_family: "AP"
+  secondary_family: "AS"
+  avoid: ["IE", "DB"]
+  stage_2: "hold_only"
+  stage_3: "secondary"
+  stage_4: "secondary"
+  stage_5_plus: "secondary"
+
+# ── 2-cost transition holders ────────────────────────────────────────────────
+
+TFT17_Pyke:
+  primary_family: "AD"
+  secondary_family: "utility"
+  avoid: ["ArchangelsStaff", "Rabadon"]
+  stage_2: "hold_only"
+  stage_3: "hold_only"
+  stage_4: "skip"
+  stage_5_plus: "skip"
+
+TFT17_Mordekaiser:
+  primary_family: "tank"
+  secondary_family: "AP"
+  avoid: ["IE"]
+  stage_2: "hold_only"
+  stage_3: "hold_only"
+  stage_4: "secondary"
+  stage_5_plus: "secondary"
+
+TFT17_Jinx:
+  primary_family: "AD_crit"
+  secondary_family: "AS"
+  avoid: ["ArchangelsStaff", "Rabadon"]
+  stage_2: "secondary"
+  stage_3: "primary"
+  stage_4: "hold_only"
+  stage_5_plus: "skip"
+
+TFT17_Zoe:
+  primary_family: "AP_mana"
+  secondary_family: "AP"
+  avoid: ["IE", "DB"]
+  stage_2: "secondary"
+  stage_3: "primary"
+  stage_4: "hold_only"
+  stage_5_plus: "skip"
+
+# ── 1-cost early game holders ─────────────────────────────────────────────────
+
+TFT17_Ezreal:
+  primary_family: "AD"
+  secondary_family: "AD_crit"
+  avoid: ["ArchangelsStaff"]
+  stage_2: "hold_only"
+  stage_3: "skip"
+  stage_4: "skip"
+  stage_5_plus: "skip"
+
+TFT17_Briar:
+  primary_family: "AD"
+  secondary_family: "AS"
+  avoid: ["ArchangelsStaff"]
+  stage_2: "hold_only"
+  stage_3: "secondary"
+  stage_4: "skip"
+  stage_5_plus: "skip"
+
+TFT17_Poppy:
+  primary_family: "tank"
+  secondary_family: "utility"
+  avoid: ["IE", "DB"]
+  stage_2: "hold_only"
+  stage_3: "hold_only"
+  stage_4: "skip"
+  stage_5_plus: "skip"
