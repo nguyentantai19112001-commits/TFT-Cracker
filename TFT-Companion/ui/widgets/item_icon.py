@@ -35,6 +35,8 @@ class ItemIcon(QWidget):
         self._category = category
         self._pixmap: QPixmap | None = None
         self.setFixedSize(size, size)
+        if api_name:
+            self._try_load()
 
     def set_item(self, api_name: str, category: str = "ap"):
         self._api_name = api_name
@@ -65,7 +67,9 @@ class ItemIcon(QWidget):
         else:
             from_c, to_c = _CATEGORY_GRADIENTS.get(self._category, _DEFAULT_GRADIENT)
             g = QLinearGradient(rect.topLeft(), rect.bottomRight())
-            g.setColorAt(0, QColor(from_c))
+            c0 = QColor(from_c)
+            c0.setAlpha(180)
+            g.setColorAt(0, c0)
             g.setColorAt(1, QColor(to_c))
             p.fillPath(path, QBrush(g))
 

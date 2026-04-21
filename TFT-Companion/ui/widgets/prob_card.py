@@ -1,6 +1,6 @@
 """Probability card — animated bar showing roll probability."""
 from __future__ import annotations
-from PyQt6.QtCore import Qt, QRectF, QPropertyAnimation, QEasingCurve, pyqtProperty
+from PyQt6.QtCore import Qt, QRectF, QSize, QPropertyAnimation, QEasingCurve, pyqtProperty
 from PyQt6.QtGui import (
     QPainter, QColor, QBrush, QPen, QPainterPath, QLinearGradient, QFont,
 )
@@ -28,6 +28,12 @@ class ProbCard(QWidget):
         self.update()
 
     displayed_prob = pyqtProperty(float, _get_displayed_prob, _set_displayed_prob)
+
+    def sizeHint(self) -> QSize:
+        return QSize(460, 88)
+
+    def minimumSizeHint(self) -> QSize:
+        return QSize(460, 88)
 
     def set_probability(self, prob: float, label: str = "", sublabel: str = ""):
         prob = max(0.0, min(1.0, prob))
@@ -66,7 +72,7 @@ class ProbCard(QWidget):
         f.setPointSize(FONT.size_body)
         f.setWeight(QFont.Weight.Medium)
         p.setFont(f)
-        label_rect = QRectF(ph, pv, w - ph * 2 - 60, 20)
+        label_rect = QRectF(ph, pv, w - ph * 2 - 120, 20)
         p.drawText(label_rect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft, self._label)
 
         # Percent readout — JetBrains Mono for numeric data
@@ -77,7 +83,7 @@ class ProbCard(QWidget):
         fm.setPointSize(FONT.size_metric)
         fm.setWeight(QFont.Weight.Bold)
         p.setFont(fm)
-        pct_rect = QRectF(w - ph - 70, pv - 4, 70, 32)
+        pct_rect = QRectF(w - ph - 120, pv - 4, 120, 32)
         p.drawText(pct_rect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight, pct_text)
 
         # Sub-label

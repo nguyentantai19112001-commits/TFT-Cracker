@@ -1,14 +1,20 @@
-"""AuroraPanel — the main scrollable content panel."""
+"""AuroraPanel — the main overlay panel.
+
+Paints its own background (blobs + glass rect) so transparency works
+correctly with the frameless window. No separate backdrop widget needed.
+"""
 from __future__ import annotations
-from PyQt6.QtCore import Qt, QRectF
-from PyQt6.QtGui import QPainter, QColor, QBrush, QPen, QPainterPath
+from PyQt6.QtCore import Qt, QRectF, QPointF
+from PyQt6.QtGui import (
+    QPainter, QColor, QBrush, QPen, QPainterPath,
+    QRadialGradient, QLinearGradient,
+)
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QScrollArea, QFrame, QSizePolicy,
+    QWidget, QVBoxLayout, QScrollArea, QFrame,
 )
 
 from ui.tokens import COLOR, RADIUS, SPACE, SIZE
 from ui.chrome.title_bar import TitleBar
-from ui.widgets.aurora_backdrop import AuroraBackdrop
 from ui.widgets.warning_block import WarningBlock
 from ui.sections.hero_section import HeroSection
 from ui.sections.status_pills import StatusPills
@@ -20,66 +26,44 @@ from ui.sections.augment_preview import AugmentPreview
 from ui.sections.footer import Footer
 
 
-class _PanelBody(QWidget):
-    """Painted glass panel body — rounded rect + subtle border."""
-
-    def paintEvent(self, event):
-        p = QPainter(self)
-        p.setRenderHint(QPainter.RenderHint.Antialiasing)
-        w, h = self.width(), self.height()
-        rect = QRectF(0, 0, w, h)
-        path = QPainterPath()
-        path.addRoundedRect(rect, RADIUS.panel, RADIUS.panel)
-
-        r, g, b, a = COLOR.bg_panel_rgba
-        p.fillPath(path, QBrush(QColor(r, g, b, a)))
-
-        border = QColor(*COLOR.border_subtle_rgba)
-        p.setPen(QPen(border, 1))
-        p.drawPath(path)
-        p.end()
+_BLOBS = [
+    (0.15, 0.10, 0.55, COLOR.accent_pink,   28),
+    (0.85, 0.30, 0.50, COLOR.accent_blue,   22),
+    (0.50, 0.80, 0.60, COLOR.accent_purple, 18),
+]
 
 
 class AuroraPanel(QWidget):
-    """Full overlay panel: title bar + scrollable content sections."""
+    """Full overlay panel — paints blobs + glass rect in its own paintEvent."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setAutoFillBackground(False)
         self.setFixedWidth(SIZE.panel_width)
 
-        root_layout = QVBoxLayout(self)
-        root_layout.setContentsMargins(0, 0, 0, 0)
-        root_layout.setSpacing(0)
+        root = QVBoxLayout(self)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
 
-        # Backdrop blob layer (absolute positioned child — sized in resizeEvent)
-        self._backdrop = AuroraBackdrop(self)
-        self._backdrop.lower()
-
-        # Glass body
-        self._body = _PanelBody(self)
-        self._body.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        body_layout = QVBoxLayout(self._body)
-        body_layout.setContentsMargins(0, 0, 0, 0)
-        body_layout.setSpacing(0)
-
-        # Title bar
         self.title_bar = TitleBar()
-        body_layout.addWidget(self.title_bar)
+        root.addWidget(self.title_bar)
 
-        # Scroll area for content
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        scroll.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        scroll.setAutoFillBackground(False)
         scroll.viewport().setAutoFillBackground(False)
-        scroll.setStyleSheet("QScrollArea { background: transparent; border: none; }"
-                             "QScrollArea > QWidget > QWidget { background: transparent; }")
+        scroll.setStyleSheet(
+            "QScrollArea, QScrollArea > QWidget, QScrollArea > QWidget > QWidget"
+            "{ background: transparent; border: none; }"
+        )
 
         content = QWidget()
-        content.setStyleSheet("background: transparent;")
+        content.setAutoFillBackground(False)
+        content.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         content_layout = QVBoxLayout(content)
         content_layout.setContentsMargins(0, SPACE.sm, 0, SPACE.lg)
         content_layout.setSpacing(SPACE.md)
@@ -111,18 +95,46 @@ class AuroraPanel(QWidget):
 
         content_layout.addStretch()
         scroll.setWidget(content)
-        body_layout.addWidget(scroll, 1)
+        root.addWidget(scroll, 1)
 
         self.footer = Footer()
-        body_layout.addWidget(self.footer)
+        root.addWidget(self.footer)
 
-        root_layout.addWidget(self._body)
+    # ── Paint: blobs then glass ──────────────────────────────────────────────
 
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self._backdrop.setGeometry(0, 0, self.width(), self.height())
+    def paintEvent(self, event):
+        p = QPainter(self)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing)
+        w, h = self.width(), self.height()
 
-    # --- Public apply methods (wired by ui/bindings.py) ---
+        # Aurora blobs
+        for cx_f, cy_f, r_f, color_hex, alpha in _BLOBS:
+            cx = w * cx_f
+            cy = h * cy_f
+            radius = max(w, h) * r_f
+            grad = QRadialGradient(QPointF(cx, cy), radius)
+            c_center = QColor(color_hex)
+            c_center.setAlpha(alpha)
+            c_edge = QColor(color_hex)
+            c_edge.setAlpha(0)
+            grad.setColorAt(0, c_center)
+            grad.setColorAt(1, c_edge)
+            p.setBrush(QBrush(grad))
+            p.setPen(Qt.PenStyle.NoPen)
+            p.drawEllipse(QRectF(cx - radius, cy - radius, radius * 2, radius * 2))
+
+        # Glass panel
+        rect = QRectF(0, 0, w, h)
+        path = QPainterPath()
+        path.addRoundedRect(rect, RADIUS.panel, RADIUS.panel)
+        r, g, b, a = COLOR.bg_panel_rgba
+        p.fillPath(path, QBrush(QColor(r, g, b, a)))
+        border = QColor(*COLOR.border_subtle_rgba)
+        p.setPen(QPen(border, 1))
+        p.drawPath(path)
+        p.end()
+
+    # ── Public apply methods ─────────────────────────────────────────────────
 
     def apply_warning(self, message: str, visible: bool = True):
         self.warning.set_message(message)

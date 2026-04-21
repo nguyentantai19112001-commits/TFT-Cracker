@@ -14,10 +14,6 @@ FAKE_STATE = {
     "champ_name": "Jinx",
     "champ_api": "TFT17_Jinx",
     "cost": 3,
-    "carries": [
-        {"api_name": "TFT17_Jinx", "cost": 3},
-        {"api_name": "TFT17_Vi", "cost": 2},
-    ],
     "gold": 47,
     "level": 7,
     "streak": 2,

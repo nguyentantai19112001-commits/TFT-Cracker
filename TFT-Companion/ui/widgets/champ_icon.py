@@ -37,6 +37,8 @@ class ChampIcon(QWidget):
         self._radius = radius
         self._pixmap: QPixmap | None = None
         self.setFixedSize(size, size)
+        if api_name:
+            self._try_load_pixmap()
 
     def set_champion(self, api_name: str, cost: int, stars: int = 1):
         self._api_name = api_name
@@ -67,15 +69,23 @@ class ChampIcon(QWidget):
         if self._pixmap and not self._pixmap.isNull():
             p.drawPixmap(0, 0, w, h, self._pixmap)
         else:
-            p.fillPath(path, QBrush(QColor(COLOR.bg_raised)))
-            p.setPen(QPen(QColor(COLOR.text_muted)))
+            # Gradient fallback using cost color so icons are visually distinct
+            from PyQt6.QtGui import QLinearGradient
+            border_hex = _COST_COLORS.get(self._cost, COLOR.cost_1)
+            g = QLinearGradient(QRectF(0, 0, w, h).topLeft(), QRectF(0, 0, w, h).bottomRight())
+            c0 = QColor(border_hex)
+            c0.setAlpha(60)
+            c1 = QColor(COLOR.bg_raised)
+            g.setColorAt(0, c0)
+            g.setColorAt(1, c1)
+            p.fillPath(path, QBrush(g))
+            p.setPen(QPen(QColor(COLOR.text_secondary)))
             f = QFont()
-            f.setPointSize(FONT.size_body_small)
+            f.setPointSize(max(7, w // 4))
+            f.setWeight(QFont.Weight.Bold)
             p.setFont(f)
-            p.drawText(
-                QRectF(0, 0, w, h), Qt.AlignmentFlag.AlignCenter,
-                self._api_name[:3] or "?",
-            )
+            label = (self._api_name.split("_")[-1] or "?")[:3]
+            p.drawText(QRectF(0, 0, w, h), Qt.AlignmentFlag.AlignCenter, label)
 
         p.setClipping(False)
 

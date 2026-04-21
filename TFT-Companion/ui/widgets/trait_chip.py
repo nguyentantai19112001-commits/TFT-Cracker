@@ -26,7 +26,8 @@ class TraitChip(QWidget):
         self._trait = trait_name
         self._tier = tier
         self._active = active
-        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setAutoFillBackground(False)
+        self.setMinimumHeight(24)
 
     def set_trait(self, trait_name: str, tier: str = "default", active: bool = True):
         self._trait = trait_name
@@ -43,16 +44,17 @@ class TraitChip(QWidget):
         w, h = self.width(), self.height()
         rect = QRectF(0, 0, w, h)
 
-        # Pill background
-        bg = QColor(COLOR.bg_raised)
-        bg.setAlpha(180 if self._active else 100)
+        # Pill background — slightly lighter than panel bg so chips read as distinct elements
+        bg = QColor(47, 44, 72, 235 if self._active else 130)
         path = QPainterPath()
         path.addRoundedRect(rect, RADIUS.chip, RADIUS.chip)
         p.fillPath(path, QBrush(bg))
 
-        # Border
-        border_alpha = 50 if self._active else 20
-        p.setPen(QPen(QColor(255, 255, 255, border_alpha), 1))
+        # Border — use tier accent color so each chip has clear visual identity
+        c1, _ = _TIER_COLORS.get(self._tier, _TIER_COLORS["default"])
+        border_color = QColor(c1)
+        border_color.setAlpha(200 if self._active else 70)
+        p.setPen(QPen(border_color, 1.5))
         p.drawPath(path)
 
         # Gradient dot
