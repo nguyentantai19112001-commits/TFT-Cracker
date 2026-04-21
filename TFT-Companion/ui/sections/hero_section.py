@@ -1,7 +1,9 @@
-"""Hero section — verdict + best champion portrait + carry icons."""
+"""Hero section — typographic verdict + champion portrait + carry icons."""
 from __future__ import annotations
-from PyQt6.QtCore import Qt, QRectF
-from PyQt6.QtGui import QPainter, QColor, QBrush, QPen, QPainterPath, QLinearGradient, QFont
+from PyQt6.QtCore import Qt, QRectF, QSize
+from PyQt6.QtGui import (
+    QPainter, QColor, QBrush, QPen, QPainterPath, QLinearGradient, QFont,
+)
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel
 
 from ui.tokens import COLOR, FONT, SPACE, RADIUS, SIZE
@@ -18,40 +20,76 @@ _VERDICT_STYLES: dict[str, dict] = {
 
 
 class VerdictBadge(QWidget):
-    """Large verdict pill — glyph + label in the panel accent color."""
+    """Typographic verdict headline — large gradient verb, no button shape."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setAutoFillBackground(False)
         self._verdict = "hold"
-        self.setFixedHeight(40)
+        self._subline = ""
+        self.setMinimumHeight(62)
 
-    def set_verdict(self, verdict: str):
+    def set_verdict(self, verdict: str, subline: str = ""):
         self._verdict = verdict
+        self._subline = subline
         self.update()
+
+    def sizeHint(self) -> QSize:
+        return QSize(400, 62)
 
     def paintEvent(self, event):
         p = QPainter(self)
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
         w, h = self.width(), self.height()
         style = _VERDICT_STYLES.get(self._verdict, _VERDICT_STYLES["hold"])
-        color = QColor(style["color"])
 
-        rect = QRectF(0, 0, w, h)
+        # Directional glyph — muted, smaller
+        glyph_color = QColor(style["color"])
+        glyph_color.setAlpha(140)
+        gf = QFont("Orbitron")
+        gf.setPointSize(15)
+        gf.setWeight(QFont.Weight.Medium)
+        p.setFont(gf)
+        p.setPen(QPen(glyph_color))
+        glyph_h = int(h * 0.58)
+        p.drawText(QRectF(0, 0, 32, glyph_h),
+                   Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignLeft,
+                   style["glyph"])
+
+        # Main verb — gradient fill via QPainterPath
+        verb = style["label"]
+        vf = QFont("Orbitron")
+        vf.setPointSize(FONT.size_verdict_headline)
+        vf.setWeight(QFont.Weight.ExtraBold)
+        vf.setLetterSpacing(QFont.SpacingType.AbsoluteSpacing, -0.6)
+        p.setFont(vf)
+        fm = p.fontMetrics()
+
+        verb_x = 36
+        verb_y = int(h * 0.58)
+        verb_w = fm.horizontalAdvance(verb)
+
         path = QPainterPath()
-        path.addRoundedRect(rect, RADIUS.chip, RADIUS.chip)
-        bg = QColor(color)
-        bg.setAlpha(36)
-        p.fillPath(path, QBrush(bg))
-        p.setPen(QPen(color, 1))
-        p.drawPath(path)
+        path.addText(verb_x, verb_y, vf, verb)
 
-        p.setPen(QPen(color))
-        f = QFont("Orbitron")
-        f.setPointSize(FONT.size_hero_verdict)
-        f.setWeight(QFont.Weight.Bold)
-        p.setFont(f)
-        text = f"{style['glyph']}  {style['label']}"
-        p.drawText(rect, Qt.AlignmentFlag.AlignCenter, text)
+        grad = QLinearGradient(verb_x, 0, verb_x + verb_w, 0)
+        grad.setColorAt(0.0, QColor(COLOR.accent_gold))
+        grad.setColorAt(0.5, QColor(COLOR.accent_pink))
+        grad.setColorAt(1.0, QColor(COLOR.accent_purple))
+        p.setPen(Qt.PenStyle.NoPen)
+        p.fillPath(path, QBrush(grad))
+
+        # Sub-line
+        if self._subline:
+            p.setPen(QPen(QColor(COLOR.text_secondary)))
+            sf = QFont()
+            sf.setPointSize(FONT.size_verdict_subtitle)
+            sf.setWeight(QFont.Weight.Medium)
+            p.setFont(sf)
+            p.drawText(QRectF(0, h * 0.64, w, h * 0.36),
+                       Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,
+                       self._subline)
+
         p.end()
 
 
@@ -73,6 +111,10 @@ class HeroSection(QWidget):
         champ_layout.setSpacing(SPACE.md)
 
         self.main_champ = ChampIcon(size=SIZE.hero_champ, radius=SIZE.hero_champ_radius)
+        # Hero champion gets orange glow (Change 2)
+        from ui.fx import apply_shadow
+        from ui.tokens import SHADOW
+        apply_shadow(self.main_champ, SHADOW.glow_hero)
         champ_layout.addWidget(self.main_champ)
 
         info_col = QWidget()

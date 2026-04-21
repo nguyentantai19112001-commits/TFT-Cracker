@@ -1,4 +1,4 @@
-"""Action row widget — icon + two-line text + priority score badge."""
+"""Action row widget — icon + two-line text + score badge."""
 from __future__ import annotations
 from PyQt6.QtCore import Qt, QRectF, QSize, pyqtProperty, QPropertyAnimation, QEasingCurve
 from PyQt6.QtGui import (
@@ -7,17 +7,19 @@ from PyQt6.QtGui import (
 from PyQt6.QtWidgets import QWidget
 
 from ui.tokens import COLOR, FONT, SIZE, SPACE, RADIUS, MOTION
+from ui.fx import apply_shadow
+from ui.tokens import SHADOW
 
 
 _PRIORITY_COLORS = {
-    "high":   COLOR.accent_pink,
-    "medium": COLOR.accent_gold,
-    "low":    COLOR.accent_blue,
+    "high":   (COLOR.accent_pink,   COLOR.accent_purple),
+    "medium": (COLOR.accent_gold,   COLOR.accent_pink),
+    "low":    (COLOR.accent_blue,   COLOR.accent_purple),
 }
 
 
 class ActionRow(QWidget):
-    """Painted row: left icon square, headline + sub-line, right score pill."""
+    """Painted row: left icon square, headline + sub-line, right score badge."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -31,8 +33,8 @@ class ActionRow(QWidget):
         self._anim: QPropertyAnimation | None = None
         self.setMinimumHeight(SIZE.action_row_min_height)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
+        apply_shadow(self, SHADOW.elev_row)
 
-    # pyqtProperty for hover animation (Phase 5 attaches the animation)
     def _get_hover_t(self) -> float:
         return self._hover_t
 
@@ -85,7 +87,7 @@ class ActionRow(QWidget):
         ph, pv = SIZE.action_row_padding_h, SIZE.action_row_padding_v
         rect = QRectF(0, 0, w, h)
 
-        # Hover background blend
+        # Hover background
         if self._hover_t > 0:
             bg = QColor(COLOR.bg_raised)
             bg.setAlpha(int(self._hover_t * 80))
@@ -93,14 +95,24 @@ class ActionRow(QWidget):
             path.addRoundedRect(rect, RADIUS.row, RADIUS.row)
             p.fillPath(path, QBrush(bg))
 
-        # Icon square
+        # Icon square — soft glow behind it
         icon_size = SIZE.action_icon
         icon_rect = QRectF(ph, (h - icon_size) / 2, icon_size, icon_size)
         icon_path = QPainterPath()
         icon_path.addRoundedRect(icon_rect, SIZE.action_icon_radius, SIZE.action_icon_radius)
-        icon_bg = QColor(self._icon_color)
-        icon_bg.setAlpha(36)
-        p.fillPath(icon_path, QBrush(icon_bg))
+
+        # Soft glow behind icon
+        glow_c = QColor(self._icon_color); glow_c.setAlpha(20 + int(self._hover_t * 20))
+        p.fillPath(icon_path, QBrush(glow_c))
+
+        # Icon tile gradient
+        tile_g = QLinearGradient(icon_rect.topLeft(), icon_rect.bottomRight())
+        c1 = QColor(self._icon_color); c1.setAlpha(60)
+        c2 = QColor(self._icon_color); c2.setAlpha(30)
+        tile_g.setColorAt(0, c1)
+        tile_g.setColorAt(1, c2)
+        p.fillPath(icon_path, QBrush(tile_g))
+
         p.setPen(QPen(QColor(self._icon_color)))
         f = QFont()
         f.setPointSize(14)
@@ -108,9 +120,9 @@ class ActionRow(QWidget):
         p.drawText(icon_rect, Qt.AlignmentFlag.AlignCenter, self._icon_glyph)
 
         # Text block
+        badge_w = 52
         text_x = ph + icon_size + SPACE.md
-        score_w = 44
-        text_w = w - text_x - score_w - ph
+        text_w = w - text_x - badge_w - ph
 
         p.setPen(QPen(QColor(COLOR.text_primary)))
         fh = QFont()
@@ -130,20 +142,51 @@ class ActionRow(QWidget):
             p.drawText(sub_rect, Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft,
                        self._subline)
 
-        # Score pill
+        # Score badge — 48×32, scaled up 5% on hover
         if self._score > 0:
-            pc = QColor(_PRIORITY_COLORS.get(self._priority, COLOR.accent_blue))
-            pill_rect = QRectF(w - score_w - ph + 4, (h - 20) / 2, score_w - 4, 20)
-            pill_path = QPainterPath()
-            pill_path.addRoundedRect(pill_rect, 10, 10)
-            pill_bg = QColor(pc)
-            pill_bg.setAlpha(36)
-            p.fillPath(pill_path, QBrush(pill_bg))
-            p.setPen(QPen(pc))
-            fp = QFont()
-            fp.setPointSize(FONT.size_badge)
-            fp.setWeight(QFont.Weight.DemiBold)
+            scale = 1.0 + self._hover_t * 0.05
+            bw, bh = 48 * scale, 32 * scale
+            bx = w - badge_w - ph + (badge_w - bw) / 2
+            by = (h - bh) / 2
+
+            badge_rect = QRectF(bx, by, bw, bh)
+            badge_path = QPainterPath()
+            badge_path.addRoundedRect(badge_rect, 10 * scale, 10 * scale)
+
+            c1_hex, c2_hex = _PRIORITY_COLORS.get(self._priority,
+                                                    (COLOR.accent_blue, COLOR.accent_purple))
+            bg_g = QLinearGradient(badge_rect.topLeft(), badge_rect.bottomRight())
+            bc1 = QColor(c1_hex); bc1.setAlpha(int(60 + self._hover_t * 40))
+            bc2 = QColor(c2_hex); bc2.setAlpha(int(40 + self._hover_t * 30))
+            bg_g.setColorAt(0, bc1)
+            bg_g.setColorAt(1, bc2)
+            p.fillPath(badge_path, QBrush(bg_g))
+
+            # Inner highlight at top
+            hl = QColor(255, 255, 255); hl.setAlpha(50)
+            p.setPen(QPen(hl, 1))
+            p.drawLine(int(bx + 8), int(by + 1), int(bx + bw - 8), int(by + 1))
+
+            # Inner shadow at bottom
+            sh = QColor(0, 0, 0); sh.setAlpha(40)
+            p.setPen(QPen(sh, 1))
+            p.drawLine(int(bx + 8), int(by + bh - 2), int(bx + bw - 8), int(by + bh - 2))
+
+            # Score number
+            p.setPen(QPen(QColor(COLOR.text_primary)))
+            fp = QFont("JetBrains Mono")
+            fp.setPointSize(int(FONT.size_badge + 2 + self._hover_t))
+            fp.setWeight(QFont.Weight.ExtraBold)
             p.setFont(fp)
-            p.drawText(pill_rect, Qt.AlignmentFlag.AlignCenter, f"{self._score:.0f}")
+            num_rect = QRectF(bx, by, bw, bh * 0.68)
+            p.drawText(num_rect, Qt.AlignmentFlag.AlignCenter, f"{self._score:.0f}")
+
+            # "pts" micro label
+            p.setPen(QPen(QColor(COLOR.text_muted)))
+            pts_f = QFont()
+            pts_f.setPointSize(7)
+            p.setFont(pts_f)
+            pts_rect = QRectF(bx, by + bh * 0.62, bw, bh * 0.38)
+            p.drawText(pts_rect, Qt.AlignmentFlag.AlignCenter, "pts")
 
         p.end()

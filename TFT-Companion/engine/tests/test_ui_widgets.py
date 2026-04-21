@@ -35,7 +35,8 @@ def test_action_row_priority_colors_defined():
     from ui.widgets.action_row import _PRIORITY_COLORS
     for key in ("high", "medium", "low"):
         assert key in _PRIORITY_COLORS
-        assert _PRIORITY_COLORS[key].startswith("#")
+        c1, c2 = _PRIORITY_COLORS[key]
+        assert c1.startswith("#") and c2.startswith("#")
 
 
 def test_item_icon_category_gradients_all_valid():

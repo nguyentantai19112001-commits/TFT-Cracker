@@ -25,7 +25,7 @@ COLOR = SimpleNamespace(
     # Text
     text_primary="#F0EEF8",
     text_secondary="#C5C0E0",
-    text_tertiary="#A8A3C8",
+    text_tertiary="#b4adcd",
     text_muted="#8A86A8",      # bumped from #6D6893 for 4.5:1 contrast on dark bg
     text_disabled="#413E5C",
 
@@ -63,6 +63,16 @@ COLOR = SimpleNamespace(
     item_armor_to="#5A3A9C",
     item_hp_from="#E8C95A",        # Giant's Belt family
     item_hp_to="#9C7A1A",
+
+    # Econ chip icon tile gradients (Change 3)
+    econ_gold_from="#FFD27A",
+    econ_gold_to="#FF9454",
+    econ_level_from="#7AB4FF",
+    econ_level_to="#5A7AC7",
+    econ_streak_from="#7AFFB4",
+    econ_streak_to="#4ACE90",
+    econ_interest_from="#C090F0",
+    econ_interest_to="#8A60C8",
 )
 
 
@@ -89,11 +99,11 @@ RADIUS = SimpleNamespace(
 # ─── Sizes ──────────────────────────────────────────────────────────────
 
 SIZE = SimpleNamespace(
-    # Panel
-    panel_width=500,
-    panel_min_height=320,
-    panel_expanded_height=680,
-    panel_max_height=820,
+    # Panel (Change 1)
+    panel_width=640,
+    panel_min_height=420,
+    panel_expanded_height=880,
+    panel_max_height=1040,
 
     # Title bar / chrome
     title_bar_height=56,
@@ -123,8 +133,12 @@ SIZE = SimpleNamespace(
     prob_bar_height=6,
 
     # HP pill
-    hp_pill_padding_v=6,
-    hp_pill_padding_h=12,
+    hp_pill_padding_v=7,
+    hp_pill_padding_h=16,
+
+    # Econ chips (Change 3)
+    econ_chip_height=44,
+    econ_icon_tile=28,
 )
 
 
@@ -135,11 +149,12 @@ FONT = SimpleNamespace(
     family_mono="'JetBrains Mono', 'Cascadia Code', Consolas, monospace",
     family_display="Orbitron, 'Segoe UI', system-ui, sans-serif",
 
-    size_header_title=15,
+    size_header_title=18,
     size_header_subtitle=11,
     size_hero_verdict=19,
     size_verdict_subtitle=13,
-    size_section_label=10,
+    size_section_label=11,
+    size_verdict_headline=22,
     size_body=12,
     size_body_small=11,
     size_row_title=13,
@@ -175,19 +190,19 @@ MOTION = SimpleNamespace(
 )
 
 
-# ─── Shadows ────────────────────────────────────────────────────────────
+# ─── Shadows (Change 2) ─────────────────────────────────────────────────
 
 SHADOW = SimpleNamespace(
-    panel_blur=40,
-    panel_dy=8,
-    panel_alpha=140,
+    # Elevation tiers — passed to ui.fx.apply_shadow(widget, spec)
+    elev_panel=dict(blur=60, dy=20, alpha=140, color="#000000"),
+    elev_card =dict(blur=28, dy=10, alpha=90,  color="#000000"),
+    elev_row  =dict(blur=14, dy=4,  alpha=60,  color="#000000"),
+    elev_chip =dict(blur=6,  dy=2,  alpha=45,  color="#000000"),
 
-    row_blur=12,
-    row_dy=2,
-    row_alpha=90,
-
-    hero_glow_blur=20,
-    hero_glow_alpha=100,
+    # Colored accent glows
+    glow_hero =dict(blur=36, dy=0,  alpha=110, color="#FF9454"),
+    glow_gold =dict(blur=20, dy=0,  alpha=80,  color="#FFD27A"),
+    glow_pink =dict(blur=24, dy=0,  alpha=70,  color="#FF89C8"),
 )
 
 

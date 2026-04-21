@@ -25,8 +25,8 @@ def test_color_cost_tokens_present():
     assert hasattr(COLOR, "cost_hero")
 
 
-def test_size_panel_width_is_500():
-    assert SIZE.panel_width == 500
+def test_size_panel_width_is_640():
+    assert SIZE.panel_width == 640
 
 
 def test_font_weights_are_ints():

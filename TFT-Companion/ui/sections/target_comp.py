@@ -2,7 +2,7 @@
 from __future__ import annotations
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
 
-from ui.tokens import SPACE
+from ui.tokens import COLOR, SPACE
 from ui.widgets.section_label import SectionLabel
 from ui.widgets.trait_chip import TraitChip
 from ui.widgets.champ_icon import TinyChampIcon
@@ -11,11 +11,12 @@ from ui.widgets.champ_icon import TinyChampIcon
 class TargetComp(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setAutoFillBackground(False)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(SPACE.xl, 0, SPACE.xl, 0)
         layout.setSpacing(SPACE.sm)
 
-        layout.addWidget(SectionLabel("Target Comp"))
+        layout.addWidget(SectionLabel("Target Comp", COLOR.accent_purple))
 
         self._trait_row = QHBoxLayout()
         self._trait_row.setSpacing(SPACE.xs)

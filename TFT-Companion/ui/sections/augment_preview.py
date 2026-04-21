@@ -1,7 +1,5 @@
 """Augment preview section — top augment picks with tier badges."""
 from __future__ import annotations
-from PyQt6.QtCore import Qt, QRectF
-from PyQt6.QtGui import QPainter, QColor, QBrush, QPen, QPainterPath, QFont
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel
 
 from ui.tokens import COLOR, FONT, RADIUS, SPACE
@@ -19,6 +17,7 @@ _TIER_COLORS = {
 class _AugmentRow(QWidget):
     def __init__(self, augment: dict, parent=None):
         super().__init__(parent)
+        self.setAutoFillBackground(False)
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, SPACE.xs, 0, SPACE.xs)
         layout.setSpacing(SPACE.sm)
@@ -49,7 +48,7 @@ class AugmentPreview(QWidget):
         layout.setContentsMargins(SPACE.xl, 0, SPACE.xl, 0)
         layout.setSpacing(SPACE.xs)
 
-        layout.addWidget(SectionLabel("Top Augments"))
+        layout.addWidget(SectionLabel("Top Augments", COLOR.accent_gold))
         self._container = QVBoxLayout()
         container_widget = QWidget()
         container_widget.setLayout(self._container)
@@ -62,6 +61,11 @@ class AugmentPreview(QWidget):
             row.deleteLater()
         self._rows.clear()
 
+        if not augments:
+            self.hide()
+            return
+
+        self.show()
         for aug in augments[:3]:
             row = _AugmentRow(aug)
             self._rows.append(row)

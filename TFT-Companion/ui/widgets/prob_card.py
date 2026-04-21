@@ -2,11 +2,13 @@
 from __future__ import annotations
 from PyQt6.QtCore import Qt, QRectF, QSize, QPropertyAnimation, QEasingCurve, pyqtProperty
 from PyQt6.QtGui import (
-    QPainter, QColor, QBrush, QPen, QPainterPath, QLinearGradient, QFont,
+    QPainter, QColor, QBrush, QPen, QPainterPath, QLinearGradient, QFont, QRadialGradient,
 )
 from PyQt6.QtWidgets import QWidget
 
 from ui.tokens import COLOR, FONT, SIZE, SPACE, RADIUS, MOTION
+from ui.fx import apply_shadow
+from ui.tokens import SHADOW
 
 
 class ProbCard(QWidget):
@@ -16,9 +18,10 @@ class ProbCard(QWidget):
         super().__init__(parent)
         self._label = "Roll probability"
         self._sublabel = ""
-        self._prob: float = 0.0          # 0.0–1.0
+        self._prob: float = 0.0
         self._displayed_prob: float = 0.0
         self._anim: QPropertyAnimation | None = None
+        apply_shadow(self, SHADOW.elev_card)
 
     def _get_displayed_prob(self) -> float:
         return self._displayed_prob
@@ -30,10 +33,10 @@ class ProbCard(QWidget):
     displayed_prob = pyqtProperty(float, _get_displayed_prob, _set_displayed_prob)
 
     def sizeHint(self) -> QSize:
-        return QSize(460, 88)
+        return QSize(460, 92)
 
     def minimumSizeHint(self) -> QSize:
-        return QSize(460, 88)
+        return QSize(460, 92)
 
     def set_probability(self, prob: float, label: str = "", sublabel: str = ""):
         prob = max(0.0, min(1.0, prob))
@@ -59,12 +62,19 @@ class ProbCard(QWidget):
         ph = SIZE.prob_card_padding_h
         pv = SIZE.prob_card_padding_v
 
-        # Card bg
+        # Card bg — slightly more opaque than bg_raised
         bg_path = QPainterPath()
         bg_path.addRoundedRect(QRectF(0, 0, w, h), RADIUS.card, RADIUS.card)
-        p.fillPath(bg_path, QBrush(QColor(COLOR.bg_raised)))
+        bg = QColor(COLOR.bg_raised)
+        bg.setAlpha(230)
+        p.fillPath(bg_path, QBrush(bg))
         p.setPen(QPen(QColor(*COLOR.border_subtle_rgba), 1))
         p.drawPath(bg_path)
+
+        # Inner top highlight (glassmorphic signature)
+        hl = QColor(255, 255, 255); hl.setAlpha(30)
+        p.setPen(QPen(hl, 1))
+        p.drawLine(int(RADIUS.card), 1, int(w - RADIUS.card), 1)
 
         # Label
         p.setPen(QPen(QColor(COLOR.text_primary)))
@@ -73,27 +83,38 @@ class ProbCard(QWidget):
         f.setWeight(QFont.Weight.Medium)
         p.setFont(f)
         label_rect = QRectF(ph, pv, w - ph * 2 - 120, 20)
-        p.drawText(label_rect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft, self._label)
+        p.drawText(label_rect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft,
+                   self._label)
 
-        # Percent readout — JetBrains Mono for numeric data
+        # Percent readout — gradient fill via QPainterPath
         pct_text = f"{self._displayed_prob * 100:.1f}%"
-        pct_color = self._pct_color(self._displayed_prob)
-        p.setPen(QPen(pct_color))
-        fm = QFont("JetBrains Mono")
-        fm.setPointSize(FONT.size_metric)
-        fm.setWeight(QFont.Weight.Bold)
-        p.setFont(fm)
-        pct_rect = QRectF(w - ph - 120, pv - 4, 120, 32)
-        p.drawText(pct_rect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight, pct_text)
+        pct_color, pct_color2 = self._bar_colors(self._displayed_prob)
+        fm_font = QFont("JetBrains Mono")
+        fm_font.setPointSize(FONT.size_metric)
+        fm_font.setWeight(QFont.Weight.Bold)
+        p.setFont(fm_font)
+        fm = p.fontMetrics()
+        pct_w = fm.horizontalAdvance(pct_text)
+        pct_x = w - ph - 120
+        pct_y = pv + fm.ascent() - 4
 
-        # Sub-label
+        pct_path = QPainterPath()
+        pct_path.addText(pct_x + (120 - pct_w), pct_y, fm_font, pct_text)
+        g = QLinearGradient(pct_x, 0, pct_x + 120, 0)
+        g.setColorAt(0, pct_color)
+        g.setColorAt(1, pct_color2)
+        p.setPen(Qt.PenStyle.NoPen)
+        p.fillPath(pct_path, QBrush(g))
+
+        # Sub-label with pool icon prefix
         if self._sublabel:
             p.setPen(QPen(QColor(COLOR.text_tertiary)))
             fs = QFont()
             fs.setPointSize(FONT.size_body_small)
             p.setFont(fs)
             sub_rect = QRectF(ph, pv + 22, w - ph * 2, 16)
-            p.drawText(sub_rect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft, self._sublabel)
+            p.drawText(sub_rect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft,
+                       f"◉ {self._sublabel}")
 
         # Bar track
         bar_y = h - pv - SIZE.prob_bar_height
@@ -103,22 +124,34 @@ class ProbCard(QWidget):
         track_path.addRoundedRect(track_rect, 3, 3)
         p.fillPath(track_path, QBrush(QColor(COLOR.bg_input)))
 
-        # Bar fill
+        # Bar fill + glow
         fill_w = bar_w * self._displayed_prob
         if fill_w > 0:
             fill_rect = QRectF(ph, bar_y, fill_w, SIZE.prob_bar_height)
             fill_path = QPainterPath()
             fill_path.addRoundedRect(fill_rect, 3, 3)
-            g = QLinearGradient(fill_rect.left(), 0, fill_rect.right(), 0)
-            g.setColorAt(0, QColor(COLOR.accent_blue))
-            g.setColorAt(1, pct_color)
-            p.fillPath(fill_path, QBrush(g))
+
+            # Glow under the fill (radial, below the fill rect)
+            glow_cx = ph + fill_w / 2
+            glow = QRadialGradient(glow_cx, bar_y + SIZE.prob_bar_height, fill_w * 0.6)
+            gc = QColor(pct_color); gc.setAlpha(60)
+            ge = QColor(pct_color); ge.setAlpha(0)
+            glow.setColorAt(0, gc)
+            glow.setColorAt(1, ge)
+            glow_rect = QRectF(ph, bar_y - 4, fill_w, SIZE.prob_bar_height + 8)
+            p.fillRect(glow_rect, QBrush(glow))
+
+            # Fill gradient
+            fg = QLinearGradient(fill_rect.left(), 0, fill_rect.right(), 0)
+            fg.setColorAt(0, pct_color)
+            fg.setColorAt(1, pct_color2)
+            p.fillPath(fill_path, QBrush(fg))
 
         p.end()
 
-    def _pct_color(self, prob: float) -> QColor:
-        if prob >= 0.5:
-            return QColor(COLOR.accent_green)
-        if prob >= 0.2:
-            return QColor(COLOR.accent_gold)
-        return QColor(COLOR.accent_red)
+    def _bar_colors(self, prob: float) -> tuple[QColor, QColor]:
+        if prob >= 0.70:
+            return QColor(COLOR.accent_green), QColor("#4ACEB0")
+        if prob >= 0.40:
+            return QColor(COLOR.accent_gold), QColor(COLOR.accent_pink)
+        return QColor(COLOR.accent_pink), QColor(COLOR.accent_red)

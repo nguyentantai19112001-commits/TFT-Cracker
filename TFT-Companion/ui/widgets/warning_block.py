@@ -4,7 +4,8 @@ from PyQt6.QtCore import Qt, QRectF
 from PyQt6.QtGui import QPainter, QColor, QBrush, QPen, QPainterPath, QFont
 from PyQt6.QtWidgets import QWidget
 
-from ui.tokens import COLOR, FONT, RADIUS, SPACE
+from ui.tokens import COLOR, FONT, RADIUS, SPACE, SHADOW
+from ui.fx import apply_shadow
 
 
 class WarningBlock(QWidget):
@@ -15,6 +16,7 @@ class WarningBlock(QWidget):
         self._message = message
         self._glyph = "⚠"
         self.setMinimumHeight(40)
+        apply_shadow(self, SHADOW.elev_card)
 
     def set_message(self, message: str, glyph: str = "⚠"):
         self._message = message
