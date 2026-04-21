@@ -80,7 +80,7 @@ class AugmentRecCard(QWidget):
         p.setPen(QPen(QColor(COLOR.text_primary)))
         f_name = QFont()
         f_name.setPointSize(FONT.size_body)
-        f_name.setWeight(QFont.Weight.SemiBold)
+        f_name.setWeight(QFont.Weight.DemiBold)
         p.setFont(f_name)
         name_rect = QRectF(pad, 26, w - pad * 2, 36)
         p.drawText(name_rect,

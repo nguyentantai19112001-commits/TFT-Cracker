@@ -92,7 +92,7 @@ class CarryRowV3(QWidget):
         p.setPen(QPen(QColor(COLOR.text_primary)))
         f_name = QFont()
         f_name.setPointSize(FONT.size_body)
-        f_name.setWeight(QFont.Weight.SemiBold)
+        f_name.setWeight(QFont.Weight.DemiBold)
         p.setFont(f_name)
         star_str = "★" * self._star
         p.drawText(QRectF(x_text, 4, 100, h // 2),

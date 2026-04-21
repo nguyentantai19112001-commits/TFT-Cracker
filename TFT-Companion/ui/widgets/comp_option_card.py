@@ -124,7 +124,7 @@ class CompOptionCard(QWidget):
         p.setPen(QPen(QColor(COLOR.text_primary)))
         f_name = QFont()
         f_name.setPointSize(13)
-        f_name.setWeight(QFont.Weight.SemiBold)
+        f_name.setWeight(QFont.Weight.DemiBold)
         p.setFont(f_name)
         name_rect = QRectF(pad, y, w - pad * 2, 36)
         p.drawText(name_rect,
@@ -180,7 +180,7 @@ class CompOptionCard(QWidget):
         p.setPen(QPen(QColor(COLOR.text_muted)))
         f_label = QFont()
         f_label.setPointSize(9)
-        f_label.setWeight(QFont.Weight.SemiBold)
+        f_label.setWeight(QFont.Weight.DemiBold)
         f_label.setLetterSpacing(QFont.SpacingType.AbsoluteSpacing, 1.0)
         p.setFont(f_label)
         p.drawText(QRectF(pad, y, w - pad * 2, 14),
