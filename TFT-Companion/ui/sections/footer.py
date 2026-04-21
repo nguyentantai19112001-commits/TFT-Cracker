@@ -9,6 +9,7 @@ from ui.tokens import COLOR, FONT, SPACE
 class Footer(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setAutoFillBackground(False)
         self.setFixedHeight(28)
         layout = QHBoxLayout(self)
         layout.setContentsMargins(SPACE.xl, 0, SPACE.xl, 0)

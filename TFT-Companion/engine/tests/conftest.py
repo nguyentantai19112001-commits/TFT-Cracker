@@ -84,10 +84,14 @@ def _install_pyqt6_stub():
             sys.modules[dep] = _QtSubModule(dep)
 
     if "loguru" not in sys.modules:
-        import logging as _logging
-        lm = _types.ModuleType("loguru")
-        lm.logger = _logging.getLogger("loguru")  # type: ignore[attr-defined]
-        sys.modules["loguru"] = lm
+        try:
+            import loguru as _loguru_real
+            sys.modules["loguru"] = _loguru_real
+        except ImportError:
+            import logging as _logging
+            lm = _types.ModuleType("loguru")
+            lm.logger = _logging.getLogger("loguru")  # type: ignore[attr-defined]
+            sys.modules["loguru"] = lm
 
 
 _install_pyqt6_stub()

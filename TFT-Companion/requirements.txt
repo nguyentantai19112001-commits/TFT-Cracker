@@ -19,6 +19,8 @@ paddleocr>=2.7.0
 
 # UI overlay
 PyQt6>=6.6.0
+PyQt6-Frameless-Window>=0.8.1
+winmica>=1.0.0
 
 # Observability (Task 8)
 loguru>=0.7.0
