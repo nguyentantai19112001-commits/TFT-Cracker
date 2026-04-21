@@ -20,7 +20,7 @@
 TFT17_Vex:
   primary_family: "AP"
   secondary_family: "AS"          # Guinsoo's specifically
-  avoid: ["IE", "DB", "KR", "LW"]  # AD-crit items — wrong family
+  avoid: ["InfinityEdge", "Deathblade", "KrakenSlayer", "LastWhisper"]  # AD-crit items — wrong family
   stage_2: "skip"
   stage_3: "hold_only"
   stage_4: "primary"
