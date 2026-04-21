@@ -105,3 +105,30 @@ def test_sorted_descending():
     top = top_k_comps(state, pt, load_archetypes(), SET17, k=12)
     scores = [c.total_score for c in top]
     assert scores == sorted(scores, reverse=True)
+
+
+def test_trait_fit_uses_champion_traits():
+    """Phase C: trait_fit reads champion.traits populated by Phase B.
+
+    A board with 3 Dark Star units (Jhin, Kai'Sa, Mordekaiser) should produce
+    a strictly higher trait_fit score for the dark_star archetype than an
+    empty board, because the trait synergy signal now fires.
+    """
+    archs = {a.archetype_id: a for a in load_archetypes()}
+    dark_star = archs["dark_star"]
+    pt = PoolTracker(SET17)
+
+    state_empty = _state(board=[])
+    state_loaded = _state(board=[
+        BoardUnit(champion="Jhin",       star=1),
+        BoardUnit(champion="Kai'Sa",     star=1),
+        BoardUnit(champion="Mordekaiser", star=1),
+    ])
+
+    score_empty  = score_archetype(dark_star, state_empty,  pt, SET17).trait_fit
+    score_loaded = score_archetype(dark_star, state_loaded, pt, SET17).trait_fit
+
+    assert score_loaded > score_empty, (
+        f"Board with 3 Dark Star units should raise trait_fit above empty-board "
+        f"baseline (empty={score_empty:.3f}, loaded={score_loaded:.3f})"
+    )

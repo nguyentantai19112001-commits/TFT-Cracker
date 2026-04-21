@@ -91,7 +91,9 @@ def _compute_expected_power(archetype: Archetype, state: GameState) -> float:
     return base * (0.5 + 0.5 * progress)
 
 
-def _compute_trait_fit(archetype: Archetype, state: GameState) -> float:
+def _compute_trait_fit(
+    archetype: Archetype, state: GameState, set_: SetKnowledge
+) -> float:
     score = 0.0
 
     # Augment overlap with required traits
@@ -112,6 +114,20 @@ def _compute_trait_fit(archetype: Archetype, state: GameState) -> float:
     if state.board:
         board_match = sum(1 for u in state.board if u.champion in archetype_units)
         score += 0.5 * (board_match / len(state.board))
+
+    # Trait synergy — count required_traits present on the player's current board.
+    # Reads champion.traits populated by Phase B; weight 0.4.
+    if archetype.required_traits and state.board:
+        champ_traits: dict[str, list[str]] = {
+            c["name"]: c.get("traits", []) for c in set_.champions
+        }
+        active_traits: set[str] = set()
+        for unit in state.board:
+            for trait in champ_traits.get(unit.champion, []):
+                active_traits.add(trait)
+        required_trait_names = {t for t, _ in archetype.required_traits}
+        matches = len(active_traits & required_trait_names)
+        score += 0.4 * (matches / len(required_trait_names))
 
     return min(1.0, score)
 
@@ -140,7 +156,7 @@ def score_archetype(
 ) -> CompCandidate:
     p_reach = _compute_p_reach(archetype, state, pool, set_)
     expected_power = _compute_expected_power(archetype, state)
-    trait_fit = _compute_trait_fit(archetype, state)
+    trait_fit = _compute_trait_fit(archetype, state, set_)
     total_score = 0.5 * p_reach + 0.3 * expected_power + 0.2 * trait_fit
     missing = [u for u in archetype.core_units if not _we_have_it(u, state)]
     return CompCandidate(

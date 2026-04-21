@@ -246,3 +246,10 @@
 - test_champion_traits.py: 5 tests locking the mapping
 - Unblocks: comp_planner trait_fit consumer (Phase C wires it)
 - Still blocked: trait_fit scoring reads board/augments/items only; champion.traits consumer not yet written (Phase C)
+
+## comp_planner trait_fit consumer — DONE 2026-04-21
+- _compute_trait_fit now takes (archetype, state, set_) — one call site updated at score_archetype:143
+- Fourth scoring signal active (weight 0.4): counts board units' traits matching archetype.required_traits
+- test_trait_fit_uses_champion_traits: new test locks the behavior (3 Dark Star units > empty board)
+- Closes YELLOW note from TRAITS_AUDIT.md
+- Remaining gap: trait breakpoints per archetype mostly empty — trait_fit fires but synergy cap limited by archetype data
