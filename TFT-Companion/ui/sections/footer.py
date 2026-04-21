@@ -17,6 +17,7 @@ class Footer(QWidget):
         self._latency_label = QLabel("●  —ms")
         self._latency_label.setStyleSheet(
             f"color: {COLOR.text_muted}; font-size: {FONT.size_footer}px;"
+            f"font-family: 'JetBrains Mono', Consolas, monospace;"
         )
         layout.addWidget(self._latency_label)
         layout.addStretch()

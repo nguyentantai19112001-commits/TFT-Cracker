@@ -46,7 +46,7 @@ class VerdictBadge(QWidget):
         p.drawPath(path)
 
         p.setPen(QPen(color))
-        f = QFont()
+        f = QFont("Orbitron")
         f.setPointSize(FONT.size_hero_verdict)
         f.setWeight(QFont.Weight.Bold)
         p.setFont(f)

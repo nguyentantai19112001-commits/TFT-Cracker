@@ -36,7 +36,7 @@ class _Pill(QWidget):
         p.setPen(QPen(c, 1))
         p.drawPath(path)
         p.setPen(QPen(c))
-        f = QFont()
+        f = QFont("JetBrains Mono")
         f.setPointSize(FONT.size_body_small)
         f.setWeight(QFont.Weight.Medium)
         p.setFont(f)

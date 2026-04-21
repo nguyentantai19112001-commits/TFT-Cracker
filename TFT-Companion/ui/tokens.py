@@ -26,7 +26,7 @@ COLOR = SimpleNamespace(
     text_primary="#F0EEF8",
     text_secondary="#C5C0E0",
     text_tertiary="#A8A3C8",
-    text_muted="#6D6893",
+    text_muted="#8A86A8",      # bumped from #6D6893 for 4.5:1 contrast on dark bg
     text_disabled="#413E5C",
 
     # Semantic (priority/state)
@@ -133,6 +133,7 @@ SIZE = SimpleNamespace(
 FONT = SimpleNamespace(
     family_ui="Inter, 'Segoe UI', system-ui, sans-serif",
     family_mono="'JetBrains Mono', 'Cascadia Code', Consolas, monospace",
+    family_display="Orbitron, 'Segoe UI', system-ui, sans-serif",
 
     size_header_title=15,
     size_header_subtitle=11,

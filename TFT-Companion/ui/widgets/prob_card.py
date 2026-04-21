@@ -69,11 +69,11 @@ class ProbCard(QWidget):
         label_rect = QRectF(ph, pv, w - ph * 2 - 60, 20)
         p.drawText(label_rect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft, self._label)
 
-        # Percent readout
+        # Percent readout — JetBrains Mono for numeric data
         pct_text = f"{self._displayed_prob * 100:.1f}%"
         pct_color = self._pct_color(self._displayed_prob)
         p.setPen(QPen(pct_color))
-        fm = QFont()
+        fm = QFont("JetBrains Mono")
         fm.setPointSize(FONT.size_metric)
         fm.setWeight(QFont.Weight.Bold)
         p.setFont(fm)

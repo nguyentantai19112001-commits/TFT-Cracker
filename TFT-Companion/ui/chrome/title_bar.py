@@ -21,9 +21,10 @@ class LogoTile(QWidget):
     def paintEvent(self, event):
         p = QPainter(self)
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
-        rect = self.rect()
+        from PyQt6.QtCore import QRectF
+        rect = QRectF(self.rect())
         path = QPainterPath()
-        path.addRoundedRect(rect.adjusted(0, 0, 0, 0), 12, 12)
+        path.addRoundedRect(rect, 12, 12)
         g = QLinearGradient(rect.topLeft(), rect.bottomRight())
         g.setColorAt(0, QColor(COLOR.accent_pink))
         g.setColorAt(1, QColor(COLOR.accent_blue))
@@ -70,10 +71,10 @@ class HPPill(QWidget):
     def paintEvent(self, event):
         p = QPainter(self)
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
-        rect = self.rect()
         from PyQt6.QtCore import QRectF
+        rect = QRectF(self.rect())
         path = QPainterPath()
-        path.addRoundedRect(QRectF(rect).adjusted(0, 0, -1, -1), 13, 13)
+        path.addRoundedRect(rect.adjusted(0, 0, -1, -1), 13, 13)
 
         bg = QColor(self._fg)
         bg.setAlpha(self._bg_alpha)
