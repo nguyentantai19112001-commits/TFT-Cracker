@@ -5,8 +5,7 @@ from PyQt6.QtCore import Qt, QRectF, QSize
 from PyQt6.QtGui import QPainter, QColor, QBrush, QPen, QPainterPath, QLinearGradient, QFont
 from PyQt6.QtWidgets import QWidget
 
-from ui.tokens import COLOR, FONT, RADIUS, SHADOW, SIZE, SPACE
-from ui.fx import apply_shadow
+from ui.tokens import COLOR, FONT, RADIUS, SIZE, SPACE
 
 
 _TIER_COLORS: dict[str, tuple[str, str]] = {
@@ -26,7 +25,6 @@ class AugmentRecCard(QWidget):
         self._fit_score = 0.0
         self._why = ""
         self.setFixedSize(SIZE.augment_card_width, SIZE.augment_card_height)
-        apply_shadow(self, SHADOW.elev_chip)
 
     def apply(self, display_name: str, tier: str, fit_score: float, why: str = "") -> None:
         self._display_name = display_name

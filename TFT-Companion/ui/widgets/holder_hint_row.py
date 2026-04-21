@@ -5,8 +5,7 @@ from PyQt6.QtCore import Qt, QRectF
 from PyQt6.QtGui import QPainter, QColor, QBrush, QPen, QPainterPath, QFont
 from PyQt6.QtWidgets import QWidget, QSizePolicy
 
-from ui.tokens import COLOR, FONT, RADIUS, SHADOW, SPACE
-from ui.fx import apply_shadow
+from ui.tokens import COLOR, FONT, RADIUS, SPACE
 
 
 class HolderHintRow(QWidget):
@@ -18,7 +17,6 @@ class HolderHintRow(QWidget):
         self.setFixedHeight(44)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self.setVisible(False)
-        apply_shadow(self, SHADOW.elev_chip)
 
     def apply_hint(self, text: str) -> None:
         self._hint_text = text

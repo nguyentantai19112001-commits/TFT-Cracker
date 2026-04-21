@@ -7,8 +7,6 @@ from PyQt6.QtGui import (
 from PyQt6.QtWidgets import QWidget
 
 from ui.tokens import COLOR, FONT, SIZE, SPACE, RADIUS, MOTION
-from ui.fx import apply_shadow
-from ui.tokens import SHADOW
 
 
 class ProbCard(QWidget):
@@ -21,7 +19,6 @@ class ProbCard(QWidget):
         self._prob: float = 0.0
         self._displayed_prob: float = 0.0
         self._anim: QPropertyAnimation | None = None
-        apply_shadow(self, SHADOW.elev_card)
 
     def _get_displayed_prob(self) -> float:
         return self._displayed_prob

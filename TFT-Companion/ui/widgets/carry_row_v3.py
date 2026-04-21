@@ -5,8 +5,7 @@ from PyQt6.QtCore import Qt, QRectF, QSize
 from PyQt6.QtGui import QPainter, QColor, QBrush, QPen, QPainterPath, QFont
 from PyQt6.QtWidgets import QWidget, QSizePolicy
 
-from ui.tokens import COLOR, FONT, RADIUS, SHADOW, SIZE, SPACE
-from ui.fx import apply_shadow
+from ui.tokens import COLOR, FONT, RADIUS, SIZE, SPACE
 
 
 _COST_COLORS = {
@@ -30,7 +29,6 @@ class CarryRowV3(QWidget):
         self._stage_role = "hold_only"
         self.setFixedHeight(SIZE.carry_row_height)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        apply_shadow(self, SHADOW.elev_row)
 
     def apply(
         self,

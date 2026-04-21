@@ -8,8 +8,7 @@ from PyQt6.QtGui import (
 )
 from PyQt6.QtWidgets import QWidget, QSizePolicy, QVBoxLayout, QHBoxLayout
 
-from ui.tokens import COLOR, FONT, RADIUS, SHADOW, SIZE, SPACE
-from ui.fx import apply_shadow
+from ui.tokens import COLOR, FONT, RADIUS, SIZE, SPACE
 
 
 _TIER_COLORS: dict[str, tuple[str, str]] = {
@@ -43,8 +42,6 @@ class CompOptionCard(QWidget):
         self._core_units_total: int = 0
 
         self.setFixedSize(SIZE.comp_card_width, SIZE.comp_card_height)
-        shadow_spec = SHADOW.elev_comp_card_primary if is_primary else SHADOW.elev_comp_card_alt
-        apply_shadow(self, shadow_spec)
 
     def apply(
         self,

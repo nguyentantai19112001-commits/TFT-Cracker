@@ -7,8 +7,6 @@ from PyQt6.QtGui import (
 from PyQt6.QtWidgets import QWidget
 
 from ui.tokens import COLOR, FONT, SIZE, SPACE, RADIUS, MOTION
-from ui.fx import apply_shadow
-from ui.tokens import SHADOW
 
 
 _PRIORITY_COLORS = {
@@ -33,7 +31,6 @@ class ActionRow(QWidget):
         self._anim: QPropertyAnimation | None = None
         self.setMinimumHeight(SIZE.action_row_min_height)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
-        apply_shadow(self, SHADOW.elev_row)
 
     def _get_hover_t(self) -> float:
         return self._hover_t

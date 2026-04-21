@@ -5,8 +5,7 @@ from PyQt6.QtCore import Qt, QRectF, QPropertyAnimation, QEasingCurve
 from PyQt6.QtGui import QPainter, QColor, QBrush, QPen, QPainterPath, QFont
 from PyQt6.QtWidgets import QWidget, QSizePolicy
 
-from ui.tokens import COLOR, FONT, RADIUS, SHADOW, SIZE, SPACE
-from ui.fx import apply_shadow
+from ui.tokens import COLOR, FONT, RADIUS, SIZE, SPACE
 
 
 _TAG_META: dict[str, tuple[str, str]] = {
@@ -28,7 +27,6 @@ class SituationalFrameStrip(QWidget):
         self._frame_sentence = "On curve — standard play."
         self.setFixedHeight(SIZE.frame_strip_height)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        apply_shadow(self, SHADOW.elev_row)
 
     def apply(self, game_tag: str, ev_avg: float, frame_sentence: str) -> None:
         self._game_tag = game_tag
