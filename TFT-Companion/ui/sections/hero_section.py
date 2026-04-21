@@ -111,10 +111,6 @@ class HeroSection(QWidget):
         champ_layout.setSpacing(SPACE.md)
 
         self.main_champ = ChampIcon(size=SIZE.hero_champ, radius=SIZE.hero_champ_radius)
-        # Hero champion gets orange glow (Change 2)
-        from ui.fx import apply_shadow
-        from ui.tokens import SHADOW
-        apply_shadow(self.main_champ, SHADOW.glow_hero)
         champ_layout.addWidget(self.main_champ)
 
         info_col = QWidget()

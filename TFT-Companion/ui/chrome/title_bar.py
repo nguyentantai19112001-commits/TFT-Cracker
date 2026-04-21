@@ -48,17 +48,11 @@ class HPPill(QWidget):
         self._bg_alpha = 25
 
     def set_hp(self, hp: int):
-        from ui.fx import apply_shadow
-        from ui.tokens import SHADOW
         hp = max(0, min(100, hp))
         self._hp = hp
         self._update_color()
         self.update()
         self.setVisible(hp < 100)
-        if hp < 25:
-            apply_shadow(self, SHADOW.glow_pink)
-        else:
-            self.setGraphicsEffect(None)
 
     def _update_color(self):
         if self._hp >= 50:
@@ -141,10 +135,7 @@ class TitleBar(QWidget):
         layout.setContentsMargins(SPACE.xl, SPACE.md, SPACE.md, SPACE.sm)
         layout.setSpacing(SPACE.md)
 
-        from ui.fx import apply_shadow
-        from ui.tokens import SHADOW as _SH
         self.logo = LogoTile()
-        apply_shadow(self.logo, _SH.glow_pink)
         layout.addWidget(self.logo)
 
         title_col = QWidget()
